@@ -1,12 +1,8 @@
 ---
 layout: ../layouts/MarkdownLayout.astro
-title: MDX Page
+title: Markdown Page
 ---
-
-import { Icon } from 'astro-icon/components'
-import { Notification } from 'accessible-astro-components'
-
-# MDX Page
+# MarkDown
 
 ## Education
 **Simon Fraser University**  
@@ -16,12 +12,12 @@ Sep 2020 – Dec 2024
 
 ## Experience
 
-### AI Trainer Data Annotation
+#### AI Trainer Data Annotation
 *Remote*  
 Jan 2024 – Present
 - Assisted in training and correction of various LLMs in tasks such as coding assistance, coding correction, truthfulness verification, and prompt generation.
 
-### Full Stack Developer Co-op
+#### Full Stack Developer Co-op
 **Mark Anthony Group**  
 *Vancouver, BC*  
 Sep 2023 – Jan 2024
@@ -31,7 +27,7 @@ Sep 2023 – Jan 2024
 - Operated in an Agile environment in an efficient manner, achieving 100% of goals within or before deadlines.
 - Took on SQL scripting, gaining valuable experience in database management.
 
-### Desktop Support Specialist Co-op
+#### Desktop Support Specialist Co-op
 **Mark Anthony Group**  
 *Vancouver, BC*  
 Jan 2023 – Aug 2023
@@ -41,7 +37,7 @@ Jan 2023 – Aug 2023
 - Introduced a more streamlined method of new hire onboarding deployment to cut down on working hours spent on each hire by implementing AD scripts for bulk tasks.
 - Worked closely with the in-house Concur Team to integrate AD and Ultipro hooks for integration with existing company data.
 
-### Customer Service Representative
+#### Customer Service Representative
 **EasyPark**  
 *Vancouver, BC*  
 Apr 2022 – Aug 2022
