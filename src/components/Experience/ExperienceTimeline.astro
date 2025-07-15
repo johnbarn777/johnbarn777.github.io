@@ -5,7 +5,7 @@
   <div class="container">
     <h2 class="mb-12 text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
     <div class="overflow-x-auto pb-4">
-      <ol class="timeline flex space-x-8 md:space-x-12">
+      <ol class="timeline relative flex space-x-8 md:space-x-12">
         {
           [
             { year: '2001', title: 'Born', desc: 'Came into the world and immediately started preparing to code.' },
@@ -33,17 +33,17 @@
               desc: 'Researching generative AI and building personal projects.',
             },
           ].map((item, i, arr) => (
-            <li class="relative flex w-48 flex-shrink-0 flex-col items-center" data-index={i}>
-              <span class="bg-primary absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 rounded-full" />
-              {i < arr.length - 1 && <span class="bg-primary/30 absolute left-full top-1.5 h-px w-8 md:w-12" />}
-              <button
-                class="event-card dark:bg-dark-100 mt-6 w-full rounded-lg border border-neutral-700 bg-neutral-200 p-4 text-left"
-                aria-expanded="false"
-              >
+            <li class="relative flex min-w-[11rem] flex-col items-center" data-index={i}>
+              <span class="absolute left-1/2 top-6 h-3 w-3 -translate-x-1/2 rounded-full bg-primary" />
+              {i < arr.length - 1 && (
+                <span class="absolute right-0 top-6 h-px w-12 bg-primary/30 md:w-16" />
+              )}
+              <button class="event-trigger mb-6 text-center" aria-expanded="false">
                 <h4 class="text-sm font-semibold">{item.year}</h4>
                 <p class="text-sm">{item.title}</p>
               </button>
-              <div class="event-info dark:bg-dark-100 mt-2 hidden rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm">
+              <span class="absolute top-9 left-1/2 -translate-x-1/2 h-6 w-px bg-primary" />
+              <div class="event-info mt-2 hidden w-64 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
                 {item.desc}
               </div>
             </li>
@@ -67,11 +67,10 @@
       { threshold: 0.5 }
     )
 
-    document.querySelectorAll('.event-card').forEach((card) => {
-      observer.observe(card)
-      const btn = card
+    document.querySelectorAll('.event-trigger').forEach((btn) => {
+      observer.observe(btn)
       btn.addEventListener('click', () => {
-        const info = card.parentElement.querySelector('.event-info')
+        const info = btn.parentElement.querySelector('.event-info')
         const expanded = btn.getAttribute('aria-expanded') === 'true'
         btn.setAttribute('aria-expanded', !expanded)
         info.classList.toggle('hidden')
@@ -83,8 +82,19 @@
 <style lang="scss">
   .timeline {
     padding-bottom: 1rem;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 1.5rem;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: rgb(var(--primary-400) / 0.3);
+    }
   }
-  .event-card {
+  .event-trigger {
     opacity: 0;
     transform: translateY(30px);
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
