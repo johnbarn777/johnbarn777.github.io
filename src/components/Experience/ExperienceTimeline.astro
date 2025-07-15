@@ -1,0 +1,50 @@
+---
+---
+
+<section class="my-24" id="experience">
+  <div class="container">
+    <h2 class="mb-12 text-4xl md:text-5xl">Experience</h2>
+    <div class="timeline flex overflow-x-auto gap-8 pb-4">
+      <div class="timeline-item relative shrink-0 w-60">
+        <button class="w-full rounded-lg border border-neutral-700 p-4 bg-neutral-200 dark:bg-dark-100" aria-expanded="false">
+          <h3 class="font-semibold">AI Trainer</h3>
+          <p class="text-sm">2024 - Present</p>
+        </button>
+        <div class="timeline-info absolute hidden left-0 mt-2 w-60 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
+          Assisted in training and correction of various LLMs in tasks such as coding assistance and prompt generation.
+        </div>
+      </div>
+      <div class="timeline-item relative shrink-0 w-60">
+        <button class="w-full rounded-lg border border-neutral-700 p-4 bg-neutral-200 dark:bg-dark-100" aria-expanded="false">
+          <h3 class="font-semibold">Full Stack Dev Co-op</h3>
+          <p class="text-sm">2023 - 2024</p>
+        </button>
+        <div class="timeline-info absolute hidden left-0 mt-2 w-60 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
+          Developed MVC applications and performed QA testing for enterprise projects at Mark Anthony Group.
+        </div>
+      </div>
+      <div class="timeline-item relative shrink-0 w-60">
+        <button class="w-full rounded-lg border border-neutral-700 p-4 bg-neutral-200 dark:bg-dark-100" aria-expanded="false">
+          <h3 class="font-semibold">Desktop Support</h3>
+          <p class="text-sm">2023</p>
+        </button>
+        <div class="timeline-info absolute hidden left-0 mt-2 w-60 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
+          Resolved IT inquiries and implemented AD scripts improving onboarding times by 50%.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll('.timeline-item button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const info = btn.parentElement.querySelector('.timeline-info')
+        const expanded = btn.getAttribute('aria-expanded') === 'true'
+        btn.setAttribute('aria-expanded', !expanded)
+        info.classList.toggle('hidden')
+      })
+    })
+  })
+</script>
