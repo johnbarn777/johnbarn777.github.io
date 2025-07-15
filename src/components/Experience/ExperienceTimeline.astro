@@ -4,53 +4,52 @@
 <section class="my-24" id="experience">
   <div class="container">
     <h2 class="mb-12 text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
-    <div class="border-primary/30 relative border-l-2 pl-6">
-      <div class="mb-12">
-        <h3
-          class="dark:bg-dark-100 sticky top-0 -ml-6 mb-8 w-full bg-neutral-100 px-4 py-1 text-4xl font-bold md:text-6xl"
-        >
-          2020s
-        </h3>
-        <div class="space-y-12">
-          {
-            [
-              {
-                year: '2024 - Present',
-                title: 'AI Trainer',
-                desc: 'Assisted in training and correction of various LLMs in tasks such as coding assistance and prompt generation.',
-              },
-              {
-                year: '2023 - 2024',
-                title: 'Full Stack Dev Co-op',
-                desc: 'Developed MVC applications and performed QA testing for enterprise projects at Mark Anthony Group.',
-              },
-              {
-                year: '2023',
-                title: 'Desktop Support',
-                desc: 'Resolved IT inquiries and implemented AD scripts improving onboarding times by 50%.',
-              },
-            ].map((item, i) => (
-              <div class={`event relative md:flex ${i % 2 ? 'md:flex-row-reverse' : ''}`}>
-                <span class="bg-primary absolute -left-[7px] top-4 h-3 w-3 rounded-full" />
-                <div class="md:w-1/2 md:px-6">
-                  <div class="event-card translate-x-[-50px] opacity-0 transition-all" data-index={i}>
-                    <button
-                      class="dark:bg-dark-100 w-full rounded-lg border border-neutral-700 bg-neutral-200 p-4 text-left"
-                      aria-expanded="false"
-                    >
-                      <h4 class="font-semibold">{item.title}</h4>
-                      <p class="text-sm">{item.year}</p>
-                    </button>
-                    <div class="event-info dark:bg-dark-100 mt-2 hidden rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm">
-                      {item.desc}
-                    </div>
-                  </div>
-                </div>
+    <div class="overflow-x-auto pb-4">
+      <ol class="timeline flex space-x-8 md:space-x-12">
+        {
+          [
+            { year: '2001', title: 'Born', desc: 'Came into the world and immediately started preparing to code.' },
+            { year: '2006', title: 'First Computer', desc: 'Started exploring games and basic software.' },
+            { year: '2012', title: 'Built a Website', desc: 'Created my first website using simple HTML and CSS.' },
+            { year: '2015', title: 'Learning Python', desc: 'Began automating homework assignments with Python.' },
+            { year: '2019', title: 'Finished High School', desc: 'Graduated and set sights on a CS degree.' },
+            { year: '2020', title: 'University Start', desc: 'Enrolled in Computer Science program.' },
+            { year: '2021', title: 'First Internship', desc: 'Assisted with web development at a local startup.' },
+            { year: '2022', title: 'Club Leader', desc: 'Led the university coding club and organized hackathons.' },
+            { year: '2023', title: 'Desktop Support', desc: 'Resolved IT inquiries and automated onboarding scripts.' },
+            {
+              year: '2023',
+              title: 'Full Stack Dev Co-op',
+              desc: 'Developed MVC apps and performed QA testing at Mark Anthony Group.',
+            },
+            {
+              year: '2024',
+              title: 'AI Trainer',
+              desc: 'Helped train and correct large language models for coding tasks.',
+            },
+            {
+              year: '2025',
+              title: 'Exploring LLMs',
+              desc: 'Researching generative AI and building personal projects.',
+            },
+          ].map((item, i, arr) => (
+            <li class="relative flex w-48 flex-shrink-0 flex-col items-center" data-index={i}>
+              <span class="bg-primary absolute left-1/2 top-0 h-3 w-3 -translate-x-1/2 rounded-full" />
+              {i < arr.length - 1 && <span class="bg-primary/30 absolute left-full top-1.5 h-px w-8 md:w-12" />}
+              <button
+                class="event-card dark:bg-dark-100 mt-6 w-full rounded-lg border border-neutral-700 bg-neutral-200 p-4 text-left"
+                aria-expanded="false"
+              >
+                <h4 class="text-sm font-semibold">{item.year}</h4>
+                <p class="text-sm">{item.title}</p>
+              </button>
+              <div class="event-info dark:bg-dark-100 mt-2 hidden rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm">
+                {item.desc}
               </div>
-            ))
-          }
-        </div>
-      </div>
+            </li>
+          ))
+        }
+      </ol>
     </div>
   </div>
 </section>
@@ -65,14 +64,14 @@
           }
         })
       },
-      { threshold: 0.1 }
+      { threshold: 0.5 }
     )
 
     document.querySelectorAll('.event-card').forEach((card) => {
       observer.observe(card)
-      const btn = card.querySelector('button')
+      const btn = card
       btn.addEventListener('click', () => {
-        const info = card.querySelector('.event-info')
+        const info = card.parentElement.querySelector('.event-info')
         const expanded = btn.getAttribute('aria-expanded') === 'true'
         btn.setAttribute('aria-expanded', !expanded)
         info.classList.toggle('hidden')
@@ -82,19 +81,17 @@
 </script>
 
 <style lang="scss">
-  .event-card {
-    &.in-view {
-      @apply translate-x-0 opacity-100;
-    }
+  .timeline {
+    padding-bottom: 1rem;
   }
   .event-card {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateY(30px);
     transition: transform 0.5s ease-out, opacity 0.5s ease-out;
-  }
-  @media (min-width: 768px) {
-    .md\\:flex-row-reverse .event-card {
-      transform: translateX(50px);
+
+    &.in-view {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 </style>
