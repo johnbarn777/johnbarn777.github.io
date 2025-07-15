@@ -12,3 +12,18 @@
 @use 'base/color';
 @use 'base/outline';
 @use 'base/space-content';
+
+// Gradient text utility used in hero and section headings
+.text-gradient {
+  background: linear-gradient(315deg, var(--primary-200) 25%, var(--secondary-500));
+  background-clip: border-box;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:global(.darkmode .text-gradient) {
+  background: linear-gradient(315deg, var(--primary-200) 25%, var(--secondary-400));
+  background-clip: border-box;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

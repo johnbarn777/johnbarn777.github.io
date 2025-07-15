@@ -3,33 +3,52 @@
 
 <section class="my-24" id="experience">
   <div class="container">
-    <h2 class="mb-12 text-4xl md:text-5xl">Experience</h2>
-    <div class="timeline flex overflow-x-auto gap-8 pb-4">
-      <div class="timeline-item relative shrink-0 w-60">
-        <button class="w-full rounded-lg border border-neutral-700 p-4 bg-neutral-200 dark:bg-dark-100" aria-expanded="false">
-          <h3 class="font-semibold">AI Trainer</h3>
-          <p class="text-sm">2024 - Present</p>
-        </button>
-        <div class="timeline-info absolute hidden left-0 mt-2 w-60 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
-          Assisted in training and correction of various LLMs in tasks such as coding assistance and prompt generation.
-        </div>
-      </div>
-      <div class="timeline-item relative shrink-0 w-60">
-        <button class="w-full rounded-lg border border-neutral-700 p-4 bg-neutral-200 dark:bg-dark-100" aria-expanded="false">
-          <h3 class="font-semibold">Full Stack Dev Co-op</h3>
-          <p class="text-sm">2023 - 2024</p>
-        </button>
-        <div class="timeline-info absolute hidden left-0 mt-2 w-60 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
-          Developed MVC applications and performed QA testing for enterprise projects at Mark Anthony Group.
-        </div>
-      </div>
-      <div class="timeline-item relative shrink-0 w-60">
-        <button class="w-full rounded-lg border border-neutral-700 p-4 bg-neutral-200 dark:bg-dark-100" aria-expanded="false">
-          <h3 class="font-semibold">Desktop Support</h3>
-          <p class="text-sm">2023</p>
-        </button>
-        <div class="timeline-info absolute hidden left-0 mt-2 w-60 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm dark:bg-dark-100">
-          Resolved IT inquiries and implemented AD scripts improving onboarding times by 50%.
+    <h2 class="mb-12 text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
+    <div class="border-primary/30 relative border-l-2 pl-6">
+      <div class="mb-12">
+        <h3
+          class="dark:bg-dark-100 sticky top-0 -ml-6 mb-8 w-full bg-neutral-100 px-4 py-1 text-4xl font-bold md:text-6xl"
+        >
+          2020s
+        </h3>
+        <div class="space-y-12">
+          {
+            [
+              {
+                year: '2024 - Present',
+                title: 'AI Trainer',
+                desc: 'Assisted in training and correction of various LLMs in tasks such as coding assistance and prompt generation.',
+              },
+              {
+                year: '2023 - 2024',
+                title: 'Full Stack Dev Co-op',
+                desc: 'Developed MVC applications and performed QA testing for enterprise projects at Mark Anthony Group.',
+              },
+              {
+                year: '2023',
+                title: 'Desktop Support',
+                desc: 'Resolved IT inquiries and implemented AD scripts improving onboarding times by 50%.',
+              },
+            ].map((item, i) => (
+              <div class={`event relative md:flex ${i % 2 ? 'md:flex-row-reverse' : ''}`}>
+                <span class="bg-primary absolute -left-[7px] top-4 h-3 w-3 rounded-full" />
+                <div class="md:w-1/2 md:px-6">
+                  <div class="event-card translate-x-[-50px] opacity-0 transition-all" data-index={i}>
+                    <button
+                      class="dark:bg-dark-100 w-full rounded-lg border border-neutral-700 bg-neutral-200 p-4 text-left"
+                      aria-expanded="false"
+                    >
+                      <h4 class="font-semibold">{item.title}</h4>
+                      <p class="text-sm">{item.year}</p>
+                    </button>
+                    <div class="event-info dark:bg-dark-100 mt-2 hidden rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm">
+                      {item.desc}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          }
         </div>
       </div>
     </div>
@@ -38,9 +57,22 @@
 
 <script>
   document.addEventListener('astro:page-load', () => {
-    document.querySelectorAll('.timeline-item button').forEach((btn) => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in-view')
+          }
+        })
+      },
+      { threshold: 0.1 }
+    )
+
+    document.querySelectorAll('.event-card').forEach((card) => {
+      observer.observe(card)
+      const btn = card.querySelector('button')
       btn.addEventListener('click', () => {
-        const info = btn.parentElement.querySelector('.timeline-info')
+        const info = card.querySelector('.event-info')
         const expanded = btn.getAttribute('aria-expanded') === 'true'
         btn.setAttribute('aria-expanded', !expanded)
         info.classList.toggle('hidden')
@@ -48,3 +80,21 @@
     })
   })
 </script>
+
+<style lang="scss">
+  .event-card {
+    &.in-view {
+      @apply translate-x-0 opacity-100;
+    }
+  }
+  .event-card {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  }
+  @media (min-width: 768px) {
+    .md\\:flex-row-reverse .event-card {
+      transform: translateX(50px);
+    }
+  }
+</style>
