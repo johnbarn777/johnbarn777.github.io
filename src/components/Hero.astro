@@ -1,0 +1,45 @@
+---
+/**
+ * Interactive hero component.
+ * @typedef {{text:string, href:string}} CTA
+ * @param {string[]} titles - rotating titles
+ * @param {CTA[]} ctas - primary call to action links
+ */
+const { titles = ['Developer'], ctas = [] } = Astro.props;
+---
+<div class="hero">
+  <div class="hero__bg" aria-hidden="true"></div>
+  <div class="hero__content">
+    <h1 class="hero__heading">I'm <span id="hero-rotating-title">{titles[0]}</span></h1>
+    <div class="hero__ctas">
+      {ctas.map(({text, href}) => (<a class="hero__cta" href={href}>{text}</a>))}
+    </div>
+  </div>
+</div>
+
+<script define:vars={{titles}}>
+/** Rotates through supplied titles respecting prefers-reduced-motion */
+(function(){
+  const el = document.getElementById('hero-rotating-title');
+  if(!el) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(prefersReduced) return;
+  let idx=0;
+  setInterval(()=>{
+    idx=(idx+1)%titles.length;
+    el.textContent=titles[idx];
+  },3000);
+})();
+</script>
+
+<style>
+.hero{position:relative;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;padding:1rem;text-align:center;}
+.hero__bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(45deg,#4b2cff,#ff007a);background-size:400% 400%;animation:bgMove 20s linear infinite;z-index:-1;}
+@keyframes bgMove{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+@media(prefers-reduced-motion:reduce){.hero__bg{animation:none;}}
+.hero__content{max-width:60ch;color:#fff;}
+.hero__heading{font-size:clamp(2rem,5vw,3rem);margin:0 0 1rem;font-weight:700;}
+.hero__ctas{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.hero__cta{background:#fff;color:#111;padding:.75rem 1.25rem;border-radius:9999px;text-decoration:none;font-weight:600;transition:background .2s,color .2s;}
+.hero__cta:hover{background:#111;color:#fff;}
+</style>
