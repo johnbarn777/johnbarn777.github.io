@@ -1,12 +1,12 @@
 ---
-title: "ML Experiment Tool"
-summary: "Toolkit for running machine learning experiments."
+title: "LLM for Toxic Comment Classification"
+summary: "ToxicCommentClassification model using DistilBERT model with hyper-parameter tuning and Neural Layers to combat Toxicity in online platforms with the least amount of False Positives"
 image: "https://placehold.co/600x400"
 tech:
   - Python
   - TensorFlow
   - Docker
-repo: "https://github.com/example/ml-tool"
-demo: "https://example.com/ml-tool"
+repo: "https://github.com/johnbarn777/ToxicCommentClassification"
+demo: "https://github.com/johnbarn777/ToxicCommentClassification"
 ---
 A detailed description of the project.

@@ -1,12 +1,13 @@
 ---
-title: "Astro Portfolio"
-summary: "Personal portfolio built with Astro."
-image: "https://placehold.co/600x400"
+title: "House: Roommate App"
+summary: "React Native app built for shared household management"
+image: "House_logo.png"
 tech:
-  - Astro
+  - React Native
   - TypeScript
-  - Tailwind
-repo: "https://github.com/example/astro-portfolio"
-demo: "https://example.com/astro"
+  - GCP
+  - Firestore
+repo: "https://github.com/johnbarn777/House"
+demo: "https://johnbarn777.github.io/House-Portfolio/"
 ---
 A detailed description of the project.
