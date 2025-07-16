@@ -2,26 +2,26 @@
 import type { CollectionEntry } from 'astro:content';
 const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
 ---
-<div data-project-card tabindex="0" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg focus:shadow-lg transition-shadow flex flex-col h-full">
+<div data-project-card tabindex="0" class="project-card">
   <img
     src={project.data.image}
     srcset={`${project.data.image} 1x, ${project.data.image.replace('600x400','1200x800')} 2x`}
     sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 100vw"
     alt={`${project.data.title} screenshot`}
-    class="w-full h-48 object-cover"
+    class="project-card__image"
     loading="lazy" />
   <div class="p-4 flex flex-col gap-2 flex-1">
-    <h3 class="text-lg font-semibold">{project.data.title}</h3>
-    <p class="text-sm text-gray-700">{project.data.summary}</p>
+    <h3 class="text-lg font-semibold text-white">{project.data.title}</h3>
+    <p class="text-sm text-gray-200">{project.data.summary}</p>
     <div class="flex flex-wrap gap-1">
-      {project.data.tech.map(t => (<span class="text-xs px-2 py-1 bg-gray-200 rounded">{t}</span>))}
+      {project.data.tech.map(t => (<span class="text-xs px-2 py-1 bg-gray-700 rounded text-white">{t}</span>))}
     </div>
     <div class="mt-auto flex gap-2">
-      {project.data.demo && <a class="px-3 py-1 rounded bg-blue-600 text-white text-sm" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
-      {project.data.repo && <a class="px-3 py-1 rounded bg-gray-800 text-white text-sm" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
+      {project.data.demo && <a class="project-card__link" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
+      {project.data.repo && <a class="project-card__link" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
     </div>
   </div>
-  <dialog class="rounded p-4 max-w-lg w-full">
+  <dialog class="rounded p-4 max-w-lg w-full bg-gray-900 text-white">
     <h3 class="text-lg font-semibold mb-2">{project.data.title}</h3>
     <p class="mb-4">{project.data.summary}</p>
     <div class="flex gap-2 justify-end">
@@ -38,3 +38,53 @@ const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
   });
   dialog?.querySelector('.close')?.addEventListener('click', () => dialog.close());
 </script>
+<style>
+  .project-card {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .project-card:hover,
+  .project-card:focus {
+    transform: translateY(-0.25rem);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  }
+  .project-card__image {
+    width: 100%;
+    height: 12rem;
+    object-fit: contain;
+    background: transparent;
+  }
+  @media (min-width: 768px) {
+    .project-card__image {
+      height: 16rem;
+    }
+  }
+
+  .project-card__link {
+    background: #fff;
+    color: #111;
+    padding: 0.75rem 1.25rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    font-size: 0.875rem;
+  }
+  .project-card__link:hover {
+    background: #111;
+    color: #fff;
+  }
+  @media (hover:none) {
+    .project-card__link:hover {
+      background: #fff;
+      color: #111;
+    }
+  }
+</style>
