@@ -1,0 +1,11 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+const projects = await getCollection('projects');
+---
+<section id="projects" class="max-w-7xl mx-auto p-4">
+  <h2 class="sr-only">Projects</h2>
+  <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+    {projects.map(p => <ProjectCard project={p} />)}
+  </div>
+</section>

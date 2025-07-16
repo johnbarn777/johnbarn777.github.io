@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
 ---
 <Layout>
   <Hero
@@ -8,4 +9,22 @@ import Hero from '../components/Hero.astro';
     lastName=""
     titles={["Developer","ML-Engineer","Innovator"]}
     ctas={[{text:'View Projects', href:'#projects'}, {text:'Contact Me', href:'#contact'}]} />
+  <Projects />
 </Layout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cta = document.querySelector('a[href="#projects"]');
+    if(!cta) return;
+    cta.addEventListener('click', (e) => {
+      const target = document.getElementById('projects');
+      if(!target) return;
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth'});
+      setTimeout(() => {
+        const card = target.querySelector('[data-project-card]');
+        if(card) card.focus();
+      }, 600);
+    });
+  });
+</script>
