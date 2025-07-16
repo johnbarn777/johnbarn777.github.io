@@ -1,11 +1,14 @@
 ---
 ---
 
-<section class="my-24" id="experience">
-  <div class="container">
-    <h2 class="mb-12 text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
-    <div class="overflow-x-auto pb-4">
-      <ol class="timeline relative flex space-x-8 md:space-x-12">
+<section
+  class="h-screen snap-start scroll-mt-24 flex items-center justify-center"
+  id="experience"
+>
+  <div class="container mx-auto flex h-full flex-col justify-start px-4 pb-8 pt-32">
+    <h2 class="mb-6 text-center text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
+    <div class="scroll-container flex-1 overflow-y-auto">
+      <ol class="timeline relative mx-auto max-w-xl space-y-8">
         {
           [
             { year: '2001', title: 'Born', desc: 'Came into the world and immediately started preparing to code.' },
@@ -32,15 +35,13 @@
               title: 'Exploring LLMs',
               desc: 'Researching generative AI and building personal projects.',
             },
-          ].map((item, i, arr) => (
-            <li class="relative flex min-w-[18rem] flex-col items-center" data-index={i}>
-              <span class="absolute left-1/2 top-6 h-3 w-3 -translate-x-1/2 rounded-full bg-[#6befe0]" />
-              {i < arr.length - 1 && <span class="absolute right-0 top-6 h-[3px] w-20 bg-[#6befe0]/30 md:w-24" />}
-              <button class="event-trigger mb-6 text-center" aria-expanded="false">
+          ].map((item, i) => (
+            <li class="relative mb-8 pl-8" data-index={i}>
+              <span class="absolute left-1/2 top-1 h-3 w-3 -translate-x-1/2 rounded-full bg-[#6befe0]" />
+              <button class="event-trigger mb-2 text-left" aria-expanded="false">
                 <h4 class="text-sm font-semibold">{item.year}</h4>
                 <p class="text-sm">{item.title}</p>
               </button>
-              <span class="absolute left-1/2 top-9 h-6 w-[3px] -translate-x-1/2 bg-[#6befe0]" />
               <div class="event-info dark:bg-dark-100 mt-2 hidden w-64 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm">
                 {item.desc}
               </div>
@@ -78,19 +79,36 @@
 </script>
 
 <style lang="scss">
+  .scroll-container {
+    overflow-y: auto;
+    padding-left: 0.25rem;
+    scrollbar-width: none;
+  }
+  .scroll-container::-webkit-scrollbar {
+    display: none;
+  }
   .timeline {
-    padding-bottom: 1rem;
     position: relative;
 
     &::before {
       content: '';
       position: absolute;
-      top: 1.5rem;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background-color: rgba(107, 239, 224, 0.3);
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background-color: #6befe0;
+      transform: translateX(-50%);
     }
+  }
+  .timeline li {
+    position: relative;
+  }
+  .timeline li .event-info {
+    position: absolute;
+    right: 50%;
+    transform: translateX(-100%);
+    margin-right: 1rem;
   }
   .event-trigger {
     opacity: 0;
