@@ -7,7 +7,7 @@ const projects: CollectionEntry<'projects'>[] = await getCollection('projects');
 <section id="projects" class="projects">
   <div class="projects__bg" aria-hidden="true"></div>
   <div class="projects__content">
-    <h2 class="sr-only">Projects</h2>
+    <h2 class="projects__heading">Projects</h2>
     <div class="projects__grid">
       {projects.map(p => <ProjectCard project={p} />)}
     </div>
@@ -47,6 +47,15 @@ const projects: CollectionEntry<'projects'>[] = await getCollection('projects');
     display: flex;
     flex-direction: column;
     gap: 2rem;
+  }
+  .projects__heading {
+    font-size: clamp(3rem, 8vw, 6rem);
+    margin: 0;
+    font-weight: 700;
+    background: linear-gradient(45deg, #ff007a, #4b2cff);
+    -webkit-background-clip: text;
+    color: transparent;
+    text-align: center;
   }
   .projects__grid {
     display: grid;

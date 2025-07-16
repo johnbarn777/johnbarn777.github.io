@@ -17,8 +17,8 @@ const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
       {project.data.tech.map(t => (<span class="text-xs px-2 py-1 bg-gray-700 rounded text-white">{t}</span>))}
     </div>
     <div class="mt-auto flex gap-2">
-      {project.data.demo && <a class="px-3 py-1 rounded bg-blue-600 text-white text-sm" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
-      {project.data.repo && <a class="px-3 py-1 rounded bg-gray-800 text-white text-sm" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
+      {project.data.demo && <a class="project-card__link" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
+      {project.data.repo && <a class="project-card__link" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
     </div>
   </div>
   <dialog class="rounded p-4 max-w-lg w-full bg-gray-900 text-white">
@@ -59,11 +59,32 @@ const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
     width: 100%;
     height: 12rem;
     object-fit: contain;
-    background: #fff;
+    background: transparent;
   }
   @media (min-width: 768px) {
     .project-card__image {
       height: 16rem;
+    }
+  }
+
+  .project-card__link {
+    background: #fff;
+    color: #111;
+    padding: 0.75rem 1.25rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+    font-size: 0.875rem;
+  }
+  .project-card__link:hover {
+    background: #111;
+    color: #fff;
+  }
+  @media (hover:none) {
+    .project-card__link:hover {
+      background: #fff;
+      color: #111;
     }
   }
 </style>
