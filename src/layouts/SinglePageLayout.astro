@@ -1,0 +1,29 @@
+---
+import '@astrojs/tailwind/base.css'
+import '../assets/scss/globals.scss'
+import SiteMeta from '../components/SiteMeta.astro'
+
+const {
+  title = 'Home',
+  description = '',
+  url,
+  author = 'Yohann Pittappillil',
+} = Astro.props
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <SiteMeta
+      title={title}
+      description={description}
+      url={url ?? Astro.site ?? '/'}
+      author={author}
+    />
+  </head>
+  <body class="h-screen overflow-y-scroll snap-y snap-mandatory">
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>
