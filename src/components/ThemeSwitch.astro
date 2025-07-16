@@ -1,0 +1,12 @@
+---
+import { themes } from '../theme';
+---
+<button id="theme-switch" class="theme-switch" aria-pressed="false">
+  {themes[0]}
+</button>
+<script type="module">
+  import { initThemeSwitch } from './ThemeSwitch.ts';
+  const btn = document.getElementById('theme-switch');
+  if (btn) initThemeSwitch(btn as HTMLButtonElement);
+</script>
+
