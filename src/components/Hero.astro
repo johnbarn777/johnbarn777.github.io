@@ -87,9 +87,9 @@ const {
 .hero__bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(45deg,#4b2cff,#ff007a);background-size:400% 400%;animation:bgMove 20s linear infinite;z-index:-1;}
 @keyframes bgMove{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
 @media(prefers-reduced-motion:reduce){.hero__bg{animation:none;}}
-.hero__content{max-width:60ch;color:#fff;}
-.hero__avatar{width:160px;height:160px;border-radius:50%;object-fit:cover;margin:0 auto 1.5rem;}
-@media(max-width:768px){.hero__avatar{width:120px;height:120px;}}
+.hero__content{max-width:60ch;margin:0 auto;color:#fff;display:flex;flex-direction:column;align-items:center;}
+.hero__avatar{width:128px;height:128px;border-radius:50%;object-fit:cover;margin:0 auto 1.5rem;}
+@media(max-width:768px){.hero__avatar{width:96px;height:96px;}}
 .hero__heading{font-size:clamp(3rem,8vw,6rem);margin:0 0 1rem;font-weight:700;display:flex;justify-content:center;align-items:center;gap:.25rem;flex-wrap:wrap;}
 .hero__firstname{background:linear-gradient(45deg,#ff007a,#4b2cff);-webkit-background-clip:text;color:transparent;}
 .hero__cursor{animation:blink 1s steps(2,start) infinite;}
