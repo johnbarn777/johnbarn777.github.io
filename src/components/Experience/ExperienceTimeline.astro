@@ -8,7 +8,7 @@
   <div class="container mx-auto flex h-full flex-col justify-start px-4 pb-8 pt-24">
     <h2 class="mb-6 text-center text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
     <div class="scroll-container flex-1 overflow-y-auto">
-      <ol class="timeline relative mx-auto space-y-8 border-l-2 border-[#6befe0]/30">
+      <ol class="timeline relative mx-auto max-w-xl space-y-8">
         {
           [
             { year: '2001', title: 'Born', desc: 'Came into the world and immediately started preparing to code.' },
@@ -36,8 +36,8 @@
               desc: 'Researching generative AI and building personal projects.',
             },
           ].map((item, i) => (
-            <li class="relative mb-8 ml-6 pl-6" data-index={i}>
-              <span class="absolute left-0 top-1 h-3 w-3 -translate-x-1/2 rounded-full bg-[#6befe0]" />
+            <li class="relative mb-8 pl-8" data-index={i}>
+              <span class="absolute left-1/2 top-1 h-3 w-3 -translate-x-1/2 rounded-full bg-[#6befe0]" />
               <button class="event-trigger mb-2 text-left" aria-expanded="false">
                 <h4 class="text-sm font-semibold">{item.year}</h4>
                 <p class="text-sm">{item.title}</p>
@@ -89,6 +89,26 @@
   }
   .timeline {
     position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 4px;
+      background-color: #6befe0;
+      transform: translateX(-50%);
+    }
+  }
+  .timeline li {
+    position: relative;
+  }
+  .timeline li .event-info {
+    position: absolute;
+    right: 50%;
+    transform: translateX(-100%);
+    margin-right: 1rem;
   }
   .event-trigger {
     opacity: 0;
