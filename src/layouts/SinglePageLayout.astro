@@ -2,6 +2,7 @@
 import '@astrojs/tailwind/base.css'
 import '../assets/scss/globals.scss'
 import SiteMeta from '../components/SiteMeta.astro'
+import Header from '../components/Header.astro'
 
 const {
   title = 'Home',
@@ -20,8 +21,14 @@ const {
       url={url ?? Astro.site ?? '/'}
       author={author}
     />
+    <script is:inline>
+      if (!localStorage.getItem('darkMode')) {
+        localStorage.setItem('darkMode', 'enabled')
+      }
+    </script>
   </head>
-  <body class="h-screen overflow-y-scroll snap-y snap-mandatory">
+  <body class="darkmode h-screen overflow-y-scroll snap-y snap-mandatory">
+    <Header />
     <main>
       <slot />
     </main>
