@@ -8,8 +8,8 @@
  * @param {CTA[]} ctas - primary call to action links
  */
 const {
-  firstName = 'John',
-  lastName = 'Barn',
+  firstName = 'Yohann',
+  lastName = '',
   titles = ['Developer'],
   ctas = [],
 } = Astro.props;
@@ -84,11 +84,11 @@ const {
 
 <style>
 .hero{position:relative;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;padding:1rem;text-align:center;}
-.hero__bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(45deg,#4b2cff,#ff007a);background-size:400% 400%;animation:bgMove 20s linear infinite;z-index:-1;}
+.hero__bg{position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(45deg,#FDDBD9,#FAC9C3, #F5B8B1, #84A6E1, #8DCDE9, #B3E6FB);background-size:400% 400%;animation:bgMove 20s linear infinite;z-index:-1;}
 @keyframes bgMove{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
 @media(prefers-reduced-motion:reduce){.hero__bg{animation:none;}}
 .hero__content{max-width:60ch;margin:0 auto;color:#fff;display:flex;flex-direction:column;align-items:center;}
-.hero__avatar{width:128px;height:128px;border-radius:50%;object-fit:cover;margin:0 auto 1.5rem;}
+.hero__avatar{width:512px;height:512px;border-radius:70%;object-fit:cover;margin:0 auto 1.5rem;}
 @media(max-width:768px){.hero__avatar{width:96px;height:96px;}}
 .hero__heading{font-size:clamp(3rem,8vw,6rem);margin:0 0 1rem;font-weight:700;display:flex;justify-content:center;align-items:center;gap:.25rem;flex-wrap:wrap;}
 .hero__firstname{background:linear-gradient(45deg,#ff007a,#4b2cff);-webkit-background-clip:text;color:transparent;}
