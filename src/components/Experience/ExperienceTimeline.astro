@@ -1,10 +1,10 @@
 ---
 ---
 
-<section class="h-screen flex items-center snap-start" id="experience">
-  <div class="container">
-    <h2 class="mb-12 text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
-    <div class="overflow-x-auto pb-4">
+<section class="h-screen flex items-center justify-center snap-start" id="experience">
+  <div class="container mx-auto flex h-full flex-col justify-start px-4 py-8">
+    <h2 class="mb-6 text-center text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
+    <div class="scroll-container flex-1">
       <ol class="timeline relative flex space-x-8 md:space-x-12">
         {
           [
@@ -78,19 +78,16 @@
 </script>
 
 <style lang="scss">
-  .timeline {
+  .scroll-container {
+    overflow-x: auto;
     padding-bottom: 1rem;
+    scrollbar-width: none;
+  }
+  .scroll-container::-webkit-scrollbar {
+    display: none;
+  }
+  .timeline {
     position: relative;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 1.5rem;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background-color: rgba(107, 239, 224, 0.3);
-    }
   }
   .event-trigger {
     opacity: 0;
