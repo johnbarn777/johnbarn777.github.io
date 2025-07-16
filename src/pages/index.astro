@@ -3,7 +3,9 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 ---
 <Layout>
-  <Hero 
+  <Hero
+    firstName="John"
+    lastName="Barn"
     titles={["Developer","Designer","Creator"]}
     ctas={[{text:'View Projects', href:'#projects'}, {text:'Contact Me', href:'#contact'}]} />
 </Layout>
