@@ -1,90 +1,68 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
+const summary = project.data.summary.slice(0,120);
 ---
-<div data-project-card tabindex="0" class="project-card">
-  <img
-    src={project.data.image}
-    srcset={`${project.data.image} 1x, ${project.data.image.replace('600x400','1200x800')} 2x`}
-    sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, 100vw"
-    alt={`${project.data.title} screenshot`}
-    class="project-card__image"
-    loading="lazy" />
-  <div class="p-4 flex flex-col gap-2 flex-1">
-    <h3 class="text-lg font-semibold text-white">{project.data.title}</h3>
-    <p class="text-sm text-gray-200">{project.data.summary}</p>
-    <div class="flex flex-wrap gap-1">
-      {project.data.tech.map(t => (<span class="text-xs px-2 py-1 bg-gray-700 rounded text-white">{t}</span>))}
+<article data-project-card tabindex="0" aria-expanded="false" class="project-card">
+  <div class="project-card__header">
+    <img src={project.data.image} alt={project.data.title + ' logo'} class="project-card__icon" loading="lazy" />
+    <h3 class="project-card__title">{project.data.title}</h3>
+  </div>
+  <div class="project-card__details">
+    <p class="project-card__summary">{summary}</p>
+    <div class="project-card__tech">
+      {project.data.tech.map(t => (<span class="tech-chip">{t}</span>))}
     </div>
-    <div class="mt-auto flex gap-2">
+    <div class="project-card__actions">
       {project.data.demo && <a class="project-card__link" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
       {project.data.repo && <a class="project-card__link" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
     </div>
   </div>
-  <dialog class="rounded p-4 max-w-lg w-full bg-gray-900 text-white">
-    <h3 class="text-lg font-semibold mb-2">{project.data.title}</h3>
-    <p class="mb-4">{project.data.summary}</p>
-    <div class="flex gap-2 justify-end">
-      <button class="px-3 py-1 bg-gray-700 text-white rounded close" type="button">Close</button>
-    </div>
-  </dialog>
-</div>
-<script>
-  const card = document.currentScript.parentElement;
-  const dialog = card.querySelector('dialog');
-  card.addEventListener('click', (e) => {
-    if(e.target.closest('a') || !dialog) return;
-    dialog.showModal();
-  });
-  dialog?.querySelector('.close')?.addEventListener('click', () => dialog.close());
-</script>
-<style>
-  .project-card {
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  .project-card:hover,
-  .project-card:focus {
-    transform: translateY(-0.25rem);
-    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-  }
-  .project-card__image {
-    width: 100%;
-    height: 12rem;
-    object-fit: contain;
-    background: transparent;
-  }
-  @media (min-width: 768px) {
-    .project-card__image {
-      height: 16rem;
-    }
-  }
+</article>
 
-  .project-card__link {
-    background: #fff;
-    color: #111;
-    padding: 0.75rem 1.25rem;
-    border-radius: 9999px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: background 0.2s, color 0.2s;
-    font-size: 0.875rem;
+<script client:visible>
+const card = document.currentScript.parentElement;
+let expanded = false;
+const prefersHover = matchMedia('(hover:hover)').matches;
+function set(state){
+  expanded = state;
+  card.classList.toggle('expanded', expanded);
+  card.setAttribute('aria-expanded', expanded);
+}
+function toggle(){ set(!expanded); }
+if(prefersHover){
+  card.addEventListener('mouseenter', () => set(true));
+  card.addEventListener('mouseleave', () => set(false));
+}
+card.addEventListener('pointerdown', e => {
+  if(prefersHover && e.pointerType==='mouse') return;
+  if(e.target.closest('a')) return;
+  toggle();
+});
+card.addEventListener('keydown', e => {
+  if(e.key==='Enter' || e.key===' '){
+    e.preventDefault();
+    toggle();
   }
-  .project-card__link:hover {
-    background: #111;
-    color: #fff;
-  }
-  @media (hover:none) {
-    .project-card__link:hover {
-      background: #fff;
-      color: #111;
-    }
-  }
+});
+</script>
+
+<style>
+.project-card{background:rgba(0,0,0,0.6);color:#fff;border-radius:.5rem;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1);min-height:3rem;cursor:pointer;}
+.project-card__header{display:flex;align-items:center;gap:.5rem;padding:.75rem;}
+.project-card__icon{width:2.5rem;height:2.5rem;object-fit:contain;flex-shrink:0;}
+.project-card__title{font-size:1rem;font-weight:600;margin:0;}
+.project-card__details{padding:0 .75rem .75rem;max-height:0;opacity:0;transform:translateY(-0.25rem);overflow:hidden;transition:max-height 200ms ease,opacity 200ms ease,transform 200ms ease;}
+.project-card.expanded .project-card__details{max-height:20rem;opacity:1;transform:none;}
+@media (hover:hover){
+  .project-card:hover .project-card__details{max-height:20rem;opacity:1;transform:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  .project-card__details{transition:none;}
+}
+.tech-chip{font-size:.75rem;padding:.25rem .5rem;background:#374151;border-radius:.25rem;margin-right:.25rem;}
+.project-card__actions{margin-top:.5rem;display:flex;gap:.5rem;flex-wrap:wrap;}
+.project-card__link{background:#fff;color:#111;padding:.5rem 1rem;border-radius:9999px;text-decoration:none;font-weight:600;font-size:.875rem;transition:background .2s,color .2s;}
+.project-card__link:hover{background:#111;color:#fff;}
+@media(hover:none){.project-card__link:hover{background:#fff;color:#111;}}
 </style>
