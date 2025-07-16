@@ -1,7 +1,7 @@
 ---
 ---
 
-<section class="my-24" id="experience">
+<section class="my-24 min-h-screen" id="experience">
   <div class="container">
     <h2 class="mb-12 text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
     <div class="overflow-x-auto pb-4">
@@ -74,6 +74,27 @@
         info.classList.toggle('hidden')
       })
     })
+
+    const section = document.querySelector('#experience')
+    const scroller = section.querySelector('.overflow-x-auto')
+
+    section.addEventListener(
+      'wheel',
+      (e) => {
+        const maxScrollLeft = scroller.scrollWidth - scroller.clientWidth
+        const rect = section.getBoundingClientRect()
+        const inView = rect.top <= 0 && rect.bottom >= 0
+
+        if (
+          inView &&
+          ((e.deltaY > 0 && scroller.scrollLeft < maxScrollLeft) || (e.deltaY < 0 && scroller.scrollLeft > 0))
+        ) {
+          e.preventDefault()
+          scroller.scrollLeft += e.deltaY
+        }
+      },
+      { passive: false }
+    )
   })
 </script>
 
