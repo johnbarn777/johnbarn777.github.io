@@ -7,8 +7,8 @@
 >
   <div class="container mx-auto flex h-full flex-col justify-start px-4 pb-8 pt-24">
     <h2 class="mb-6 text-center text-4xl md:text-5xl"><span class="text-gradient">Experience</span></h2>
-    <div class="scroll-container flex-1">
-      <ol class="timeline relative mx-auto flex space-x-8 md:space-x-12">
+    <div class="scroll-container flex-1 overflow-y-auto">
+      <ol class="timeline relative mx-auto space-y-8 border-l-2 border-[#6befe0]/30">
         {
           [
             { year: '2001', title: 'Born', desc: 'Came into the world and immediately started preparing to code.' },
@@ -35,15 +35,13 @@
               title: 'Exploring LLMs',
               desc: 'Researching generative AI and building personal projects.',
             },
-          ].map((item, i, arr) => (
-            <li class="relative flex min-w-[18rem] flex-col items-center" data-index={i}>
-              <span class="absolute left-1/2 top-6 h-3 w-3 -translate-x-1/2 rounded-full bg-[#6befe0]" />
-              {i < arr.length - 1 && <span class="absolute right-0 top-6 h-[3px] w-20 bg-[#6befe0]/30 md:w-24" />}
-              <button class="event-trigger mb-6 text-center" aria-expanded="false">
+          ].map((item, i) => (
+            <li class="relative mb-8 ml-6 pl-6" data-index={i}>
+              <span class="absolute left-0 top-1 h-3 w-3 -translate-x-1/2 rounded-full bg-[#6befe0]" />
+              <button class="event-trigger mb-2 text-left" aria-expanded="false">
                 <h4 class="text-sm font-semibold">{item.year}</h4>
                 <p class="text-sm">{item.title}</p>
               </button>
-              <span class="absolute left-1/2 top-9 h-6 w-[3px] -translate-x-1/2 bg-[#6befe0]" />
               <div class="event-info dark:bg-dark-100 mt-2 hidden w-64 rounded-lg border border-neutral-700 bg-neutral-100 p-4 text-sm">
                 {item.desc}
               </div>
@@ -82,8 +80,8 @@
 
 <style lang="scss">
   .scroll-container {
-    overflow-x: auto;
-    padding-bottom: 1rem;
+    overflow-y: auto;
+    padding-left: 0.25rem;
     scrollbar-width: none;
   }
   .scroll-container::-webkit-scrollbar {
