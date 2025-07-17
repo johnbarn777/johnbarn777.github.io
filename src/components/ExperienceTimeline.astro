@@ -1,103 +1,41 @@
 ---
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import horizImg from '../assets/timeline-horizontal.png';
-import vertImg from '../assets/timeline-vertical.png';
-import cornerLImg from '../assets/timline-left-bottom-corner.png';
-import cornerRImg from '../assets/timeline-right-bottom-corner.png';
-
 const experiences: CollectionEntry<'experience'>[] = await getCollection('experience');
 experiences.sort((a,b)=>a.data.year-b.data.year);
-const rows: CollectionEntry<'experience'>[][] = [];
-const itemsPerRow = 2;
-for(let i=0;i<experiences.length;i+=itemsPerRow){
-  rows.push(experiences.slice(i,i+itemsPerRow));
-}
 ---
-<section id="experience" class="timeline-section" style={`--h-line:url('${horizImg.src}');--v-line:url('${vertImg.src}');--corner-l:url('${cornerLImg.src}');--corner-r:url('${cornerRImg.src}')`}>
-  <div class="timeline__content">
-    <h2 class="timeline-heading">Experience</h2>
-    <div class="timeline" style="--gap:2rem">
-    {rows.map((row,ri)=> (
-      <div class="timeline-row" class:list={{'row-rtl': ri%2}} style={ri%2 ? 'direction:rtl' : ''}>
-        {row.map((exp)=>(
-          <div class="timeline-node" data-exp-node>
-            <button class="node-button" aria-expanded="false" aria-controls={`panel-${exp.id}`}>{exp.data.year} - {exp.data.title}</button>
-            <div class="node-panel" id={`panel-${exp.id}`} hidden>
+<section id="experience" class="py-16">
+  <h2 class="text-4xl font-bold mb-8 text-center">Experience</h2>
+  <ul class="timeline timeline-vertical mx-auto max-w-3xl">
+    {experiences.map(exp => (
+      <li>
+        <div class="timeline-start font-mono">{exp.data.year}</div>
+        <div class="timeline-middle"></div>
+        <div class="timeline-end pb-4">
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="checkbox" />
+            <div class="collapse-title font-semibold">
+              {exp.data.title}
+            </div>
+            <div class="collapse-content">
               <p>{exp.data.description}</p>
-              {exp.data.achievements && (
-                <ul>
-                  {exp.data.achievements.map(a=> <li>{a}</li>)}
-                </ul>
-              )}
               {exp.data.tech && (
-                <div class="tech-list">
-                  {exp.data.tech.map(t => <span class="tech-chip">{t}</span>)}
+                <div class="mt-2 flex flex-wrap gap-2">
+                  {exp.data.tech.map(t => <span class="badge badge-outline">{t}</span>)}
                 </div>
               )}
               {exp.data.links && (
-                <div class="panel-links">
-                  {exp.data.links.map(l=> <a href={l.href} target="_blank" rel="noopener">{l.text}</a>)}
+                <div class="mt-2 flex gap-2 flex-wrap">
+                  {exp.data.links.map(l => (
+                    <a href={l.href} target="_blank" rel="noopener" class="link">{l.text}</a>
+                  ))}
                 </div>
               )}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+        <hr class="bg-base-300" />
+      </li>
     ))}
-    </div>
-  </div>
+  </ul>
 </section>
-
-<script client:visible>
-(() => {
-  const nodes = document.querySelectorAll('[data-exp-node]');
-  let openNode = null;
-  function close(node){
-    const btn = node.querySelector('button');
-    const panel = node.querySelector('.node-panel');
-    btn.setAttribute('aria-expanded','false');
-    panel.hidden = true;
-  }
-  function open(node){
-    const btn = node.querySelector('button');
-    const panel = node.querySelector('.node-panel');
-    btn.setAttribute('aria-expanded','true');
-    panel.hidden = false;
-    panel.dispatchEvent(new CustomEvent('exp-toggle', {bubbles:true}));
-  }
-  nodes.forEach(node => {
-    const btn = node.querySelector('button');
-    btn.addEventListener('click', () => {
-      if(openNode && openNode!==node){close(openNode);} 
-      const expanded = btn.getAttribute('aria-expanded')==='true';
-      if(expanded){close(node);openNode=null;}else{open(node);openNode=node;}
-    });
-    btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();btn.click();}});
-  });
-})();
-</script>
-
-<style>
-.timeline-section{padding:4rem 1rem;color:#fff;position:relative;text-align:center;}
-.timeline__content{max-width:100ch;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap);}
-.timeline-heading{font-size:clamp(3rem,8vw,6rem);margin:0 0 2rem;font-weight:700;background:linear-gradient(45deg,#FDDBD9,#FAC9C3,#F5B8B1,#84A6E1,#8DCDE9,#B3E6FB);-webkit-background-clip:text;color:white;}
-.timeline{display:flex;flex-direction:column;gap:var(--gap);padding-inline:var(--gap);}
-.timeline-row{display:grid;grid-auto-flow:column;grid-template-columns:repeat(auto-fit,minmax(12rem,1fr));gap:var(--gap);position:relative;}
-.timeline-row::before{content:"";position:absolute;height:2px;left:0;right:0;top:1.5rem;background:var(--h-line) repeat-x center;}
-.timeline-row:not(:last-child)::after{content:"";position:absolute;top:1.5rem;height:calc(100% + var(--gap));width:var(--gap);right:-1px;background-image:var(--v-line),var(--corner-r);background-repeat:repeat-y,no-repeat;background-position:top right,bottom right;pointer-events:none;}
-.row-rtl:not(:last-child)::after{left:-1px;right:auto;background-image:var(--v-line),var(--corner-l);background-repeat:repeat-y,no-repeat;background-position:top left,bottom left;}
-.timeline-node{display:flex;flex-direction:column;align-items:center;position:relative;}
-.node-button{min-width:44px;min-height:44px;background:#fff;color:#111;padding:.5rem 1rem;border-radius:9999px;border:none;cursor:pointer;font-weight:600;}
-.node-panel{background:rgba(0,0,0,0.3);padding:1rem;margin-top:.5rem;border-radius:.5rem;text-align:left;max-height:0;opacity:0;overflow:hidden;transition:max-height 200ms ease,opacity 200ms ease;}
-[aria-expanded="true"]+.node-panel{max-height:20rem;opacity:1;}
-.tech-chip{font-size:.75rem;padding:.25rem .5rem;background:#374151;border-radius:.25rem;margin-right:.25rem;}
-.panel-links{margin-top:.5rem;display:flex;gap:.5rem;flex-wrap:wrap;}
-.panel-links a{background:#fff;color:#111;padding:.25rem .75rem;border-radius:9999px;text-decoration:none;font-weight:600;font-size:.875rem;}
-@media(prefers-reduced-motion:reduce){.node-panel{transition:none;}}
-@media(max-width:640px){
-  .timeline{gap:1rem;padding-inline:0;}
-  .timeline-row{grid-auto-flow:row;direction:ltr;}
-  .timeline-row::before{left:1rem;right:auto;width:2px;height:100%;top:0;background:var(--v-line) repeat-y;}
-}
-</style>
