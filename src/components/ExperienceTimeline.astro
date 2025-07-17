@@ -6,26 +6,33 @@ experiences.sort((a,b)=>a.data.year-b.data.year);
 ---
 <section id="experience" class="py-16">
   <h2 class="text-4xl font-bold mb-8 text-center">Experience</h2>
-  <ul class="timeline mx-auto max-w-3xl">
+  <ul class="timeline timeline-vertical mx-auto max-w-3xl">
     {experiences.map(exp => (
       <li>
         <div class="timeline-start font-mono">{exp.data.year}</div>
         <div class="timeline-middle"></div>
         <div class="timeline-end pb-4">
-          <h3 class="font-semibold">{exp.data.title}</h3>
-          <p>{exp.data.description}</p>
-          {exp.data.tech && (
-            <div class="mt-2 flex flex-wrap gap-2">
-              {exp.data.tech.map(t => <span class="badge badge-outline">{t}</span>)}
+          <div class="collapse collapse-arrow bg-base-200">
+            <input type="checkbox" />
+            <div class="collapse-title font-semibold">
+              {exp.data.title}
             </div>
-          )}
-          {exp.data.links && (
-            <div class="mt-2 flex gap-2 flex-wrap">
-              {exp.data.links.map(l => (
-                <a href={l.href} target="_blank" rel="noopener" class="link">{l.text}</a>
-              ))}
+            <div class="collapse-content">
+              <p>{exp.data.description}</p>
+              {exp.data.tech && (
+                <div class="mt-2 flex flex-wrap gap-2">
+                  {exp.data.tech.map(t => <span class="badge badge-outline">{t}</span>)}
+                </div>
+              )}
+              {exp.data.links && (
+                <div class="mt-2 flex gap-2 flex-wrap">
+                  {exp.data.links.map(l => (
+                    <a href={l.href} target="_blank" rel="noopener" class="link">{l.text}</a>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
         <hr class="bg-base-300" />
       </li>

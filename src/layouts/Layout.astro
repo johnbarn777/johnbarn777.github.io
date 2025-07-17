@@ -1,5 +1,6 @@
 ---
 import "../assets/app.css";
+import Navbar from '../components/Navbar.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -12,6 +13,7 @@ import "../assets/app.css";
         </head>
         <body>
                 <div class="page-bg" aria-hidden="true"></div>
+                <Navbar />
                 <slot />
         </body>
 </html>

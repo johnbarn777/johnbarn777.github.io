@@ -1,11 +1,12 @@
 ---
 const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] } = Astro.props;
 ---
-<div class="hero min-h-screen bg-base-200 text-center">
+<div class="hero min-h-screen pt-20 text-center px-4">
   <div class="hero-content flex flex-col items-center gap-4">
     <img src="/avatar.png" alt={`${firstName} ${lastName} avatar`} class="w-32 h-32 rounded-full" loading="lazy" />
-    <h1 class="text-5xl font-bold">{`${firstName} ${lastName}`}</h1>
-    {titles[0] && <p class="py-2 text-xl">{titles[0]}</p>}
+    <h1 class="text-5xl font-bold flex items-center justify-center gap-1 flex-wrap">
+      <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span><span id="hero-cursor" class="hero-cursor" aria-hidden="true">|</span>
+    </h1>
     <div class="flex gap-4 flex-wrap justify-center">
       {ctas.map(({ text, href }) => (
         <a href={href} class="btn btn-primary">
@@ -15,3 +16,64 @@ const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] }
     </div>
   </div>
 </div>
+
+<script client:visible define:vars={{ firstName, lastName, titles }}>
+(() => {
+  const words = [`${firstName} ${lastName}`, ...titles];
+  const el = document.getElementById('hero-rotating-title');
+  const cursor = document.getElementById('hero-cursor');
+  if (!el) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    el.innerHTML = `<span class="hero-firstname">${firstName}</span> ${lastName}`;
+    if (cursor) cursor.style.display = 'none';
+    return;
+  }
+  let wordIndex = 0;
+  let charIndex = 0;
+  let typing = true;
+
+  function setContent(text) {
+    if (words[wordIndex] === `${firstName} ${lastName}` && text === words[wordIndex]) {
+      el.innerHTML = `<span class="hero-firstname">${firstName}</span> ${lastName} `;
+    } else {
+      el.textContent = text;
+    }
+  }
+
+  function step() {
+    const word = words[wordIndex];
+    if (typing) {
+      if (charIndex < word.length) {
+        setContent(word.slice(0, charIndex + 1));
+        charIndex++;
+        setTimeout(step, 110);
+      } else {
+        typing = false;
+        setTimeout(step, 1500);
+      }
+    } else {
+      if (charIndex > 0) {
+        setContent(word.slice(0, charIndex - 1));
+        charIndex--;
+        setTimeout(step, 60);
+      } else {
+        typing = true;
+        wordIndex = (wordIndex + 1) % words.length;
+        setTimeout(step, 300);
+      }
+    }
+  }
+  step();
+})();
+</script>
+
+<style>
+.hero-firstname {
+  background: linear-gradient(45deg,#FDDBD9,#FAC9C3,#F5B8B1,#84A6E1,#8DCDE9,#B3E6FB);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.hero-cursor { animation: blink 1s steps(3,start) infinite; }
+@keyframes blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
+</style>
