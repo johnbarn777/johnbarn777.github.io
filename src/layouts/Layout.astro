@@ -1,6 +1,7 @@
 ---
 import tailwindConfig from '../../tailwind.config.mjs';
 const screens = tailwindConfig.theme.screens;
+import NavBar from '../components/NavBar.astro';
 ---
 <!doctype html>
 <html lang="en">
@@ -16,6 +17,7 @@ const screens = tailwindConfig.theme.screens;
         </head>
         <body>
                 <div class="page-bg" aria-hidden="true"></div>
+                <NavBar />
                 <slot />
         </body>
 </html>
