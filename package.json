@@ -10,10 +10,13 @@
     "test": "playwright test"
   },
   "dependencies": {
-    "astro": "^5.11.1"
+    "@tailwindcss/vite": "^4.1.11",
+    "astro": "^5.11.1",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
     "@playwright/test": "^1.54.1",
-    "@types/node": "^24.0.14"
+    "@types/node": "^24.0.14",
+    "daisyui": "^5.0.46"
   }
 }
