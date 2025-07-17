@@ -1,7 +1,7 @@
 ---
 title: "LLM for Toxic Comment Classification"
 summary: "ToxicCommentClassification model using DistilBERT model with hyper-parameter tuning and Neural Layers to combat Toxicity in online platforms with the least amount of False Positives"
-image: "https://placehold.co/600x400"
+image: "LLM_icon.png"
 tech:
   - Python
   - TensorFlow
