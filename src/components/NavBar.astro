@@ -77,8 +77,7 @@ const icons = {
     justify-content: flex-end;
     align-items: center;
     padding: 0 .5rem;
-    background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(6px);
+    background: transparent;
   }
   .navbar__list {
     list-style: none;
@@ -95,10 +94,12 @@ const icons = {
     padding: .5rem .75rem;
     border-radius: .25rem;
     outline-offset: 2px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
   }
   .navbar__link:hover,
   .navbar__link:focus-visible {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.2);
   }
   .navbar__link.active {
     border-bottom: 2px solid currentColor;
