@@ -11,9 +11,6 @@ const screens = tailwindConfig.theme.screens;
         <link rel="icon" type="image/png" href="/favicon.png" />
         <meta name="generator" content={Astro.generator} />
         <title>Y V P</title>
-        <!-- Include Tailwind via CDN for styling -->
-        <script>{`tailwind.config = {theme:{screens:${JSON.stringify(screens)}}}`}</script>
-        <script src="https://cdn.tailwindcss.com"></script>
         </head>
         <body>
                 <div class="page-bg" aria-hidden="true"></div>

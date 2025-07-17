@@ -1,99 +1,17 @@
 ---
-/**
- * Interactive hero component.
- * @typedef {{text:string, href:string}} CTA
- * @param {string} firstName - first name used in hero title
- * @param {string} lastName - last name used in hero title
- * @param {string[]} titles - rotating titles excluding the name
- * @param {CTA[]} ctas - primary call to action links
- */
-const {
-  firstName = 'Yohann',
-  lastName = '',
-  titles = ['Developer'],
-  ctas = [],
-} = Astro.props;
+const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] } = Astro.props;
 ---
-<div class="hero">
-  <div class="hero__bg" aria-hidden="true"></div>
-  <div class="hero__content">
-    <img class="hero__avatar" src="/avatar.png" alt={`${firstName} ${lastName} avatar`} loading="lazy" />
-    <h1 class="hero__heading">
-      <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span><span id="hero-cursor" class="hero__cursor" aria-hidden="true">|</span>
-    </h1>
-    <div class="hero__ctas">
-      {ctas.map(({text, href}) => (<a class="hero__cta" href={href}>{text}</a>))}
+<div class="hero min-h-screen bg-base-200 text-center">
+  <div class="hero-content flex flex-col items-center gap-4">
+    <img src="/avatar.png" alt={`${firstName} ${lastName} avatar`} class="w-32 h-32 rounded-full" loading="lazy" />
+    <h1 class="text-5xl font-bold">{`${firstName} ${lastName}`}</h1>
+    {titles[0] && <p class="py-2 text-xl">{titles[0]}</p>}
+    <div class="flex gap-4 flex-wrap justify-center">
+      {ctas.map(({ text, href }) => (
+        <a href={href} class="btn btn-primary">
+          {text}
+        </a>
+      ))}
     </div>
   </div>
 </div>
-
-<script define:vars={{firstName, lastName, titles}}>
-/**
- * Rotates through supplied titles using a typing animation while
- * respecting the user's reduced motion preference.
- */
-(function(){
-  const words = [`${firstName} ${lastName}`, ...titles];
-  const el = document.getElementById('hero-rotating-title');
-  const cursor = document.getElementById('hero-cursor');
-  if(!el) return;
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(prefersReduced){
-    el.innerHTML = `<span class="hero__firstname">${firstName}</span> ${lastName}`;
-    if(cursor) cursor.style.display='none';
-    return;
-  }
-  let wordIndex=0;
-  let charIndex=0;
-  let typing=true;
-
-  function setContent(text){
-    if(words[wordIndex]===`${firstName} ${lastName}` && text===words[wordIndex]){
-      el.innerHTML = `<span class="hero__firstname">${firstName}</span> ${lastName} `;
-    } else {
-      el.textContent = text;
-    }
-  }
-
-  function step(){
-    const word = words[wordIndex];
-    if(typing){
-      if(charIndex < word.length){
-        setContent(word.slice(0,charIndex+1));
-        charIndex++;
-        setTimeout(step,110);
-      } else {
-        typing=false;
-        setTimeout(step,1500);
-      }
-    } else {
-      if(charIndex>0){
-        setContent(word.slice(0,charIndex-1));
-        charIndex--;
-        setTimeout(step,60);
-      } else {
-        typing=true;
-        wordIndex=(wordIndex+1)%words.length;
-        setTimeout(step,300);
-      }
-    }
-  }
-  step();
-})();
-</script>
-
-<style>
-.hero{position:relative;min-height:100vh;display:flex;justify-content:center;align-items:center;overflow:hidden;padding:1rem;text-align:center;}
-.hero__bg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;}
-.hero__content{max-width:100ch;margin:0 auto;color:#fff;display:flex;flex-direction:column;align-items:center;}
-.hero__avatar{width:clamp(12rem,40vw,24rem);height:clamp(12rem,40vw,24rem);border-radius:0%;object-fit:contain;margin:0 auto 1.5rem;}
-@media(max-width:1024px){.hero__avatar{width:153px;height:102px;}}
-.hero__heading{font-size:clamp(3rem,8vw,6rem);margin:0 0 1rem;font-weight:700;display:flex;justify-content:center;align-items:center;gap:.25rem;flex-wrap:wrap;}
-.hero__firstname{background:linear-gradient(45deg,#FDDBD9,#FAC9C3,#F5B8B1,#84A6E1,#8DCDE9,#B3E6FB);-webkit-background-clip:text;color:transparent;}
-.hero__cursor{animation:blink 1s steps(3,start) infinite;}
-@keyframes blink{0%,50%{opacity:1;}50.01%,100%{opacity:0;}}
-.hero__ctas{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
-.hero__cta{background:#fff;color:#111;padding:.75rem 1.25rem;border-radius:9999px;text-decoration:none;font-weight:600;transition:background .2s,color .2s;}
-.hero__cta:hover{background:#111;color:#fff;}
-@media(hover:none){.hero__cta:hover{background:#fff;color:#111;}}
-</style>
