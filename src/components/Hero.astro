@@ -2,14 +2,14 @@
 const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] } = Astro.props;
 ---
 <div class="hero min-h-screen pt-20 text-center px-4">
-  <div class="hero-content flex flex-col items-center gap-4">
-    <img src="/avatar.png" alt={`${firstName} ${lastName} avatar`} class="w-32 h-32 rounded-full" loading="lazy" />
+  <div class="hero-content flex flex-col items-center gap-4 w-full max-w-4xl">
+    <img src="/avatar.png" alt={`${firstName} ${lastName} avatar`} class="w-48 md:w-72 h-auto rounded-2xl" loading="lazy" />
     <h1 class="text-5xl font-bold flex items-center justify-center gap-1 flex-wrap">
       <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span><span id="hero-cursor" class="hero-cursor" aria-hidden="true">|</span>
     </h1>
     <div class="flex gap-4 flex-wrap justify-center">
       {ctas.map(({ text, href }) => (
-        <a href={href} class="btn btn-primary">
+        <a href={href} class="btn bg-white/20 text-white rounded shadow">
           {text}
         </a>
       ))}
