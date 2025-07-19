@@ -47,3 +47,14 @@ html {
   0%,50% { opacity: 1; }
   50.01%,100% { opacity: 0; }
 }
+
+/* Utility classes */
+@layer utilities {
+  .surface-tinted {
+    --tw-bg-opacity: 0.3; /* glassiness */
+    background-color: hsl(var(--p) / var(--tw-bg-opacity));
+    backdrop-filter: blur(8px);
+    box-shadow: 0 1px 3px hsl(var(--p) / 0.25),
+      0 4px 8px hsl(var(--p) / 0.15);
+  }
+}
