@@ -1,5 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui"{
+  themes: nord;
+}
 
 /* Global styles extracted from Layout.astro */
 html,
@@ -34,6 +36,7 @@ html {
 /* Hero component styles extracted from Hero.astro */
 .hero-firstname {
   background: linear-gradient(45deg,#FDDBD9,#FAC9C3,#F5B8B1,#84A6E1,#8DCDE9,#B3E6FB);
+  animation: textMove 5s linear infinite;
   -webkit-background-clip: text;
   color: transparent;
 }
