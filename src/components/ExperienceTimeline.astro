@@ -6,7 +6,7 @@ experiences.sort((a,b)=>b.data.year-a.data.year);
 ---
 <section id="experience" class="py-16">
   <h2 class="text-4xl font-bold mb-8 text-center">Experience</h2>
-  <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical md:timeline-horizontal px-2">
+  <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical px-2 md:px-0">
     {experiences.map((exp, idx) => (
       <li>
         <div class={idx % 2 === 0 ? 'timeline-start font-mono' : 'timeline-end font-mono'}>{exp.data.year}</div>
