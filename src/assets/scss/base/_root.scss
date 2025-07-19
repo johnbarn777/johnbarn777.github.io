@@ -10,4 +10,9 @@
       --#{$color}-#{$shade}: #{$value};
     }
   }
+  --p: var(--primary-300);
+}
+
+.darkmode {
+  --p: var(--primary-300);
 }
