@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 const experiences: CollectionEntry<'experience'>[] = await getCollection('experience');
-experiences.sort((a,b)=>a.data.year-b.data.year);
+experiences.sort((a,b)=>b.data.year-a.data.year);
 ---
 <section id="experience" class="py-16">
   <h2 class="text-4xl font-bold mb-8 text-center">Experience</h2>
@@ -12,7 +12,7 @@ experiences.sort((a,b)=>a.data.year-b.data.year);
         <div class={idx % 2 === 0 ? 'timeline-start font-mono' : 'timeline-end font-mono'}>{exp.data.year}</div>
         <div class="timeline-middle"></div>
         <div class={idx % 2 === 0 ? 'timeline-end pb-4' : 'timeline-start pb-4'}>
-          <div class="collapse collapse-arrow bg-base-200">
+          <div class="collapse collapse-arrow glass surface-tinted">
             <input type="checkbox" />
             <div class="collapse-title font-semibold">
               {exp.data.title}
