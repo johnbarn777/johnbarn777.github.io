@@ -27,3 +27,18 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+// Reusable glass surface utility
+.glass {
+  backdrop-filter: blur(8px);
+  background-color: hsl(var(--p) / 0.1);
+}
+
+// Material 3 surface-tinted variant
+.surface-tinted {
+  --tw-bg-opacity: 0.3; // glassiness
+  background-color: hsl(var(--p) / var(--tw-bg-opacity));
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px hsl(var(--p) / 0.25),
+    0 4px 8px hsl(var(--p) / 0.15);
+}
