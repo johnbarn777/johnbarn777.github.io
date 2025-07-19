@@ -7,11 +7,11 @@ experiences.sort((a,b)=>a.data.year-b.data.year);
 <section id="experience" class="py-16">
   <h2 class="text-4xl font-bold mb-8 text-center">Experience</h2>
   <ul class="timeline timeline-snap-icon max-md:timeline-compact timeline-vertical">
-    {experiences.map(exp => (
+    {experiences.map((exp, idx) => (
       <li>
-        <div class="timeline-start font-mono">{exp.data.year}</div>
+        <div class={idx % 2 === 0 ? 'timeline-start font-mono' : 'timeline-end font-mono'}>{exp.data.year}</div>
         <div class="timeline-middle"></div>
-        <div class="timeline-end pb-4">
+        <div class={idx % 2 === 0 ? 'timeline-end pb-4' : 'timeline-start pb-4'}>
           <div class="collapse collapse-arrow bg-base-200">
             <input type="checkbox" />
             <div class="collapse-title font-semibold">
