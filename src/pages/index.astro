@@ -1,12 +1,15 @@
 ---
-import DefaultLayout from '../layouts/DefaultLayout.astro'
-import Hero from '../components/Hero.astro'
-import ExperienceTimeline from '../components/Experience/ExperienceTimeline.astro'
-import Projects from '../components/Projects.astro'
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import Projects from '../components/Projects.astro';
+import ExperienceTimeline from '../components/ExperienceTimeline.astro';
 ---
-
-<DefaultLayout title="Home">
-  <Hero />
+<Layout>
+  <Hero
+    firstName="Yohann"
+    lastName=""
+    titles={["Developer","ML-Engineer","Innovator"]}
+    ctas={[{text:'View Projects', href:'#projects'}, {text:'Contact Me', href:'#contact'}]} />
   <ExperienceTimeline />
   <Projects />
-</DefaultLayout>
+</Layout>

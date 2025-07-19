@@ -1,0 +1,23 @@
+---
+import type { CollectionEntry } from 'astro:content';
+const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
+const summary = project.data.summary.slice(0, 120);
+---
+<article class="card glass surface-tinted>
+  <figure class="px-4 pt-4">
+    <img src={project.data.image} alt={project.data.title + ' logo'} class="w-24 h-24 object-contain" loading="lazy" />
+  </figure>
+  <div class="card-body">
+    <h3 class="card-title">{project.data.title}</h3>
+    <p>{summary}</p>
+    <div class="flex flex-wrap gap-2">
+      {project.data.tech.map(t => (
+        <span class="badge badge-outline">{t}</span>
+      ))}
+    </div>
+    <div class="card-actions justify-end mt-2">
+      {project.data.demo && <a class="link link-hover" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
+      {project.data.repo && <a class="link link-hover" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
+    </div>
+  </div>
+</article>

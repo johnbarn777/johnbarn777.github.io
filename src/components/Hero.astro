@@ -1,47 +1,70 @@
 ---
-import { Icon } from 'astro-icon/components'
-
-const { src = '/avatar.png' } = Astro.props
+const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] } = Astro.props;
 ---
-
-<section class="hero my-24">
-  <div class="container">
-    <div class="grid grid-cols-1 items-center gap-24 lg:grid-cols-2">
-      <div class="flex flex-col items-center gap-8 md:items-start">
-        <h1 class="text-center text-6xl md:text-left lg:text-8xl">
-          <slot><span class="text-gradient">Yohann</span> Pittappillil</slot>
-        </h1>
-        <!-- <div class="flex flex-col gap-3 min-[500px]:flex-row">
-          <a class="button has-icon" href="https://github.com/markteekman/accessible-astro-starter">
-            <Icon name="ion:star-outline" />
-            Star on GitHub
-          </a>
-          <a
-            class="button has-icon color-secondary"
-            href="https://github.com/markteekman/accessible-astro-starter/blob/main/README.md"
-          >
-            <Icon name="ion:bookmark-outline" />
-            Read the Docs
-          </a>
-        </div>-->
-      </div>
-      <img class="hidden lg:block" src={src} alt="" decoding="async" />
+<div class="hero min-h-screen pt-20 text-center px-4">
+  <div class="hero-content flex flex-col items-center gap-4 w-full max-w-4xl">
+    <img src="/avatar.png" alt={`${firstName} ${lastName} avatar`} class="w-48 md:w-72 h-auto rounded-2xl" loading="lazy" />
+    <h1 class="text-5xl font-bold flex items-center justify-center gap-1 flex-wrap">
+      <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span><span id="hero-cursor" class="hero-cursor" aria-hidden="true">|</span>
+    </h1>
+    <div class="flex gap-4 flex-wrap justify-center">
+      {ctas.map(({ text, href }) => (
+        <a href={href} class="btn rounded-full glass surface-tinted text-white normal-case text-l">
+          {text}
+        </a>
+      ))}
     </div>
   </div>
-</section>
+</div>
 
-<style lang="scss">
-  .text-gradient {
-    background: linear-gradient(315deg, var(--primary-200) 25%, var(--secondary-500));
-    background-clip: border-box;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+<script client:visible define:vars={{ firstName, lastName, titles }}>
+(() => {
+  const words = [`${firstName} ${lastName}`, ...titles];
+  const el = document.getElementById('hero-rotating-title');
+  const cursor = document.getElementById('hero-cursor');
+  if (!el) return;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReduced) {
+    el.innerHTML = `<span class="hero-firstname">${firstName}</span> ${lastName}`;
+    if (cursor) cursor.style.display = 'none';
+    return;
+  }
+  let wordIndex = 0;
+  let charIndex = 0;
+  let typing = true;
+
+  function setContent(text) {
+    if (words[wordIndex] === `${firstName} ${lastName}` && text === words[wordIndex]) {
+      el.innerHTML = `<span class="hero-firstname">${firstName}</span> ${lastName} `;
+    } else {
+      el.textContent = text;
+    }
   }
 
-  :global(.darkmode .text-gradient) {
-    background: linear-gradient(315deg, var(--primary-200) 25%, var(--secondary-400));
-    background-clip: border-box;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  function step() {
+    const word = words[wordIndex];
+    if (typing) {
+      if (charIndex < word.length) {
+        setContent(word.slice(0, charIndex + 1));
+        charIndex++;
+        setTimeout(step, 110);
+      } else {
+        typing = false;
+        setTimeout(step, 1500);
+      }
+    } else {
+      if (charIndex > 0) {
+        setContent(word.slice(0, charIndex - 1));
+        charIndex--;
+        setTimeout(step, 60);
+      } else {
+        typing = true;
+        wordIndex = (wordIndex + 1) % words.length;
+        setTimeout(step, 300);
+      }
+    }
   }
-</style>
+  step();
+})();
+</script>
+
