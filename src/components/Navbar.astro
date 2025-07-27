@@ -1,9 +1,19 @@
 ---
 ---
-<nav class="navbar fixed top-0 left-0 z-50  rounded-2xl glass surface-tinted">
+<nav class="navbar fixed top-0 left-0 z-50 rounded-2xl glass surface-tinted px-2 md:px-0">
   <div class="flex-1">
-    <a href="/" class="btn btn-ghost text-white normal-case text-xl">Y V P</a>
-    <ul class="menu menu-horizontal px-1 ml-2">
+    <!-- Mobile dropdown -->
+    <div class="dropdown md:hidden">
+      <label tabindex="0" class="btn btn-ghost text-white normal-case text-xl">Y V P</label>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 glass surface-tinted rounded-box w-40 mt-2">
+        <li><a href="/">Home</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#projects">Projects</a></li>
+      </ul>
+    </div>
+    <!-- Desktop links -->
+    <a href="/" class="btn btn-ghost text-white normal-case text-xl hidden md:inline-flex">Y V P</a>
+    <ul class="menu menu-horizontal px-1 ml-2 hidden md:flex">
       <li><a href="#experience" class="btn btn-ghost text-white normal-case text-l">Experience</a></li>
       <li><a href="#projects" class="btn btn-ghost text-white normal-case text-l">Projects</a></li>
     </ul>

@@ -3,7 +3,7 @@ import type { CollectionEntry } from 'astro:content';
 const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
 const summary = project.data.summary.slice(0, 120);
 ---
-<article class="card glass surface-tinted>
+<article class="card glass surface-tinted p-4 md:p-0">
   <figure class="px-4 pt-4">
     <img src={project.data.image} alt={project.data.title + ' logo'} class="w-24 h-24 object-contain" loading="lazy" />
   </figure>
