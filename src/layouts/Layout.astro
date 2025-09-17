@@ -1,5 +1,4 @@
 ---
-import "../assets/app.css";
 import Navbar from '../components/Navbar.astro';
 ---
 <!doctype html>
@@ -8,6 +7,7 @@ import Navbar from '../components/Navbar.astro';
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width" />
         <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="stylesheet" href="/assets/css/main.css" />
         <meta name="generator" content={Astro.generator} />
         <title>Y V P</title>
         </head>
@@ -17,4 +17,3 @@ import Navbar from '../components/Navbar.astro';
                 <slot />
         </body>
 </html>
-
