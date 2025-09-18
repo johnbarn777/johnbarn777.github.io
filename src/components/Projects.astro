@@ -4,9 +4,11 @@ import type { CollectionEntry } from 'astro:content';
 import ProjectCard from './ProjectCard.astro';
 const projects: CollectionEntry<'projects'>[] = await getCollection('projects');
 ---
-<section id="projects" class="py-16 text-center">
-  <h2 class="text-4xl font-bold mb-8">Projects</h2>
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
-    {projects.map(p => <ProjectCard project={p} />)}
+<section id="projects" class="section" aria-labelledby="projects-title">
+  <div class="container flex flex-col gap-8 text-center">
+    <h2 id="projects-title" class="section-title">Projects</h2>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+      {projects.map(p => <ProjectCard project={p} />)}
+    </div>
   </div>
 </section>

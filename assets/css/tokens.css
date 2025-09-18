@@ -6,6 +6,8 @@
   --brand-3: #84a6e1;
   --brand-4: #8dcde9;
 
+  --surface-raised: rgba(255, 255, 255, 0.82);
+
   /* Neutral scale */
   --neutral-50: #fafbff;
   --neutral-100: #eef1f8;
@@ -43,4 +45,26 @@
   --space-8: 4rem;
   --space-9: 4.5rem;
   --space-10: 5rem;
+}
+
+:root[data-theme='dark'],
+.dark {
+  --ink-900: #f8fafc;
+  --brand-1: #1f476f;
+  --brand-2: #2c3b71;
+  --brand-3: #4f75c2;
+  --brand-4: #6ea6d7;
+
+  --neutral-50: #0f172a;
+  --neutral-100: #111827;
+  --neutral-200: #1e293b;
+  --neutral-300: #273247;
+  --neutral-400: #334155;
+  --neutral-500: #475569;
+  --neutral-600: #64748b;
+  --neutral-700: #94a3b8;
+  --neutral-800: #cbd5f5;
+  --neutral-900: #e2e8f0;
+
+  --surface-raised: rgba(15, 23, 42, 0.75);
 }

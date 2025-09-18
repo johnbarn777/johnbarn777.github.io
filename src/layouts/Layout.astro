@@ -2,18 +2,118 @@
 import Navbar from '../components/Navbar.astro';
 ---
 <!doctype html>
-<html data-theme="nord" lang="en">
-        <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width" />
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="stylesheet" href="/assets/css/main.css" />
-        <meta name="generator" content={Astro.generator} />
-        <title>Y V P</title>
-        </head>
-        <body>
-                <div class="page-bg" aria-hidden="true"></div>
-                <Navbar />
-                <slot />
-        </body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/assets/css/main.css" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Y V P</title>
+    <script>
+      (function themeInitializer() {
+        const storageKey = 'theme-preference';
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+        const readStored = () => {
+          try {
+            return localStorage.getItem(storageKey);
+          } catch (_err) {
+            return null;
+          }
+        };
+        const initial = readStored() ?? (prefersDark.matches ? 'dark' : 'light');
+        root.dataset.theme = initial;
+        root.classList.toggle('dark', initial === 'dark');
+        root.style.colorScheme = initial === 'dark' ? 'dark' : 'light';
+      })();
+    </script>
+  </head>
+  <body class="site-body">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <div class="page-bg" aria-hidden="true"></div>
+    <header class="site-header" role="banner">
+      <Navbar />
+    </header>
+    <main id="main-content" class="site-main" tabindex="-1">
+      <slot />
+    </main>
+    <script>
+      (function themeController() {
+        const storageKey = 'theme-preference';
+        const root = document.documentElement;
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+        const readStored = () => {
+          try {
+            return localStorage.getItem(storageKey);
+          } catch (_err) {
+            return null;
+          }
+        };
+
+        const writeStored = value => {
+          try {
+            localStorage.setItem(storageKey, value);
+          } catch (_err) {
+            /* no-op */
+          }
+        };
+
+        const applyTheme = theme => {
+          const resolved = theme === 'dark' ? 'dark' : 'light';
+          root.dataset.theme = resolved;
+          root.classList.toggle('dark', resolved === 'dark');
+          root.style.colorScheme = resolved === 'dark' ? 'dark' : 'light';
+
+          const toggle = document.querySelector('[data-theme-toggle]');
+          if (!toggle) return;
+
+          const isDark = resolved === 'dark';
+          toggle.setAttribute('aria-pressed', String(isDark));
+
+          const label = toggle.querySelector('[data-theme-label]');
+          if (label) {
+            label.textContent = isDark ? 'Switch to light mode' : 'Switch to dark mode';
+          }
+
+          const moonIcon = toggle.querySelector('[data-theme-icon="moon"]');
+          const sunIcon = toggle.querySelector('[data-theme-icon="sun"]');
+          if (moonIcon) moonIcon.hidden = isDark;
+          if (sunIcon) sunIcon.hidden = !isDark;
+        };
+
+        const toggleTheme = () => {
+          const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+          applyTheme(next);
+          writeStored(next);
+        };
+
+        const stored = readStored();
+        if (stored) {
+          applyTheme(stored);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+          const toggle = document.querySelector('[data-theme-toggle]');
+          if (!toggle) return;
+          applyTheme(root.dataset.theme ?? 'light');
+          toggle.addEventListener('click', toggleTheme);
+        });
+
+        const handleMediaChange = event => {
+          if (readStored()) {
+            return;
+          }
+          applyTheme(event.matches ? 'dark' : 'light');
+        };
+
+        if (typeof media.addEventListener === 'function') {
+          media.addEventListener('change', handleMediaChange);
+        } else if (typeof media.addListener === 'function') {
+          media.addListener(handleMediaChange);
+        }
+      })();
+    </script>
+  </body>
 </html>
