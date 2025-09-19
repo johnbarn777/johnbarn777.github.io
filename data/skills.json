@@ -1,0 +1,110 @@
+{
+  "categories": [
+    { "id": "languages", "label": "Languages", "order": 1, "visible": true },
+    { "id": "frameworks", "label": "Frameworks", "order": 2, "visible": true },
+    { "id": "mobile", "label": "Mobile", "order": 3, "visible": true },
+    { "id": "cloud", "label": "Cloud", "order": 4, "visible": true },
+    { "id": "databases", "label": "Databases", "order": 5, "visible": true },
+    { "id": "ml", "label": "ML/AI", "order": 6, "visible": true },
+    { "id": "devops", "label": "DevOps", "order": 7, "visible": true },
+    { "id": "tools", "label": "Tools", "order": 8, "visible": true }
+  ],
+  "items": [
+    {
+      "name": "TypeScript",
+      "category": "languages",
+      "icon": "/assets/icons/skills/typescript.svg",
+      "level": "advanced",
+      "years": 3.5,
+      "primary": true
+    },
+    {
+      "name": "Python",
+      "category": "languages",
+      "icon": "/assets/icons/skills/python.svg",
+      "level": "advanced",
+      "years": 5,
+      "primary": true
+    },
+    {
+      "name": "React",
+      "category": "frameworks",
+      "icon": "/assets/icons/skills/react.svg",
+      "level": "advanced",
+      "years": 4.5,
+      "primary": true
+    },
+    {
+      "name": "Node.js",
+      "category": "frameworks",
+      "icon": "/assets/icons/skills/nodejs.svg",
+      "level": "advanced",
+      "years": 4,
+      "primary": true
+    },
+    {
+      "name": "React Native",
+      "category": "mobile",
+      "icon": "/assets/icons/skills/react-native.svg",
+      "level": "advanced",
+      "years": 3,
+      "primary": true
+    },
+    {
+      "name": "Firebase",
+      "category": "cloud",
+      "icon": "/assets/icons/skills/firebase.svg",
+      "level": "advanced",
+      "years": 3.5,
+      "primary": true
+    },
+    {
+      "name": "Google Cloud",
+      "category": "cloud",
+      "icon": "/assets/icons/skills/gcp.svg",
+      "level": "intermediate",
+      "years": 3,
+      "primary": true
+    },
+    {
+      "name": "PostgreSQL",
+      "category": "databases",
+      "icon": "/assets/icons/skills/postgresql.svg",
+      "level": "advanced",
+      "years": 4,
+      "primary": true
+    },
+    {
+      "name": "PyTorch",
+      "category": "ml",
+      "icon": "/assets/icons/skills/pytorch.svg",
+      "level": "intermediate",
+      "years": 2.5,
+      "primary": true
+    },
+    {
+      "name": "GitHub Actions",
+      "category": "devops",
+      "icon": "/assets/icons/skills/github-actions.svg",
+      "level": "advanced",
+      "years": 3,
+      "primary": true
+    },
+    {
+      "name": "Docker",
+      "category": "devops",
+      "icon": "/assets/icons/skills/docker.svg",
+      "level": "intermediate",
+      "years": 3,
+      "primary": true
+    },
+    {
+      "name": "Tailwind CSS",
+      "category": "tools",
+      "icon": "/assets/icons/skills/tailwind.svg",
+      "level": "advanced",
+      "years": 4,
+      "primary": true
+    }
+  ]
+}
