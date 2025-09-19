@@ -1,0 +1,515 @@
+---
+import CertCard from './CertCard.astro';
+import { certCategories, certifications } from '../../data/certs';
+
+const total = certifications.length;
+const sectionLabel = 'Featured certifications carousel';
+const preload = certifications.slice(0, 2);
+---
+<astro:head>
+  {preload.map(cert => (
+    <link rel="preload" as="image" href={cert.largeImage} imagesrcset={`${cert.largeImage} 960w`} />
+  ))}
+</astro:head>
+<section
+  id="certifications"
+  class="section"
+  data-filter-section="certs"
+  aria-labelledby="certs-title"
+>
+  <div class="container flex flex-col gap-8">
+    <div class="certs-header">
+      <div>
+        <h2 id="certs-title" class="section-title">Certifications</h2>
+        <p class="certs-tagline">
+          Proof of hands-on mastery across cloud, ML, and responsible AI programmes. Scroll or use the controls to explore.
+        </p>
+      </div>
+      <div class="certs-filters" role="toolbar" aria-label="Certification categories" data-filter-toolbar>
+        {certCategories.map(category => (
+          <button
+            type="button"
+            class="filter-button"
+            data-filter-value={category}
+            aria-pressed={category === 'All' ? 'true' : 'false'}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="certs-summary" data-filter-summary>
+      <p class="filter-count" data-filter-count>Showing 0 of {total}</p>
+      <div class="filter-summary__chips" data-filter-chips hidden>
+        <button type="button" class="filter-clear" data-filter-clear>Clear all</button>
+      </div>
+    </div>
+
+    <div class="certs-carousel" role="region" aria-roledescription="carousel" aria-label={sectionLabel}>
+      <button
+        type="button"
+        class="certs-paddle"
+        data-cert-nav="prev"
+        aria-label="Previous certification"
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <div id="certs-viewport" class="certs-viewport" tabindex="0">
+        <div class="certs-track" data-filter-list role="list">
+          {certifications.map((cert, index) => (
+            <CertCard cert={cert} index={index} total={total} isActive={index === 0} />
+          ))}
+        </div>
+      </div>
+      <button
+        type="button"
+        class="certs-paddle"
+        data-cert-nav="next"
+        aria-label="Next certification"
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+
+    <div class="certs-empty" data-filter-empty hidden role="status" aria-live="polite">
+      <h3>No certifications match these filters</h3>
+      <p>Try selecting a different category or reset to All.</p>
+      <button type="button" class="filter-clear" data-filter-clear>Clear all filters</button>
+    </div>
+
+    <p class="sr-only" aria-live="polite" data-cert-live></p>
+  </div>
+</section>
+
+<script type="module">
+  const initCarousel = () => {
+    const section = document.querySelector('[data-filter-section="certs"]');
+    if (!section) {
+      requestAnimationFrame(initCarousel);
+      return;
+    }
+
+    if (!(section instanceof HTMLElement) || section.dataset.carouselReady === 'true') {
+      return;
+    }
+
+    const viewport = section.querySelector('#certs-viewport');
+    const track = section.querySelector('.certs-track');
+    const liveRegion = section.querySelector('[data-cert-live]');
+    const paddles = section.querySelectorAll('[data-cert-nav]');
+
+    if (!viewport || !track || !liveRegion) {
+      throw new Error('Certification carousel missing required nodes');
+    }
+
+    if (!(viewport instanceof HTMLElement) || !(track instanceof HTMLElement) || !(liveRegion instanceof HTMLElement)) {
+      throw new Error('Certification carousel missing required nodes');
+    }
+
+    section.dataset.carouselReady = 'true';
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const getCards = () => Array.from(track.querySelectorAll('[data-cert-card]'));
+    let cards = getCards().filter(card => !card.hasAttribute('hidden'));
+    let activeIndex = 0;
+    let scrollFrame = 0;
+    let ignoreScroll = false;
+    let scrollReleaseTimer;
+
+    const updateCardStates = () => {
+      const allCards = getCards();
+      const visible = allCards.filter(card => !card.hasAttribute('hidden'));
+      cards = visible;
+
+      allCards.forEach(card => {
+        const index = visible.indexOf(card);
+        const isVisible = index !== -1;
+        const isActiveCard = isVisible && index === activeIndex;
+
+        if (isVisible) {
+          const offset = Math.abs(index - activeIndex);
+          const state = offset === 0 ? 'active' : offset === 1 ? 'near' : 'far';
+          card.dataset.state = state;
+        } else {
+          delete card.dataset.state;
+        }
+
+        card.classList.toggle('is-active', isActiveCard);
+        card.setAttribute('aria-current', isActiveCard ? 'true' : 'false');
+
+        const detail = card.querySelector('[data-cert-detail]');
+        if (detail instanceof HTMLElement) {
+          const shouldShow = isActiveCard && isVisible;
+          detail.hidden = !shouldShow;
+          detail.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+        }
+      });
+    };
+
+    const getVerifyLink = () => {
+      const element = cards[activeIndex]?.querySelector('[data-cert-verify]');
+      return element instanceof HTMLAnchorElement ? element : null;
+    };
+
+    const announceActive = () => {
+      const card = cards[activeIndex];
+      if (!card) return;
+      const text = card.dataset.liveText;
+      if (text) {
+        liveRegion.textContent = text;
+      }
+    };
+
+    const focusCard = index => {
+      const card = cards[index];
+      if (!card) return;
+      card.focus({ preventScroll: true });
+    };
+
+    const clampIndex = index => {
+      if (!cards.length) return 0;
+      return Math.max(0, Math.min(cards.length - 1, index));
+    };
+
+    const ensureImageLoaded = index => {
+      const card = cards[index];
+      if (!card) return;
+      const image = card.querySelector('[data-detail-src]');
+      if (image instanceof HTMLImageElement && !image.src) {
+        image.src = image.dataset.detailSrc ?? '';
+        image.removeAttribute('data-detail-src');
+      }
+    };
+
+    const warmNeighbors = () => {
+      ensureImageLoaded(activeIndex);
+      ensureImageLoaded(activeIndex - 1);
+      ensureImageLoaded(activeIndex + 1);
+    };
+
+    const scrollToIndex = index => {
+      const card = cards[index];
+      if (!card) return;
+      const behavior = prefersReducedMotion.matches ? 'auto' : 'smooth';
+      card.scrollIntoView({ inline: 'center', block: 'nearest', behavior });
+    };
+
+    const setActive = (index, options = {}) => {
+      const { shouldScroll = false, announce = true } = options;
+      const nextIndex = clampIndex(index);
+      if (shouldScroll) {
+        ignoreScroll = true;
+        if (scrollReleaseTimer) {
+          window.clearTimeout(scrollReleaseTimer);
+        }
+        scrollReleaseTimer = window.setTimeout(() => {
+          ignoreScroll = false;
+          scrollReleaseTimer = undefined;
+        }, 450);
+        scrollToIndex(nextIndex);
+      }
+
+      activeIndex = nextIndex;
+      updateCardStates();
+      warmNeighbors();
+      if (announce) {
+        announceActive();
+      }
+    };
+
+    const computeActiveFromGeometry = () => {
+      const viewportRect = viewport.getBoundingClientRect();
+      const center = viewportRect.left + viewportRect.width / 2;
+      let bestIndex = activeIndex;
+      let minDistance = Number.POSITIVE_INFINITY;
+      cards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        const cardCenter = rect.left + rect.width / 2;
+        const distance = Math.abs(cardCenter - center);
+        if (distance < minDistance) {
+          minDistance = distance;
+          bestIndex = index;
+        }
+      });
+      return bestIndex;
+    };
+
+    const handleScroll = () => {
+      if (ignoreScroll) {
+        return;
+      }
+      if (scrollFrame) cancelAnimationFrame(scrollFrame);
+      scrollFrame = requestAnimationFrame(() => {
+        const index = computeActiveFromGeometry();
+        if (index !== activeIndex) {
+          activeIndex = index;
+          updateCardStates();
+          warmNeighbors();
+          announceActive();
+        }
+      });
+    };
+
+    viewport.addEventListener('scroll', handleScroll, { passive: true });
+
+    const handleScrollEnd = () => {
+      if (ignoreScroll) {
+        ignoreScroll = false;
+        if (scrollReleaseTimer) {
+          window.clearTimeout(scrollReleaseTimer);
+          scrollReleaseTimer = undefined;
+        }
+        return;
+      }
+      const index = computeActiveFromGeometry();
+      if (index !== activeIndex) {
+        setActive(index, { announce: true });
+      } else {
+        updateCardStates();
+        warmNeighbors();
+      }
+    };
+
+    if ('onscrollend' in viewport) {
+      viewport.addEventListener('scrollend', handleScrollEnd);
+    }
+
+    cards.forEach((card, index) => {
+      card.addEventListener('click', () => setActive(index, { shouldScroll: true }));
+      card.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          if (index !== activeIndex) {
+            event.preventDefault();
+            setActive(index, { shouldScroll: true });
+          }
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          setActive(activeIndex - 1, { shouldScroll: true });
+        } else if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          setActive(activeIndex + 1, { shouldScroll: true });
+        } else if (event.key.toLowerCase() === 'v') {
+          const link = getVerifyLink();
+          if (link) {
+            event.preventDefault();
+            link.focus();
+          }
+        }
+      });
+    });
+
+    viewport.addEventListener('keydown', event => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setActive(activeIndex - 1, { shouldScroll: true });
+        focusCard(activeIndex);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setActive(activeIndex + 1, { shouldScroll: true });
+        focusCard(activeIndex);
+      } else if (event.key.toLowerCase() === 'v') {
+        const link = getVerifyLink();
+        if (link) {
+          event.preventDefault();
+          link.focus();
+        }
+      }
+    });
+
+    paddles.forEach(paddle => {
+      paddle.addEventListener('click', () => {
+        const direction = paddle.dataset.certNav === 'next' ? 1 : -1;
+        setActive(activeIndex + direction, { shouldScroll: true });
+        focusCard(activeIndex);
+      });
+    });
+
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const card = entry.target;
+          if (!(card instanceof HTMLElement)) return;
+          const index = cards.indexOf(card);
+          if (index === -1) return;
+          if (Math.abs(index - activeIndex) <= 1) {
+            ensureImageLoaded(index);
+          }
+        });
+      },
+      {
+        root: viewport,
+        threshold: 0.4,
+      }
+    );
+
+    cards.forEach(card => io.observe(card));
+
+    section.addEventListener('filters:updated', event => {
+      const customEvent = /** @type {CustomEvent} */ (event);
+      const detail = customEvent.detail;
+      if (!detail || detail.id !== 'certs') return;
+      cards = getCards().filter(card => !card.hasAttribute('hidden'));
+      if (!cards.length) {
+        activeIndex = 0;
+        liveRegion.textContent = '';
+        return;
+      }
+      setActive(0, { shouldScroll: true });
+      focusCard(0);
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key.toLowerCase() !== 'v') return;
+      const activeElement = document.activeElement;
+      if (!activeElement || !section.contains(activeElement)) return;
+      const link = getVerifyLink();
+      if (link) {
+        event.preventDefault();
+        link.focus();
+      }
+    });
+
+    updateCardStates();
+    warmNeighbors();
+    announceActive();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarousel, { once: true });
+  } else {
+    queueMicrotask(initCarousel);
+  }
+
+  document.addEventListener('astro:after-swap', () => {
+    requestAnimationFrame(initCarousel);
+  });
+</script>
+
+<style>
+  .certs-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 960px) {
+    .certs-header {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+  }
+
+  .certs-tagline {
+    margin: 0;
+    color: var(--neutral-500);
+    max-width: 36rem;
+  }
+
+  :global(:root[data-theme='dark']) .certs-tagline {
+    color: var(--neutral-300);
+  }
+
+  .certs-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .certs-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .certs-carousel {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .certs-viewport {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    display: flex;
+    align-items: stretch;
+    gap: 2.5rem;
+    padding-block: var(--space-2);
+    padding-inline: 0.5rem;
+  }
+
+  .certs-viewport:focus-visible {
+    outline: 2px solid var(--brand-4);
+    outline-offset: 3px;
+  }
+
+  .certs-track {
+    display: flex;
+    align-items: stretch;
+    gap: 2.5rem;
+  }
+
+  .certs-paddle {
+    display: inline-flex;
+    width: 3rem;
+    height: 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--neutral-900);
+    font-size: 1.5rem;
+    transition: filter 150ms ease;
+  }
+
+  :global(:root[data-theme='dark']) .certs-paddle {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(148, 163, 184, 0.4);
+    color: var(--neutral-100);
+  }
+
+  .certs-paddle:focus-visible {
+    outline: 2px solid var(--brand-4);
+    outline-offset: 3px;
+    filter: brightness(1.05);
+  }
+
+  .certs-empty {
+    display: grid;
+    gap: 0.5rem;
+    padding: var(--space-3);
+    border-radius: 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.4);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  :global(:root[data-theme='dark']) .certs-empty {
+    background: rgba(15, 23, 42, 0.6);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .certs-card {
+      transition-duration: 100ms !important;
+    }
+  }
+</style>
