@@ -52,7 +52,7 @@ jobs:
       - name: Commit compiled CSS
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: chore: update compiled CSS
+          commit_message: 'chore: update compiled CSS'
           commit_user_name: github-actions[bot]
           commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
           file_pattern: assets/css/main.css public/assets/css/main.css
