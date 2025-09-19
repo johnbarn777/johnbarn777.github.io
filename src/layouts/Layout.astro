@@ -11,6 +11,7 @@ import filteringScript from '../scripts/filtering.ts?url';
     <link rel="stylesheet" href="/assets/css/main.css" />
     <meta name="generator" content={Astro.generator} />
     <title>Y V P</title>
+    <slot name="head" />
     <script>
       (function themeInitializer() {
         const storageKey = 'theme-preference';

@@ -6,23 +6,30 @@
     "dev": "astro dev",
     "build": "npm run build:filters && astro build",
     "build:filters": "tsc --project tsconfig.filtering.json",
-
     "build:css": "tailwindcss -i ./assets/css/tailwind-input.css -o ./assets/css/main.css --minify && mkdir -p public/assets/css && cp ./assets/css/main.css ./public/assets/css/main.css",
     "lint": "astro check",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "playwright test"
+    "test": "playwright test",
+    "icons:fetch": "node scripts/fetch-skill-icons.mjs"
   },
   "dependencies": {
     "astro": "^5.11.1",
     "tailwindcss": "^3.4.15"
   },
   "devDependencies": {
+    "@iconify-json/devicon": "^1.1.32",
+    "@iconify-json/material-symbols": "^1.1.69",
+    "@iconify-json/simple-icons": "^1.1.100",
+    "@iconify/tools": "^3.0.5",
+    "@iconify/utils": "^2.1.16",
     "@playwright/test": "^1.54.1",
     "@types/node": "^24.0.14",
     "autoprefixer": "^10.4.20",
+    "cheerio": "^1.1.2",
     "daisyui": "^4.12.20",
     "postcss": "^8.4.47",
+    "svgo": "^3.3.2",
     "typescript": "^5.8.3"
   }
 }

@@ -34,6 +34,13 @@ Inside of your Astro project, you'll see the following folders and files:
 
 To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
 
+## Icons & licensing
+
+- `npm run icons:fetch` downloads the current icon set from Iconify, normalises everything to a 24×24 viewBox, and runs SVGO.
+- Icon sources: Devicon (MIT), Simple Icons (CC0 1.0), Material Symbols (Apache-2.0).
+- Keep icons driven by `currentColor`; if a brand requires a specific colour, set it via CSS variables rather than editing the SVG.
+- Follow each brand’s usage guide (no stretching, skewing, or unapproved recolours) when you place icons in UI.
+
 ## 🧞 Commands
 
 All commands are run from the root of the project, from a terminal:
@@ -46,6 +53,13 @@ All commands are run from the root of the project, from a terminal:
 | `npm run preview`         | Preview your build locally, before deploying     |
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
+
+## Icons & licensing
+
+- `npm run icons:fetch` downloads the current icon set from Iconify, normalises everything to a 24×24 viewBox, and runs SVGO.
+- Icon sources: Devicon (MIT), Simple Icons (CC0 1.0), Material Symbols (Apache-2.0).
+- Keep icons driven by `currentColor`; if a brand requires a specific colour, set it via CSS variables rather than editing the SVG.
+- Follow each brand’s usage guide (no stretching, skewing, or unapproved recolours) when you place icons in UI.
 
 ## 👀 Want to learn more?
 
