@@ -14,10 +14,7 @@
     "metrics": [],
     "tech": ["Prompting", "Annotation", "Safety QA", "Computer Vision", "NLP"],
     "links": [
-      {"label": "Company", "href": "https://outlier.ai/"},
-      {"label": "About", "href": "https://outlier.ai/about-us"},
-      {"label": "LinkedIn", "href": "https://linkedin.com/in/yohannp"},
-      {"label": "GitHub", "href": "https://github.com/johnbarn777"}
+      {"label": "Company", "href": "https://outlier.ai/"}
     ],
     "category": "AI/ML",
     "logo": "/assets/img/orgs/outlier.svg"

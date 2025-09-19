@@ -1,22 +1,38 @@
 ---
 import experienceData from '../../data/experience.json';
 
-const filters = [
-  { label: 'All', value: 'All' },
-  { label: 'AI/ML', value: 'AI/ML' },
-  { label: 'Software', value: 'Software' },
-  { label: 'IT', value: 'IT Support' },
-] as const;
-const fallbackExperiences = experienceData;
+const experienceFilters = ['All', 'AI/ML', 'Software', 'IT Support'] as const;
 
-const formatRange = (start: string, end?: string) => {
-  const [startYear] = (start ?? '').split('-');
-  const [endYear] = (end ?? '').split('-');
-  if (!startYear) return endYear ?? '';
-  return `${startYear} – ${endYear ? endYear : 'Present'}`;
+const parseDate = (value?: string) => {
+  if (!value) return new Date(0);
+  const normalised = String(value).trim().toLowerCase();
+  if (normalised === 'present') {
+    return new Date(8640000000000000);
+  }
+  const [year, month = '01'] = String(value).split('-');
+  const yearNum = Number(year);
+  const monthNum = Number(month);
+  if (Number.isNaN(yearNum)) {
+    return new Date(0);
+  }
+  return new Date(yearNum, Number.isNaN(monthNum) ? 0 : monthNum - 1);
 };
+
+const formatRange = (start?: string, end?: string) => {
+  const startYear = String(start || '').split('-')[0];
+  const endYear = String(end || '').split('-')[0];
+  if (!startYear) return endYear || '';
+  return `${startYear} – ${endYear || 'Present'}`;
+};
+
+const experiences = [...experienceData].sort((a, b) => parseDate(b.start) - parseDate(a.start));
 ---
-<section id="experience" class="section" aria-labelledby="experience-title">
+<section
+  id="experience"
+  class="section"
+  aria-labelledby="experience-title"
+  data-filter-section="experience"
+>
   <div class="container flex flex-col gap-8">
     <div class="experience-header">
       <h2 id="experience-title" class="section-title">Impact Timeline</h2>
@@ -25,35 +41,66 @@ const formatRange = (start: string, end?: string) => {
         software.
       </p>
     </div>
+
     <div
-      class="experience-filters"
+      id="experience-filters"
+      class="filter-toolbar"
       role="toolbar"
       aria-label="Filter timeline by discipline"
-      data-experience-filterbar
+      data-filter-toolbar
     >
-      {filters.map(({ label, value }) => (
+      {experienceFilters.map(value => (
         <button
           type="button"
-          class="experience-filter"
-          data-filter={value}
+          class="filter-button"
+          data-filter-value={value}
           aria-pressed={value === 'All' ? 'true' : 'false'}
         >
-          {label}
+          {value}
         </button>
       ))}
     </div>
-    <div class="experience-list" data-experience-root aria-live="polite">
-      {fallbackExperiences.map((exp, idx) => (
-        <article class="experience-card" data-category={exp.category}>
+
+    <div
+      id="experience-active-filters"
+      class="filter-summary"
+      data-filter-summary
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <p id="experience-count" class="filter-count" data-filter-count>
+        Showing 0 of {experiences.length}
+      </p>
+      <div class="filter-summary__chips" data-filter-chips hidden>
+        <button type="button" class="filter-clear" data-filter-clear>Clear all</button>
+      </div>
+    </div>
+
+    <div
+      id="experience-list"
+      class="experience-list"
+      data-filter-list
+      aria-live="polite"
+      role="list"
+    >
+      {experiences.map((exp, index) => (
+        <article
+          class="experience-card"
+          data-filter-item="experience"
+          data-category={exp.category}
+          data-index={String(index)}
+          role="listitem"
+          aria-label={`${exp.role} at ${exp.company}`}
+        >
           <div class="experience-card__rail">
             {exp.logo ? (
               <img
                 src={exp.logo}
                 alt={`${exp.company} logo`}
                 class="experience-card__logo"
-                loading={idx === 0 ? 'eager' : 'lazy'}
                 width="56"
                 height="56"
+                loading={index < 2 ? 'eager' : 'lazy'}
               />
             ) : (
               <div class="experience-card__logo" aria-hidden="true"></div>
@@ -67,14 +114,9 @@ const formatRange = (start: string, end?: string) => {
             </h3>
             <p class="experience-card__meta">{exp.location}</p>
             <p class="experience-card__summary">{exp.summary}</p>
-            <ul class="experience-card__highlights">
-              {exp.highlights.slice(0, 3).map(point => (
-                <li>{point}</li>
-              ))}
-            </ul>
-            {exp.metrics?.length ? (
+            {Array.isArray(exp.metrics) && exp.metrics.length ? (
               <div class="experience-metrics">
-                {exp.metrics.map(metric => (
+                {exp.metrics.slice(0, 3).map(metric => (
                   <span class="experience-metric-chip">
                     <span>{metric.label}</span>
                     <strong>{metric.value}</strong>
@@ -82,14 +124,21 @@ const formatRange = (start: string, end?: string) => {
                 ))}
               </div>
             ) : null}
-            {exp.tech?.length ? (
+            {Array.isArray(exp.highlights) && exp.highlights.length ? (
+              <ul class="experience-card__highlights">
+                {exp.highlights.slice(0, 3).map(point => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+            ) : null}
+            {Array.isArray(exp.tech) && exp.tech.length ? (
               <div class="experience-tech">
                 {exp.tech.map(tech => (
                   <span class="experience-tech-chip">{tech}</span>
                 ))}
               </div>
             ) : null}
-            {exp.links?.length ? (
+            {Array.isArray(exp.links) && exp.links.length ? (
               <div class="experience-links">
                 {exp.links.map(link => (
                   <a href={link.href} target="_blank" rel="noopener noreferrer">
@@ -102,270 +151,11 @@ const formatRange = (start: string, end?: string) => {
         </article>
       ))}
     </div>
-    <script type="application/json" id="experience-data">
-      {JSON.stringify(experienceData)}
-    </script>
-    <script type="module">
-      const dataScript = document.getElementById('experience-data');
-      const container = document.querySelector('[data-experience-root]');
-      const filterBar = document.querySelector('[data-experience-filterbar]');
 
-      if (!dataScript || !container || !filterBar) {
-        return;
-      }
-
-      let experiences = [];
-      try {
-        experiences = JSON.parse(dataScript.textContent || '[]');
-      } catch (error) {
-        console.error('Failed to parse experience timeline data', error);
-        experiences = [];
-      }
-
-      if (!Array.isArray(experiences) || experiences.length === 0) {
-        container.innerHTML = '';
-        const emptyMessage = document.createElement('div');
-        emptyMessage.className = 'experience-empty';
-        emptyMessage.textContent = 'Experience timeline will be back soon.';
-        container.append(emptyMessage);
-        filterBar.setAttribute('hidden', '');
-        filterBar.setAttribute('aria-hidden', 'true');
-        dataScript.remove();
-        return;
-      }
-
-      const normalise = value => String(value || '').toLowerCase().trim();
-
-      const parseDate = value => {
-        if (!value) return new Date(0);
-        if (normalise(value) === 'present') {
-          return new Date(8640000000000000); // far-future sentinel keeps "Present" roles first
-        }
-        const [year, month = '01'] = String(value).split('-');
-        const yearNum = Number(year);
-        const monthNum = Number(month);
-        if (Number.isNaN(yearNum)) return new Date(0);
-        return new Date(yearNum, Number.isNaN(monthNum) ? 0 : monthNum - 1);
-      };
-
-      const formatRange = (start, end) => {
-        const startYear = String(start || '').split('-')[0];
-        const endYear = String(end || '').split('-')[0];
-        if (!startYear) return endYear || '';
-        return `${startYear} – ${endYear || 'Present'}`;
-      };
-
-      const sortedExperiences = [...experiences].sort(
-        (a, b) => parseDate(b.start) - parseDate(a.start)
-      );
-
-      let activeFilter = 'All';
-      const filterButtons = Array.from(filterBar.querySelectorAll('[data-filter]'));
-
-      const refreshFilterPresentation = () => {
-        filterButtons.forEach(button => {
-          const isActive = button.dataset.filter === activeFilter;
-          button.setAttribute('aria-pressed', String(isActive));
-          const shouldShowRemove = isActive && activeFilter !== 'All';
-          button.classList.toggle('is-active', shouldShowRemove);
-          const existingRemove = button.querySelector('.experience-filter__remove');
-          if (existingRemove) {
-            existingRemove.remove();
-          }
-          if (shouldShowRemove) {
-            const remove = document.createElement('span');
-            remove.className = 'experience-filter__remove';
-            remove.setAttribute('aria-hidden', 'true');
-            remove.textContent = '×';
-            button.append(remove);
-          }
-        });
-      };
-
-      const createMetricChip = metric => {
-        const chip = document.createElement('span');
-        chip.className = 'experience-metric-chip';
-        const label = document.createElement('span');
-        label.textContent = metric.label;
-        const value = document.createElement('strong');
-        value.textContent = metric.value;
-        chip.append(label, value);
-        return chip;
-      };
-
-      const createTechChip = tech => {
-        const chip = document.createElement('span');
-        chip.className = 'experience-tech-chip';
-        chip.textContent = tech;
-        return chip;
-      };
-
-      const buildCard = (experience, index) => {
-        const article = document.createElement('article');
-        article.className = 'experience-card';
-        article.dataset.category = experience.category || 'Other';
-
-        const rail = document.createElement('div');
-        rail.className = 'experience-card__rail';
-
-        if (experience.logo) {
-          const logo = document.createElement('img');
-          logo.className = 'experience-card__logo';
-          logo.src = experience.logo;
-          logo.alt = `${experience.company} logo`;
-          logo.width = 56;
-          logo.height = 56;
-          logo.loading = index < 2 ? 'eager' : 'lazy';
-          rail.append(logo);
-        } else {
-          const placeholder = document.createElement('div');
-          placeholder.className = 'experience-card__logo';
-          placeholder.setAttribute('aria-hidden', 'true');
-          rail.append(placeholder);
-        }
-
-        const range = document.createElement('p');
-        range.className = 'experience-card__dates';
-        range.textContent = formatRange(experience.start, experience.end);
-        rail.append(range);
-
-        const body = document.createElement('div');
-        body.className = 'experience-card__body';
-
-        const heading = document.createElement('h3');
-        heading.className = 'experience-card__title';
-        const roleSpan = document.createElement('span');
-        roleSpan.textContent = experience.role;
-        const companySpan = document.createElement('span');
-        companySpan.className = 'experience-card__company';
-        companySpan.textContent = `@ ${experience.company}`;
-        heading.append(roleSpan, companySpan);
-
-        const meta = document.createElement('p');
-        meta.className = 'experience-card__meta';
-        meta.textContent = experience.location;
-
-        const summary = document.createElement('p');
-        summary.className = 'experience-card__summary';
-        summary.textContent = experience.summary;
-
-        body.append(heading, meta, summary);
-
-        if (Array.isArray(experience.metrics) && experience.metrics.length) {
-          const metricsWrap = document.createElement('div');
-          metricsWrap.className = 'experience-metrics';
-          experience.metrics.slice(0, 3).forEach(metric => {
-            metricsWrap.append(createMetricChip(metric));
-          });
-          body.append(metricsWrap);
-        }
-
-        const details = document.createElement('div');
-        details.className = 'experience-card__details';
-        details.id = `experience-details-${index}`;
-        details.setAttribute('aria-hidden', 'true');
-
-        if (Array.isArray(experience.highlights) && experience.highlights.length) {
-          const list = document.createElement('ul');
-          list.className = 'experience-card__highlights';
-          experience.highlights.slice(0, 3).forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = item;
-            list.append(li);
-          });
-          details.append(list);
-        }
-
-        if (Array.isArray(experience.tech) && experience.tech.length) {
-          const techWrap = document.createElement('div');
-          techWrap.className = 'experience-tech';
-          experience.tech.forEach(tech => techWrap.append(createTechChip(tech)));
-          details.append(techWrap);
-        }
-
-        if (Array.isArray(experience.links) && experience.links.length) {
-          const linksWrap = document.createElement('div');
-          linksWrap.className = 'experience-links';
-          experience.links.forEach(link => {
-            const anchor = document.createElement('a');
-            anchor.href = link.href;
-            anchor.target = '_blank';
-            anchor.rel = 'noopener noreferrer';
-            anchor.textContent = link.label;
-            linksWrap.append(anchor);
-          });
-          details.append(linksWrap);
-        }
-
-        if (details.children.length) {
-          body.append(details);
-        }
-
-        if (details.children.length) {
-          const toggle = document.createElement('button');
-          toggle.type = 'button';
-          toggle.className = 'experience-card__toggle';
-          toggle.setAttribute('aria-controls', details.id);
-          toggle.setAttribute('aria-expanded', 'false');
-          toggle.textContent = 'Show details';
-          toggle.addEventListener('click', () => {
-            const expanded = toggle.getAttribute('aria-expanded') === 'true';
-            const next = !expanded;
-            toggle.setAttribute('aria-expanded', String(next));
-            toggle.textContent = next ? 'Hide details' : 'Show details';
-            details.setAttribute('aria-hidden', String(!next));
-          });
-          body.append(toggle);
-        }
-
-        article.append(rail, body);
-        return article;
-      };
-
-      const matchesActiveFilter = item => {
-        if (activeFilter === 'All') return true;
-        return normalise(item.category) === normalise(activeFilter);
-      };
-
-      const render = () => {
-        const list = sortedExperiences.filter(matchesActiveFilter);
-
-        container.innerHTML = '';
-
-        if (!list.length) {
-          const empty = document.createElement('div');
-          empty.className = 'experience-empty';
-          empty.textContent = 'No roles match this filter yet.';
-          container.append(empty);
-          return;
-        }
-
-        list.forEach((experience, index) => {
-          container.append(buildCard(experience, index));
-        });
-      };
-
-      filterBar.addEventListener('click', event => {
-        if (!(event.target instanceof HTMLElement)) return;
-        const button = event.target.closest('button[data-filter]');
-        if (!(button instanceof HTMLButtonElement)) return;
-        const filter = button.dataset.filter;
-        if (!filter) return;
-        if (filter === activeFilter) {
-          if (filter === 'All') return;
-          activeFilter = 'All';
-        } else {
-          activeFilter = filter;
-        }
-        refreshFilterPresentation();
-        render();
-      });
-
-      refreshFilterPresentation();
-
-      render();
-
-      dataScript.remove();
-    </script>
+    <div id="experience-empty" class="filter-empty" data-filter-empty hidden role="status" aria-live="polite">
+      <h3>No matches found</h3>
+      <p>Try removing filters or selecting 'All'.</p>
+      <button type="button" class="filter-clear" data-filter-clear>Clear all filters</button>
+    </div>
   </div>
 </section>

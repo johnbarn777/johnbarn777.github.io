@@ -7,6 +7,7 @@ const projects = defineCollection({
     summary: z.string(),
     image: z.string(),
     tech: z.array(z.string()),
+    tags: z.array(z.enum(['Mobile', 'ML', 'Web', 'Data', 'Tools'])),
     demo: z.string().url().optional(),
     repo: z.string().url().optional(),
   }),
