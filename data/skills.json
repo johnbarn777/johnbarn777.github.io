@@ -1,13 +1,13 @@
 {
   "categories": [
-    { "id": "languages", "label": "Languages" },
-    { "id": "frameworks", "label": "Frameworks" },
-    { "id": "cloud", "label": "Cloud" },
-    { "id": "databases", "label": "Databases" },
-    { "id": "ml", "label": "ML/AI" },
-    { "id": "mobile", "label": "Mobile" },
-    { "id": "devops", "label": "DevOps" },
-    { "id": "tools", "label": "Tools" }
+    { "id": "languages", "label": "Languages", "order": 1, "visible": true },
+    { "id": "frameworks", "label": "Frameworks", "order": 2, "visible": true },
+    { "id": "mobile", "label": "Mobile", "order": 3, "visible": true },
+    { "id": "cloud", "label": "Cloud", "order": 4, "visible": true },
+    { "id": "databases", "label": "Databases", "order": 5, "visible": true },
+    { "id": "ml", "label": "ML/AI", "order": 6, "visible": true },
+    { "id": "devops", "label": "DevOps", "order": 7, "visible": true },
+    { "id": "tools", "label": "Tools", "order": 8, "visible": true }
   ],
   "items": [
     {

@@ -4,9 +4,10 @@ export interface Props {
   icon: string;
   level?: string;
   years?: number;
+  preload?: boolean;
 }
 
-const { name, icon, level, years } = Astro.props;
+const { name, icon, level, years, preload = false } = Astro.props;
 
 const detailParts: string[] = [];
 if (level) {
@@ -17,6 +18,8 @@ if (typeof years === 'number' && Number.isFinite(years)) {
   detailParts.push(`${formatted}+ yrs`);
 }
 const tooltip = detailParts.length ? `${name} · ${detailParts.join(' • ')}` : name;
+const loading = preload ? 'eager' : 'lazy';
+const fetchPriority = preload ? 'high' : 'auto';
 ---
 <button
   type="button"
@@ -28,7 +31,15 @@ const tooltip = detailParts.length ? `${name} · ${detailParts.join(' • ')}` :
   title={tooltip}
 >
   <span class="skill-pill__icon" aria-hidden="true">
-    <img src={icon} alt="" width="32" height="32" loading="lazy" decoding="async" />
+    <img
+      src={icon}
+      alt=""
+      width="32"
+      height="32"
+      loading={loading}
+      decoding="async"
+      fetchpriority={fetchPriority}
+    />
   </span>
   <span class="skill-pill__label">{name}</span>
 </button>

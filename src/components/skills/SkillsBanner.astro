@@ -1,113 +1,622 @@
 ---
 import skillsData from '../../../data/skills.json';
 import SkillPill from './SkillPill.astro';
+import { ui } from '../../config/ui';
 
-const primarySkills = skillsData.items.filter(item => item.primary);
-const totalPrimary = primarySkills.length;
-const liveMessage = `Showing ${totalPrimary} primary skills`;
+const normalizedCategories = skillsData.categories.map((category, index) => ({
+  ...category,
+  order: typeof category.order === 'number' ? category.order : index,
+  visible: category.visible !== false,
+}));
+
+const visibleCategories = normalizedCategories
+  .filter(category => category.visible)
+  .sort((a, b) => {
+    if (a.order === b.order) {
+      return a.label.localeCompare(b.label);
+    }
+    return a.order - b.order;
+  });
+
+const visibleCategoryIds = new Set(visibleCategories.map(category => category.id));
+
+const groupedSlides = visibleCategories.map(category => {
+  const allItems = skillsData.items.filter(item => item.category === category.id);
+  const sortedItems = allItems
+    .filter(item => visibleCategoryIds.has(item.category))
+    .sort((a, b) => {
+      if (a.primary === b.primary) {
+        return a.name.localeCompare(b.name);
+      }
+      return a.primary ? -1 : 1;
+    });
+  const primaryCount = sortedItems.filter(item => item.primary).length;
+  return {
+    category,
+    items: sortedItems,
+    primaryCount,
+  };
+});
+
+const totalPrimary = groupedSlides.reduce((acc, slide) => acc + slide.primaryCount, 0);
+const summaryMessage = `Showing ${totalPrimary} primary skills across ${groupedSlides.length} categories.`;
+const autoplayMs = ui.skillsCarousel?.autoplayMs ?? 5000;
+const loopCarousel = ui.skillsCarousel?.loop ?? false;
+const resumeDelayMs = ui.skillsCarousel?.resumeDelayMs ?? 2000;
+const initialIndex = 0;
+const fallbackPrevId = groupedSlides.length ? groupedSlides[groupedSlides.length - 1]?.category.id : undefined;
+const fallbackNextId = groupedSlides.length > 1 ? groupedSlides[1]?.category.id : groupedSlides[0]?.category.id;
 ---
 <section
   id="skills"
   class="skills-banner"
-  aria-labelledby="skills-banner-title"
-  data-skills-root
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="Technical skills by category"
+  data-skills-banner
+  data-autoplay-ms={autoplayMs}
+  data-loop={loopCarousel ? 'true' : 'false'}
+  data-resume-ms={resumeDelayMs}
+  data-initial-index={initialIndex}
 >
   <div class="container skills-banner__inner">
     <div class="skills-banner__header">
       <h2 id="skills-banner-title" class="skills-banner__title">Skills Snapshot</h2>
-      <p class="skills-banner__status" role="status" aria-live="polite" aria-atomic="true">
-        {liveMessage}
+      <p class="skills-banner__status" role="status" aria-live="polite" aria-atomic="true" data-skill-summary>
+        {summaryMessage}
       </p>
     </div>
-    <div class="skills-banner__viewport" data-skills-banner>
+
+    <div class="skills-banner__stage" data-skill-stage>
       <button
+        id="skills-prev"
         type="button"
-        class="skills-banner__paddle"
+        class="skills-banner__paddle skills-banner__paddle--prev"
+        aria-controls="skills-viewport"
+        aria-label="Previous category"
         data-paddle="prev"
-        aria-label="Scroll skills left"
-        disabled
+        data-fallback-href={fallbackPrevId ? `#skills-cat-${fallbackPrevId}` : undefined}
       >
         <span aria-hidden="true">&#8592;</span>
       </button>
-      <div class="skills-banner__list" role="list" data-skills-list>
-        {primarySkills.map(({ name, icon, level, years }) => (
-          <SkillPill name={name} icon={icon} level={level} years={years} />
-        ))}
+
+      <div
+        id="skills-viewport"
+        class="skills-banner__viewport"
+        tabindex="0"
+        aria-live="polite"
+        aria-atomic="true"
+        data-skill-viewport
+      >
+        <div class="skills-banner__slides" data-skill-slides>
+          {groupedSlides.map(({ category, items, primaryCount }, index) => {
+            const skillCount = items.length;
+            const slideId = `skills-cat-${category.id}`;
+            const liveLabel = `${category.label} ${index + 1} of ${groupedSlides.length}`;
+            return (
+              <section
+                class="skills-banner__slide"
+                id={slideId}
+                data-skill-slide
+                data-category={category.id}
+                data-category-label={category.label}
+                data-slide-index={index}
+                data-skill-count={skillCount}
+                data-primary-count={primaryCount}
+                aria-roledescription="slide"
+                aria-label={liveLabel}
+                aria-current={index === initialIndex ? 'true' : 'false'}
+              >
+                <header class="skills-banner__slide-header">
+                  <h3 class="skills-banner__slide-title">{category.label}</h3>
+                  <p class="skills-banner__slide-meta">
+                    {skillCount ? `${primaryCount} primary · ${skillCount} total` : 'Nothing to highlight yet'}
+                  </p>
+                </header>
+                {skillCount ? (
+                  <div class="skills-banner__grid" role="list">
+                    {items.map(({ name, icon, level, years }) => (
+                      <SkillPill
+                        name={name}
+                        icon={icon}
+                        level={level}
+                        years={years}
+                        preload={index < 2}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p class="skills-banner__empty" role="note">No skills yet.</p>
+                )}
+              </section>
+            );
+          })}
+        </div>
       </div>
+
       <button
+        id="skills-next"
         type="button"
-        class="skills-banner__paddle"
+        class="skills-banner__paddle skills-banner__paddle--next"
+        aria-controls="skills-viewport"
+        aria-label="Next category"
         data-paddle="next"
-        aria-label="Scroll skills right"
-        disabled
+        data-fallback-href={fallbackNextId ? `#skills-cat-${fallbackNextId}` : undefined}
       >
         <span aria-hidden="true">&#8594;</span>
       </button>
     </div>
+
+    <div id="skills-dots" class="skills-banner__dots" role="tablist" aria-label="Skill categories">
+      {groupedSlides.map(({ category }, index) => (
+        <button
+          type="button"
+          class="skills-banner__dot"
+          role="tab"
+          data-skill-dot
+          data-target={category.id}
+          aria-controls={`skills-cat-${category.id}`}
+          aria-selected={index === initialIndex ? 'true' : 'false'}
+          tabindex={index === initialIndex ? 0 : -1}
+        >
+          <span class="sr-only">{category.label}</span>
+        </button>
+      ))}
+    </div>
+
+    <p class="sr-only" data-skill-live aria-live="polite" aria-atomic="true"></p>
+
+    <noscript>
+      <div class="skills-banner__noscript-nav">
+        {groupedSlides.map(({ category }) => (
+          <a class="skills-banner__noscript-link" href={`#skills-cat-${category.id}`}>
+            Jump to {category.label}
+          </a>
+        ))}
+      </div>
+    </noscript>
   </div>
 </section>
 
 <script client:load>
-  const setupBanner = banner => {
-    const list = banner.querySelector('[data-skills-list]');
-    const prev = banner.querySelector('[data-paddle="prev"]');
-    const next = banner.querySelector('[data-paddle="next"]');
-    if (!list || !prev || !next) return;
+  const setupCarousel = banner => {
+    const viewport = banner.querySelector('[data-skill-viewport]');
+    const slides = Array.from(banner.querySelectorAll('[data-skill-slide]'));
+    const prev = banner.querySelector('#skills-prev');
+    const next = banner.querySelector('#skills-next');
+    const dots = Array.from(banner.querySelectorAll('[data-skill-dot]'));
+    const liveRegion = banner.querySelector('[data-skill-live]');
+    const summary = banner.querySelector('[data-skill-summary]');
+    if (!viewport || slides.length === 0 || !prev || !next || dots.length === 0) {
+      return;
+    }
 
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const getBehavior = () => (prefersReduced.matches ? 'auto' : 'smooth');
+    const loop = banner.dataset.loop === 'true';
+    const autoplayMs = Math.max(0, Number.parseInt(banner.dataset.autoplayMs ?? '0', 10));
+    const resumeMs = Math.max(0, Number.parseInt(banner.dataset.resumeMs ?? '0', 10));
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    const setDisabled = (button, value) => {
-      button.disabled = value;
-      button.setAttribute('aria-disabled', value ? 'true' : 'false');
+    const slidePositions = new Map();
+    let resizeObserver;
+    let currentIndex = Math.max(0, Math.min(slides.length - 1, Number.parseInt(banner.dataset.initialIndex ?? '0', 10)));
+    let pendingIndex = currentIndex;
+    let scrollEndTimer = 0;
+    let applyTimer = 0;
+    let autoplayTimer = 0;
+    let resumeTimer = 0;
+    let isFocusWithin = false;
+    const pauseReasons = new Set();
+    const blockReasons = new Set();
+
+    const getBehavior = () => (reducedMotionQuery.matches ? 'auto' : 'smooth');
+
+    const normalizeIndex = index => {
+      if (slides.length === 0) return 0;
+      const total = slides.length;
+      if (loop) {
+        return ((index % total) + total) % total;
+      }
+      return Math.max(0, Math.min(total - 1, index));
     };
 
-    const update = () => {
-      const maxScroll = Math.max(0, list.scrollWidth - list.clientWidth - 1);
-      const canScroll = list.scrollWidth - list.clientWidth > 1;
-      banner.dataset.scrollable = canScroll ? 'true' : 'false';
-      if (!canScroll) {
-        setDisabled(prev, true);
-        setDisabled(next, true);
+    const updateSummary = () => {
+      if (!summary) return;
+      const primaryTotal = slides.reduce((acc, slide) => acc + Number.parseInt(slide.dataset.primaryCount ?? '0', 10), 0);
+      summary.textContent = `Showing ${primaryTotal} primary skills across ${slides.length} categories.`;
+    };
+
+    const updatePositions = () => {
+      slidePositions.clear();
+      slides.forEach(slide => {
+        slidePositions.set(slide, slide.offsetLeft);
+      });
+    };
+
+    const announce = index => {
+      const slide = slides[index];
+      if (!slide || !liveRegion) return;
+      const label = slide.dataset.categoryLabel ?? `Slide ${index + 1}`;
+      const position = `${index + 1} of ${slides.length}`;
+      const skillCount = Number.parseInt(slide.dataset.skillCount ?? '0', 10);
+      const skillsLabel = skillCount === 1 ? 'skill' : 'skills';
+      liveRegion.textContent = `Now viewing ${label}; ${skillCount} ${skillsLabel}. (${position})`;
+    };
+
+    const updateSlideAria = index => {
+      slides.forEach((slide, slideIndex) => {
+        const isActive = slideIndex === index;
+        slide.setAttribute('aria-current', isActive ? 'true' : 'false');
+        slide.setAttribute('aria-label', `${slide.dataset.categoryLabel ?? 'Category'} ${slideIndex + 1} of ${slides.length}`);
+      });
+
+      dots.forEach((dot, dotIndex) => {
+        const selected = dotIndex === index;
+        dot.setAttribute('aria-selected', selected ? 'true' : 'false');
+        dot.tabIndex = selected ? 0 : -1;
+      });
+
+      if (slides.length <= 1) {
+        prev.disabled = true;
+        prev.setAttribute('aria-disabled', 'true');
+        next.disabled = true;
+        next.setAttribute('aria-disabled', 'true');
+      } else if (!loop) {
+        const atStart = index === 0;
+        const atEnd = index === slides.length - 1;
+        prev.disabled = atStart;
+        prev.setAttribute('aria-disabled', atStart ? 'true' : 'false');
+        next.disabled = atEnd;
+        next.setAttribute('aria-disabled', atEnd ? 'true' : 'false');
+      } else {
+        prev.disabled = false;
+        prev.setAttribute('aria-disabled', 'false');
+        next.disabled = false;
+        next.setAttribute('aria-disabled', 'false');
+      }
+
+      announce(index);
+    };
+
+    const applyIndex = index => {
+      const normalized = normalizeIndex(index);
+      currentIndex = normalized;
+      pendingIndex = normalized;
+      updateSlideAria(normalized);
+      try {
+        const activeSlide = slides[normalized];
+        if (activeSlide) {
+          const categoryId = activeSlide.dataset.category;
+          const hash = categoryId ? `#skills-cat-${categoryId}` : '#skills';
+          if (categoryId && typeof history.replaceState === 'function') {
+            history.replaceState(null, '', hash);
+          } else if (categoryId) {
+            location.hash = hash;
+          }
+          try {
+            localStorage.setItem('skills:lastCategory', categoryId ?? '');
+          } catch (error) {
+            // ignore
+          }
+        }
+      } catch (error) {
+        // ignore
+      }
+    };
+
+    const ensureScrollPosition = index => {
+      const slide = slides[index];
+      if (!slide) return;
+      const targetLeft = slidePositions.get(slide) ?? slide.offsetLeft;
+      const behavior = getBehavior();
+      if (behavior === 'auto') {
+        viewport.scrollTo({ left: targetLeft, behavior });
+        applyIndex(index);
+      } else {
+        const currentLeft = viewport.scrollLeft;
+        if (Math.abs(currentLeft - targetLeft) <= 1) {
+          applyIndex(index);
+          return;
+        }
+        viewport.scrollTo({ left: targetLeft, behavior });
+        window.clearTimeout(applyTimer);
+        applyTimer = window.setTimeout(() => {
+          applyIndex(pendingIndex);
+        }, Math.min(autoplayMs || 400, 400));
+      }
+    };
+
+    const determineNearest = () => {
+      const viewportRect = viewport.getBoundingClientRect();
+      const viewportCenter = viewport.scrollLeft + viewportRect.width / 2;
+      let closestIndex = 0;
+      let minDistance = Number.POSITIVE_INFINITY;
+      slides.forEach((slide, index) => {
+        const slideLeft = slidePositions.get(slide) ?? slide.offsetLeft;
+        const slideWidth = slide.offsetWidth;
+        const slideCenter = slideLeft + slideWidth / 2;
+        const distance = Math.abs(slideCenter - viewportCenter);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestIndex = index;
+        }
+      });
+      return closestIndex;
+    };
+
+    const goTo = index => {
+      const normalized = normalizeIndex(index);
+      pendingIndex = normalized;
+      ensureScrollPosition(normalized);
+    };
+
+    const goNext = () => {
+      pauseAutoplay('manual');
+      goTo(currentIndex + 1);
+      resumeAutoplay('manual');
+    };
+
+    const goPrev = () => {
+      pauseAutoplay('manual');
+      goTo(currentIndex - 1);
+      resumeAutoplay('manual');
+    };
+
+    const pauseAutoplay = reason => {
+      if (autoplayMs <= 0 || slides.length <= 1) return;
+      if (reason) {
+        pauseReasons.add(reason);
+      }
+      window.clearTimeout(autoplayTimer);
+    };
+
+    const resumeAutoplay = reason => {
+      if (reason) {
+        pauseReasons.delete(reason);
+      }
+      window.clearTimeout(resumeTimer);
+      if (autoplayMs <= 0 || slides.length <= 1) {
         return;
       }
-      const left = list.scrollLeft;
-      setDisabled(prev, left <= 1);
-      setDisabled(next, left >= maxScroll);
+      if (pauseReasons.size > 0 || blockReasons.size > 0 || reducedMotionQuery.matches) {
+        return;
+      }
+      resumeTimer = window.setTimeout(() => {
+        scheduleAutoplay();
+      }, resumeMs || 0);
     };
 
-    prev.addEventListener('click', () => {
-      list.scrollBy({ left: -list.clientWidth, behavior: getBehavior() });
+    const scheduleAutoplay = () => {
+      if (autoplayMs <= 0 || slides.length <= 1 || reducedMotionQuery.matches) {
+        return;
+      }
+      if (pauseReasons.size > 0 || blockReasons.size > 0) {
+        return;
+      }
+      if (!loop && currentIndex === slides.length - 1) {
+        return;
+      }
+      window.clearTimeout(autoplayTimer);
+      autoplayTimer = window.setTimeout(() => {
+        goTo(currentIndex + 1);
+        scheduleAutoplay();
+      }, autoplayMs);
+    };
+
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') {
+        blockReasons.add('visibility');
+        window.clearTimeout(autoplayTimer);
+      } else {
+        blockReasons.delete('visibility');
+        scheduleAutoplay();
+      }
+    };
+
+    const observer = 'IntersectionObserver' in window
+      ? new IntersectionObserver(entries => {
+          const entry = entries[0];
+          if (!entry) return;
+          if (entry.intersectionRatio >= 0.6) {
+            blockReasons.delete('viewport');
+            scheduleAutoplay();
+          } else {
+            blockReasons.add('viewport');
+            window.clearTimeout(autoplayTimer);
+          }
+        }, { threshold: [0, 0.6, 1] })
+      : null;
+
+    const handleScrollSettled = () => {
+      const nearest = determineNearest();
+      applyIndex(nearest);
+      scheduleAutoplay();
+    };
+
+    const onScroll = () => {
+      window.clearTimeout(scrollEndTimer);
+      scrollEndTimer = window.setTimeout(handleScrollSettled, 120);
+    };
+
+    const onScrollEnd = 'onscrollend' in viewport ? () => {
+      window.clearTimeout(scrollEndTimer);
+      handleScrollSettled();
+    } : null;
+
+    viewport.addEventListener('scroll', onScroll, { passive: true });
+    if (onScrollEnd) {
+      viewport.addEventListener('scrollend', onScrollEnd);
+    }
+
+    prev.addEventListener('click', event => {
+      event.preventDefault();
+      goPrev();
     });
 
-    next.addEventListener('click', () => {
-      list.scrollBy({ left: list.clientWidth, behavior: getBehavior() });
+    next.addEventListener('click', event => {
+      event.preventDefault();
+      goNext();
     });
 
-    list.addEventListener('scroll', () => {
-      window.requestAnimationFrame(update);
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', event => {
+        event.preventDefault();
+        pauseAutoplay('manual');
+        goTo(index);
+        resumeAutoplay('manual');
+      });
+
+      dot.addEventListener('keydown', event => {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          event.preventDefault();
+          const nextIndex = normalizeIndex(index + 1);
+          dots[nextIndex]?.focus();
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          event.preventDefault();
+          const prevIndex = normalizeIndex(index - 1);
+          dots[prevIndex]?.focus();
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          dots[0]?.focus();
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          dots[slides.length - 1]?.focus();
+        } else if (event.key === ' ' || event.key === 'Enter') {
+          event.preventDefault();
+          pauseAutoplay('manual');
+          goTo(index);
+          resumeAutoplay('manual');
+        }
+      });
     });
+
+    viewport.addEventListener('keydown', event => {
+      if (event.key === 'PageDown' || (event.ctrlKey && (event.key === 'ArrowRight' || event.key === 'ArrowDown'))) {
+        event.preventDefault();
+        goNext();
+      } else if (event.key === 'PageUp' || (event.ctrlKey && (event.key === 'ArrowLeft' || event.key === 'ArrowUp'))) {
+        event.preventDefault();
+        goPrev();
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        pauseAutoplay('manual');
+        goTo(0);
+        resumeAutoplay('manual');
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        pauseAutoplay('manual');
+        goTo(slides.length - 1);
+        resumeAutoplay('manual');
+      }
+    });
+
+    banner.addEventListener('pointerenter', () => {
+      pauseAutoplay('hover');
+    });
+
+    banner.addEventListener('pointerleave', () => {
+      resumeAutoplay('hover');
+    });
+
+    banner.addEventListener('focusin', () => {
+      if (isFocusWithin) return;
+      isFocusWithin = true;
+      pauseAutoplay('focus');
+    });
+
+    banner.addEventListener('focusout', () => {
+      window.requestAnimationFrame(() => {
+        const activeElement = document.activeElement;
+        if (activeElement && banner.contains(activeElement)) {
+          return;
+        }
+        isFocusWithin = false;
+        resumeAutoplay('focus');
+      });
+    });
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    if (observer) {
+      observer.observe(banner);
+    }
+
+    const handleReducedChange = () => {
+      if (reducedMotionQuery.matches) {
+        blockReasons.add('motion');
+        window.clearTimeout(autoplayTimer);
+      } else {
+        blockReasons.delete('motion');
+        scheduleAutoplay();
+      }
+    };
+
+    if (typeof reducedMotionQuery.addEventListener === 'function') {
+      reducedMotionQuery.addEventListener('change', handleReducedChange);
+    } else if (typeof reducedMotionQuery.addListener === 'function') {
+      reducedMotionQuery.addListener(handleReducedChange);
+    }
+
+    const initialHashIndex = (() => {
+      const hash = window.location.hash || '';
+      const match = hash.match(/^#skills-cat-(.+)$/i);
+      if (match) {
+        const targetId = match[1];
+        const index = slides.findIndex(slide => slide.dataset.category === targetId);
+        if (index >= 0) {
+          return index;
+        }
+      }
+      try {
+        const stored = localStorage.getItem('skills:lastCategory');
+        if (stored) {
+          const idx = slides.findIndex(slide => slide.dataset.category === stored);
+          if (idx >= 0) {
+            return idx;
+          }
+        }
+      } catch (error) {
+        // ignore
+      }
+      return currentIndex;
+    })();
+
+    updatePositions();
+    updateSlideAria(currentIndex);
+    updateSummary();
+
+    if (resizeObserver ?? false) {
+      resizeObserver.disconnect();
+    }
 
     if ('ResizeObserver' in window) {
-      const resizeObserver = new ResizeObserver(() => update());
-      resizeObserver.observe(list);
+      resizeObserver = new ResizeObserver(() => {
+        updatePositions();
+        ensureScrollPosition(currentIndex);
+      });
+      resizeObserver.observe(viewport);
+      slides.forEach(slide => resizeObserver.observe(slide));
     } else {
-      window.addEventListener('resize', update);
+      window.addEventListener('resize', () => {
+        updatePositions();
+        ensureScrollPosition(currentIndex);
+      });
     }
 
-    const handlePrefersChange = () => {
-      // no-op needed beyond recalculating disabled state
-      update();
-    };
-
-    if (typeof prefersReduced.addEventListener === 'function') {
-      prefersReduced.addEventListener('change', handlePrefersChange);
-    } else if (typeof prefersReduced.addListener === 'function') {
-      prefersReduced.addListener(handlePrefersChange);
+    if (initialHashIndex !== currentIndex) {
+      currentIndex = normalizeIndex(initialHashIndex);
+      pendingIndex = currentIndex;
+      ensureScrollPosition(currentIndex);
+    } else {
+      ensureScrollPosition(currentIndex);
     }
 
-    update();
+    if (reducedMotionQuery.matches) {
+      blockReasons.add('motion');
+    }
+
+    handleVisibility();
+    scheduleAutoplay();
   };
 
-  document.querySelectorAll('[data-skills-banner]').forEach(setupBanner);
+  document.querySelectorAll('[data-skills-banner]').forEach(setupCarousel);
 </script>
