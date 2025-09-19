@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run build:filters && astro build",
+    "build": "npm run build:css && npm run build:filters && astro build",
     "build:filters": "tsc --project tsconfig.filtering.json",
     "build:css": "tailwindcss -i ./assets/css/tailwind-input.css -o ./assets/css/main.css --minify && mkdir -p public/assets/css && cp ./assets/css/main.css ./public/assets/css/main.css",
     "lint": "astro check",
