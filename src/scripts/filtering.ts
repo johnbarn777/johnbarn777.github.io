@@ -536,6 +536,6 @@ declare global {
       filterPrevDisplay?: string;
       filterPrevRootTabindex?: string;
     };
-    inert?: boolean;
+    inert: boolean;
   }
 }
