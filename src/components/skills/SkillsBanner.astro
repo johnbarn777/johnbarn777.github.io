@@ -1,0 +1,609 @@
+---
+import SkillPill from './SkillPill.astro';
+import skillsData from '../../../data/skills.json';
+import { ui } from '../../config/ui';
+import { Fragment } from 'astro/jsx-runtime';
+
+type SkillCategory = {
+  id: string;
+  label: string;
+  order?: number;
+  visible?: boolean;
+};
+
+type SkillItem = {
+  name: string;
+  category: string;
+  icon: string;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  years?: number;
+  primary?: boolean;
+};
+
+const { categories = [], items = [] } = skillsData as {
+  categories: SkillCategory[];
+  items: SkillItem[];
+};
+
+const visibleCategories = categories
+  .filter(category => category.visible !== false)
+  .sort((a, b) => {
+    const orderA = typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER;
+    const orderB = typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER;
+    if (orderA !== orderB) return orderA - orderB;
+    return a.label.localeCompare(b.label);
+  });
+
+const visibleCategoryIds = new Set(visibleCategories.map(category => category.id));
+
+const filteredItems = items.filter(item => visibleCategoryIds.has(item.category));
+
+const slides = visibleCategories.map((category, index) => {
+  const categoryItems = filteredItems.filter(item => item.category === category.id);
+  const sortedItems = categoryItems
+    .slice()
+    .sort((a, b) => Number(Boolean(b.primary)) - Number(Boolean(a.primary)));
+  const primaryCount = sortedItems.filter(item => item.primary).length;
+  return {
+    category,
+    items: sortedItems,
+    index,
+    primaryCount,
+    totalCount: sortedItems.length,
+    id: `skills-cat-${category.id}`,
+  };
+});
+
+const fallbackPrevHref = slides.length ? `#${slides[slides.length - 1].id}` : '#skills';
+const fallbackNextHref = slides.length > 1 ? `#${slides[1].id}` : slides.length ? `#${slides[0].id}` : '#skills';
+
+const totalSlides = slides.length;
+const totalPrimarySkills = filteredItems.filter(item => item.primary).length;
+
+const preloadIcons = Array.from(
+  new Set(
+    slides
+      .slice(0, 2)
+      .flatMap(slide => slide.items.slice(0, 12).map(item => item.icon))
+  )
+);
+
+const carouselConfig = {
+  autoplayMs: ui.skillsCarousel?.autoplayMs ?? 5000,
+  resumeDelayMs: ui.skillsCarousel?.resumeDelayMs ?? 2000,
+  loop: ui.skillsCarousel?.loop !== false,
+};
+---
+{preloadIcons.length ? (
+  <Fragment slot="head">
+    {preloadIcons.map(icon => (
+      <link rel="preload" as="image" href={icon} />
+    ))}
+  </Fragment>
+) : null}
+
+<section
+  id="skills"
+  class="skills-section"
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="Technical skills by category"
+>
+  <div
+    class="container skills-banner"
+    data-skill-banner
+    data-skill-config={JSON.stringify(carouselConfig)}
+  >
+    <header class="skills-banner__header">
+      <div class="skills-banner__intro">
+        <p class="skills-banner__eyebrow">Skills &amp; Stack</p>
+        <h2 id="skills-title" class="skills-banner__title">Core delivery toolkit</h2>
+      </div>
+      <p class="skills-banner__count" aria-live="polite" aria-atomic="true">
+        Showing {totalPrimarySkills} primary skills
+      </p>
+    </header>
+
+    <div class="skills-carousel" data-skill-carousel data-total-slides={String(totalSlides)}>
+      <div class="skills-carousel__track">
+        <button
+          id="skills-prev"
+          type="button"
+          class="skills-carousel__paddle"
+          aria-controls="skills-viewport"
+          aria-label="Previous category"
+          data-skill-paddle="prev"
+        >
+          <span aria-hidden="true">‹</span>
+          <span class="sr-only">Previous category</span>
+        </button>
+
+        <div
+          id="skills-viewport"
+          class="skills-carousel__viewport"
+          tabindex="0"
+          aria-live="polite"
+          aria-atomic="true"
+          data-skill-viewport
+        >
+          {slides.map((slide, index) => (
+            <section
+              id={slide.id}
+              class="skills-slide"
+              data-slide-index={String(index)}
+              data-category-id={slide.category.id}
+              data-primary-count={String(slide.primaryCount)}
+              data-total-count={String(slide.totalCount)}
+              aria-roledescription="slide"
+              aria-label={`${slide.category.label} ${index + 1} of ${totalSlides}`}
+              aria-current={index === 0 ? 'true' : 'false'}
+            >
+              <header class="skills-slide__header">
+                <h3 class="skills-slide__title">{slide.category.label}</h3>
+                <p class="skills-slide__meta">
+                  Category {index + 1} of {totalSlides}
+                </p>
+              </header>
+              {slide.items.length ? (
+                <div class="skills-slide__grid" role="list">
+                  {slide.items.map(item => (
+                    <SkillPill {...item} />
+                  ))}
+                </div>
+              ) : (
+                <p class="skills-slide__placeholder" role="status">No skills yet — check back soon.</p>
+              )}
+            </section>
+          ))}
+        </div>
+
+        <button
+          id="skills-next"
+          type="button"
+          class="skills-carousel__paddle"
+          aria-controls="skills-viewport"
+          aria-label="Next category"
+          data-skill-paddle="next"
+        >
+          <span aria-hidden="true">›</span>
+          <span class="sr-only">Next category</span>
+        </button>
+      </div>
+
+      <div
+        id="skills-dots"
+        class="skills-carousel__dots"
+        role="tablist"
+        aria-label="Skill categories"
+        data-skill-dots
+      >
+        {slides.map((slide, index) => (
+          <button
+            type="button"
+            class="skills-carousel__dot"
+            role="tab"
+            data-skill-dot={slide.category.id}
+            aria-controls={slide.id}
+            aria-selected={index === 0 ? 'true' : 'false'}
+            tabindex={index === 0 ? '0' : '-1'}
+          >
+            <span class="sr-only">{slide.category.label}</span>
+            <span aria-hidden="true">{index + 1}</span>
+          </button>
+        ))}
+      </div>
+
+      <p class="skills-carousel__status sr-only" data-skill-status aria-live="polite" aria-atomic="true">
+        {totalSlides
+          ? `Now viewing ${slides[0].category.label}; ${slides[0].totalCount || '0'} skills.`
+          : 'No skill categories available.'}
+      </p>
+
+      <noscript>
+        <div class="skills-carousel__fallback-nav">
+          {slides.map(slide => (
+            <a class="skills-carousel__fallback-link" href={`#${slide.id}`}>
+              {slide.category.label}
+            </a>
+          ))}
+        </div>
+      </noscript>
+    </div>
+  </div>
+</section>
+
+<script client:load>
+  (() => {
+    const banner = document.querySelector('[data-skill-banner]');
+    if (!banner) {
+      return;
+    }
+
+    let configData = {};
+    try {
+      configData = banner.dataset.skillConfig ? JSON.parse(banner.dataset.skillConfig) : {};
+    } catch (_err) {
+      configData = {};
+    }
+
+    const settings = {
+      autoplayMs: typeof configData.autoplayMs === 'number' ? configData.autoplayMs : 5000,
+      resumeDelayMs: typeof configData.resumeDelayMs === 'number' ? configData.resumeDelayMs : 2000,
+      loop: configData.loop !== false,
+    };
+
+    const overrides = window.__skillsCarouselOverride;
+    if (overrides && typeof overrides === 'object') {
+      if (typeof overrides.autoplayMs === 'number') settings.autoplayMs = overrides.autoplayMs;
+      if (typeof overrides.resumeDelayMs === 'number') settings.resumeDelayMs = overrides.resumeDelayMs;
+      if (typeof overrides.loop === 'boolean') settings.loop = overrides.loop;
+    }
+
+    const disableViewportPause = Boolean(overrides && overrides.disableViewportPause);
+
+    const viewport = banner.querySelector('[data-skill-viewport]');
+    const slides = viewport ? Array.from(viewport.querySelectorAll('[data-slide-index]')) : [];
+    const dots = Array.from(banner.querySelectorAll('[data-skill-dot]'));
+    const prev = banner.querySelector('#skills-prev');
+    const next = banner.querySelector('#skills-next');
+    const status = banner.querySelector('[data-skill-status]');
+    const totalSlides = slides.length;
+
+    if (!viewport || totalSlides === 0) {
+      return;
+    }
+
+    const loop = settings.loop && totalSlides > 1;
+    const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let prefersReducedMotion = reduceMotionQuery.matches;
+
+    let currentIndex = 0;
+    let expectedIndex = 0;
+    let isProgrammaticScroll = false;
+    let scrollRaf = 0;
+    let scrollEndTimer;
+    let autoplayTimer;
+    let resumeTimer;
+    const pauseReasons = new Set();
+
+    const clampIndex = value => (loop ? (value + totalSlides) % totalSlides : Math.max(0, Math.min(totalSlides - 1, value)));
+
+    const slideIds = new Map();
+    slides.forEach((slide, index) => {
+      if (slide.id) {
+        slideIds.set(slide.id.toLowerCase(), index);
+      }
+    });
+
+    const getIndexFromHash = () => {
+      const raw = window.location.hash.replace('#', '').toLowerCase();
+      return slideIds.has(raw) ? slideIds.get(raw) ?? 0 : 0;
+    };
+
+    const getIndexFromStorage = () => {
+      try {
+        const stored = localStorage.getItem('skills:lastCategory');
+        if (stored) {
+          const key = stored.toLowerCase();
+          if (slideIds.has(key)) {
+            return slideIds.get(key) ?? 0;
+          }
+        }
+      } catch (_err) {
+        /* ignore */
+      }
+      return 0;
+    };
+
+    const setHash = index => {
+      const slide = slides[index];
+      if (!slide || !slide.id) return;
+      const newHash = `#${slide.id}`;
+      if (window.location.hash !== newHash) {
+        try {
+          history.replaceState(null, '', newHash);
+        } catch (_err) {
+          window.location.hash = newHash;
+        }
+      }
+    };
+
+    const persistCategory = index => {
+      const slide = slides[index];
+      if (!slide || !slide.id) return;
+      try {
+        localStorage.setItem('skills:lastCategory', slide.id.toLowerCase());
+      } catch (_err) {
+        /* ignore */
+      }
+    };
+
+    const updateStatus = index => {
+      if (!status) return;
+      const slide = slides[index];
+      if (!slide) return;
+      const titleEl = slide.querySelector('.skills-slide__title');
+      const title = titleEl ? titleEl.textContent.trim() : 'Skills';
+      const primaryCount = Number(slide.dataset.primaryCount ?? '0');
+      const totalCount = Number(slide.dataset.totalCount ?? '0');
+      const descriptor = totalCount > 0
+        ? `${primaryCount} primary skill${primaryCount === 1 ? '' : 's'}; ${totalCount} total`
+        : 'No skills yet';
+      status.textContent = `Now viewing ${title}; category ${index + 1} of ${totalSlides}; ${descriptor}.`;
+    };
+
+    const updateDots = index => {
+      dots.forEach((dot, dotIndex) => {
+        const selected = dotIndex === index;
+        dot.setAttribute('aria-selected', selected ? 'true' : 'false');
+        dot.tabIndex = selected ? 0 : -1;
+      });
+    };
+
+    const updateSlides = index => {
+      slides.forEach((slide, slideIndex) => {
+        const isCurrent = slideIndex === index;
+        slide.setAttribute('aria-current', isCurrent ? 'true' : 'false');
+        const titleEl = slide.querySelector('.skills-slide__title');
+        const title = titleEl ? titleEl.textContent.trim() : 'Slide';
+        const totalCount = Number(slide.dataset.totalCount ?? '0');
+        const segments = [title, `${slideIndex + 1} of ${totalSlides}`];
+        if (totalCount > 0) {
+          segments.push(`${totalCount} skill${totalCount === 1 ? '' : 's'}`);
+        } else {
+          segments.push('No skills yet');
+        }
+        slide.setAttribute('aria-label', segments.join('; '));
+      });
+
+      if (!loop) {
+        if (prev) prev.disabled = index === 0;
+        if (next) next.disabled = index === totalSlides - 1;
+      } else {
+        if (prev) prev.disabled = false;
+        if (next) next.disabled = false;
+      }
+    };
+
+    const scheduleAutoplay = (delay = settings.autoplayMs) => {
+      if (prefersReducedMotion || totalSlides <= 1 || !settings.autoplayMs || pauseReasons.size > 0) {
+        return;
+      }
+      if (autoplayTimer) window.clearTimeout(autoplayTimer);
+      autoplayTimer = window.setTimeout(() => {
+        autoplayTimer = undefined;
+        advanceSlide(1);
+      }, delay);
+    };
+
+    const pauseAutoplay = reason => {
+      pauseReasons.add(reason);
+      if (autoplayTimer) window.clearTimeout(autoplayTimer);
+      autoplayTimer = undefined;
+      if (resumeTimer) window.clearTimeout(resumeTimer);
+      resumeTimer = undefined;
+    };
+
+    const resumeAutoplay = (reason, delay = settings.resumeDelayMs) => {
+      if (pauseReasons.has(reason)) {
+        pauseReasons.delete(reason);
+      }
+      if (resumeTimer) {
+        window.clearTimeout(resumeTimer);
+        resumeTimer = undefined;
+      }
+      if (!prefersReducedMotion && pauseReasons.size === 0 && totalSlides > 1 && settings.autoplayMs) {
+        resumeTimer = window.setTimeout(() => {
+          resumeTimer = undefined;
+          scheduleAutoplay();
+        }, delay);
+      }
+    };
+
+    const resetAutoplayTimer = () => {
+      if (autoplayTimer) window.clearTimeout(autoplayTimer);
+      autoplayTimer = undefined;
+      if (!prefersReducedMotion && pauseReasons.size === 0) {
+        scheduleAutoplay();
+      }
+    };
+
+    const applyActiveState = (index, options = {}) => {
+      const updateHash = options.updateHash !== false;
+      currentIndex = clampIndex(index);
+      updateSlides(currentIndex);
+      updateDots(currentIndex);
+      updateStatus(currentIndex);
+      if (updateHash) {
+        setHash(currentIndex);
+      }
+      persistCategory(currentIndex);
+      resetAutoplayTimer();
+    };
+
+    const scrollToSlide = (index, options = {}) => {
+      const clamped = clampIndex(index);
+      expectedIndex = clamped;
+      isProgrammaticScroll = true;
+      const slide = slides[clamped];
+      if (slide) {
+        const behavior = options.behavior ?? (prefersReducedMotion ? 'auto' : 'smooth');
+        viewport.scrollTo({ left: slide.offsetLeft, behavior });
+      }
+      applyActiveState(clamped, options);
+      window.setTimeout(() => {
+        isProgrammaticScroll = false;
+      }, prefersReducedMotion ? 0 : 280);
+    };
+
+    const advanceSlide = delta => {
+      const target = clampIndex(currentIndex + delta);
+      const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+      scrollToSlide(target, { behavior });
+    };
+
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = window.requestAnimationFrame(() => {
+        scrollRaf = 0;
+        const scrollLeft = viewport.scrollLeft;
+        let closestIndex = 0;
+        let smallestDistance = Number.POSITIVE_INFINITY;
+        slides.forEach((slide, index) => {
+          const distance = Math.abs(slide.offsetLeft - scrollLeft);
+          if (distance < smallestDistance) {
+            smallestDistance = distance;
+            closestIndex = index;
+          }
+        });
+        if (!isProgrammaticScroll) {
+          expectedIndex = closestIndex;
+        }
+      });
+
+      if (scrollEndTimer) window.clearTimeout(scrollEndTimer);
+      scrollEndTimer = window.setTimeout(() => {
+        applyActiveState(expectedIndex);
+      }, 140);
+    };
+
+    viewport.addEventListener('scroll', onScroll, { passive: true });
+
+    prev?.addEventListener('click', event => {
+      event.preventDefault();
+      advanceSlide(-1);
+    });
+
+    next?.addEventListener('click', event => {
+      event.preventDefault();
+      advanceSlide(1);
+    });
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', event => {
+        event.preventDefault();
+        scrollToSlide(index);
+      });
+
+      dot.addEventListener('keydown', event => {
+        const key = event.key;
+        if (event.altKey || event.metaKey) return;
+
+        if (key === 'ArrowRight' || key === 'ArrowDown') {
+          event.preventDefault();
+          const nextIndex = clampIndex(index + 1);
+          dots[nextIndex]?.focus();
+        } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+          event.preventDefault();
+          const prevIndex = clampIndex(index - 1);
+          dots[prevIndex]?.focus();
+        } else if (key === 'Home') {
+          event.preventDefault();
+          dots[0]?.focus();
+        } else if (key === 'End') {
+          event.preventDefault();
+          dots[dots.length - 1]?.focus();
+        } else if (key === 'Enter' || key === ' ') {
+          event.preventDefault();
+          scrollToSlide(index);
+        }
+      });
+    });
+
+    viewport.addEventListener('keydown', event => {
+      const key = event.key;
+      if (key === 'PageDown' || (event.ctrlKey && key === 'ArrowRight')) {
+        event.preventDefault();
+        advanceSlide(1);
+      } else if (key === 'PageUp' || (event.ctrlKey && key === 'ArrowLeft')) {
+        event.preventDefault();
+        advanceSlide(-1);
+      } else if (key === 'Home') {
+        event.preventDefault();
+        scrollToSlide(0);
+      } else if (key === 'End') {
+        event.preventDefault();
+        scrollToSlide(totalSlides - 1);
+      }
+    });
+
+    banner.addEventListener('focusin', () => pauseAutoplay('focus'));
+    banner.addEventListener('focusout', event => {
+      if (!banner.contains(event.relatedTarget)) {
+        resumeAutoplay('focus');
+      }
+    });
+
+    banner.addEventListener('pointerenter', () => pauseAutoplay('hover'));
+    banner.addEventListener('pointerleave', () => resumeAutoplay('hover'));
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        resumeAutoplay('document');
+      } else {
+        pauseAutoplay('document');
+      }
+    });
+
+    let observer = null;
+    if (!disableViewportPause && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+            if (!disableViewportPause) resumeAutoplay('viewport');
+          } else if (!entry.isIntersecting) {
+            if (!disableViewportPause) pauseAutoplay('viewport');
+          }
+        });
+      }, { threshold: [0, 0.6, 1] });
+      observer.observe(banner);
+    }
+
+    const onReduceMotionChange = event => {
+      prefersReducedMotion = event.matches;
+      if (prefersReducedMotion) {
+        pauseAutoplay('motion');
+      } else {
+        pauseReasons.delete('motion');
+        if (pauseReasons.size === 0) {
+          scheduleAutoplay();
+        }
+      }
+    };
+
+    if (prefersReducedMotion) {
+      pauseAutoplay('motion');
+    }
+
+    if (typeof reduceMotionQuery.addEventListener === 'function') {
+      reduceMotionQuery.addEventListener('change', onReduceMotionChange);
+    } else if (typeof reduceMotionQuery.addListener === 'function') {
+      reduceMotionQuery.addListener(onReduceMotionChange);
+    }
+
+    const hasHash = window.location.hash.toLowerCase().startsWith('#skills-cat-');
+    const initialIndex = hasHash ? getIndexFromHash() : getIndexFromStorage();
+    scrollToSlide(initialIndex, { behavior: 'auto', updateHash: hasHash });
+
+    if (!prefersReducedMotion) {
+      scheduleAutoplay();
+    }
+
+    window.addEventListener('hashchange', () => {
+      const targetIndex = getIndexFromHash();
+      if (targetIndex !== currentIndex) {
+        const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+        scrollToSlide(targetIndex, { behavior });
+      }
+    });
+
+    window.__skillsCarousel = {
+      get index() {
+        return currentIndex;
+      },
+      get reasons() {
+        return Array.from(pauseReasons);
+      },
+    };
+  })();
+</script></script></script></script></script>
