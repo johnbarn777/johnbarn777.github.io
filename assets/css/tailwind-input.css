@@ -1019,6 +1019,7 @@
 
   .skills-banner__viewport {
     overflow-x: auto;
+    overflow-y: visible;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
@@ -1037,15 +1038,24 @@
   }
 
   .skills-banner__slides {
-    display: grid;
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(0, 100%);
+    display: flex;
+    flex-direction: row;
     gap: clamp(1.25rem, 4vw, 1.75rem);
   }
 
   .skills-banner__slide {
+    flex: 0 0 100%;
+    width: 100%;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
     min-height: clamp(14rem, 54vw, 19rem);
+    display: flex;
+  }
+
+  .skills-banner__slide-inner {
+    min-height: inherit;
+    width: min(100%, 64rem);
+    margin-inline: auto;
     padding: clamp(1rem, 4vw, 1.5rem);
     border-radius: 1.25rem;
     border: 1px solid rgba(132, 166, 225, 0.45);
@@ -1056,8 +1066,8 @@
     gap: clamp(0.75rem, 3vw, 1rem);
   }
 
-  [data-theme='dark'] .skills-banner__slide,
-  .dark .skills-banner__slide {
+  [data-theme='dark'] .skills-banner__slide-inner,
+  .dark .skills-banner__slide-inner {
     background: rgba(15, 23, 42, 0.78);
     border-color: rgba(141, 205, 233, 0.55);
     box-shadow: 0 28px 60px rgba(2, 6, 23, 0.6);

@@ -50,9 +50,6 @@ const fallbackNextId = groupedSlides.length > 1 ? groupedSlides[1]?.category.id 
 <section
   id="skills"
   class="skills-banner"
-  role="region"
-  aria-roledescription="carousel"
-  aria-label="Technical skills by category"
   data-skills-banner
   data-autoplay-ms={autoplayMs}
   data-loop={loopCarousel ? 'true' : 'false'}
@@ -83,19 +80,22 @@ const fallbackNextId = groupedSlides.length > 1 ? groupedSlides[1]?.category.id 
       <div
         id="skills-viewport"
         class="skills-banner__viewport"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Technical skills by category"
         tabindex="0"
         aria-live="polite"
         aria-atomic="true"
         data-skill-viewport
       >
-        <div class="skills-banner__slides" data-skill-slides>
+        <div class="skills-banner__slides skills-track" data-skill-slides>
           {groupedSlides.map(({ category, items, primaryCount }, index) => {
             const skillCount = items.length;
             const slideId = `skills-cat-${category.id}`;
             const liveLabel = `${category.label} ${index + 1} of ${groupedSlides.length}`;
             return (
               <section
-                class="skills-banner__slide"
+                class="skills-banner__slide skills-slide"
                 id={slideId}
                 data-skill-slide
                 data-category={category.id}
@@ -107,27 +107,29 @@ const fallbackNextId = groupedSlides.length > 1 ? groupedSlides[1]?.category.id 
                 aria-label={liveLabel}
                 aria-current={index === initialIndex ? 'true' : 'false'}
               >
-                <header class="skills-banner__slide-header">
-                  <h3 class="skills-banner__slide-title">{category.label}</h3>
-                  <p class="skills-banner__slide-meta">
-                    {skillCount ? `${primaryCount} primary · ${skillCount} total` : 'Nothing to highlight yet'}
-                  </p>
-                </header>
-                {skillCount ? (
-                  <div class="skills-banner__grid" role="list">
-                    {items.map(({ name, icon, level, years }) => (
-                      <SkillPill
-                        name={name}
-                        icon={icon}
-                        level={level}
-                        years={years}
-                        preload={index < 2}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p class="skills-banner__empty" role="note">No skills yet.</p>
-                )}
+                <div class="skills-banner__slide-inner skills-slide__inner">
+                  <header class="skills-banner__slide-header">
+                    <h3 class="skills-banner__slide-title">{category.label}</h3>
+                    <p class="skills-banner__slide-meta">
+                      {skillCount ? `${primaryCount} primary · ${skillCount} total` : 'Nothing to highlight yet'}
+                    </p>
+                  </header>
+                  {skillCount ? (
+                    <div class="skills-banner__grid skills-grid" role="list">
+                      {items.map(({ name, icon, level, years }) => (
+                        <SkillPill
+                          name={name}
+                          icon={icon}
+                          level={level}
+                          years={years}
+                          preload={index < 2}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p class="skills-banner__empty" role="note">No skills yet.</p>
+                  )}
+                </div>
               </section>
             );
           })}
