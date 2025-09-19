@@ -1,0 +1,70 @@
+:root {
+  /* Brand palette */
+  --ink-900: #060b1a;
+  --brand-1: #fddbd9;
+  --brand-2: #fac9c3;
+  --brand-3: #84a6e1;
+  --brand-4: #8dcde9;
+
+  --surface-raised: rgba(255, 255, 255, 0.82);
+
+  /* Neutral scale */
+  --neutral-50: #fafbff;
+  --neutral-100: #eef1f8;
+  --neutral-200: #d8deeb;
+  --neutral-300: #c0c8d7;
+  --neutral-400: #a0a8b9;
+  --neutral-500: #7a8498;
+  --neutral-600: #5f6879;
+  --neutral-700: #454b5b;
+  --neutral-800: #272c39;
+  --neutral-900: #121421;
+
+  /* Status colors */
+  --success-500: #22c55e;
+  --warn-500: #facc15;
+
+  /* Type scale */
+  --fs-11: 0.6875rem;
+  --fs-13: 0.8125rem;
+  --fs-16: 1rem;
+  --fs-20: 1.25rem;
+  --fs-24: 1.5rem;
+  --fs-32: 2rem;
+  --fs-48: 3rem;
+
+  /* Spacing scale (8px base) */
+  --space-0: 0rem;
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 2.5rem;
+  --space-6: 3rem;
+  --space-7: 3.5rem;
+  --space-8: 4rem;
+  --space-9: 4.5rem;
+  --space-10: 5rem;
+}
+
+:root[data-theme='dark'],
+.dark {
+  --ink-900: #f8fafc;
+  --brand-1: #1f476f;
+  --brand-2: #2c3b71;
+  --brand-3: #4f75c2;
+  --brand-4: #6ea6d7;
+
+  --neutral-50: #0f172a;
+  --neutral-100: #111827;
+  --neutral-200: #1e293b;
+  --neutral-300: #273247;
+  --neutral-400: #334155;
+  --neutral-500: #475569;
+  --neutral-600: #64748b;
+  --neutral-700: #94a3b8;
+  --neutral-800: #cbd5f5;
+  --neutral-900: #e2e8f0;
+
+  --surface-raised: rgba(15, 23, 42, 0.75);
+}

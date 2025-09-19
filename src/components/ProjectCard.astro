@@ -1,9 +1,20 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-const { project }:{ project: CollectionEntry<'projects'> } = Astro.props;
+const {
+  project,
+  index = 0,
+}:{ project: CollectionEntry<'projects'>; index?: number } = Astro.props;
 const summary = project.data.summary.slice(0, 120);
+const tags = Array.isArray(project.data.tags) ? project.data.tags : [];
 ---
-<article class="card glass surface-tinted>
+<article
+  class="card glass surface-tinted"
+  data-filter-item="projects"
+  data-tags={tags.join(',')}
+  data-index={String(index)}
+  role="listitem"
+  aria-label={project.data.title}
+>
   <figure class="px-4 pt-4">
     <img src={project.data.image} alt={project.data.title + ' logo'} class="w-24 h-24 object-contain" loading="lazy" />
   </figure>

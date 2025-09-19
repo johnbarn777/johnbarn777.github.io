@@ -1,21 +1,30 @@
 ---
 const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] } = Astro.props;
 ---
-<div class="hero min-h-screen pt-20 text-center px-4">
-  <div class="hero-content flex flex-col items-center gap-4 w-full max-w-4xl">
-    <img src="/avatar.png" alt={`${firstName} ${lastName} avatar`} class="w-96 md:w-144 h-auto rounded-2xl" loading="lazy" />
-    <h1 class="text-5xl font-bold flex items-center justify-center gap-1 flex-wrap">
-      <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span><span id="hero-cursor" class="hero-cursor" aria-hidden="true">|</span>
+<section id="intro" class="section hero min-h-screen" aria-labelledby="intro-title">
+  <div class="container hero-content flex flex-col items-center gap-6 text-center">
+    <img
+      src="/avatar.png"
+      alt={`${firstName} ${lastName} avatar`}
+      class="w-64 md:w-80 lg:w-96 h-auto rounded-2xl"
+      loading="lazy"
+    />
+    <h1
+      id="intro-title"
+      class="text-4xl sm:text-5xl lg:text-6xl font-bold flex items-center justify-center gap-1 flex-wrap"
+    >
+      <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span>
+      <span id="hero-cursor" class="hero-cursor" aria-hidden="true">|</span>
     </h1>
-    <div class="flex gap-4 flex-wrap justify-center">
+    <div class="hero-ctas">
       {ctas.map(({ text, href }) => (
-        <a href={href} class="btn rounded-full glass surface-tinted text-white normal-case text-l">
+        <a href={href} class="cta-button">
           {text}
         </a>
       ))}
     </div>
   </div>
-</div>
+</section>
 
 <script client:visible define:vars={{ firstName, lastName, titles }}>
 (() => {
@@ -67,4 +76,3 @@ const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] }
   step();
 })();
 </script>
-

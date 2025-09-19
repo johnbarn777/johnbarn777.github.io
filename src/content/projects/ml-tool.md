@@ -6,6 +6,9 @@ tech:
   - Python
   - TensorFlow
   - Docker
+tags:
+  - ML
+  - Data
 repo: "https://github.com/johnbarn777/ToxicCommentClassification"
 demo: "https://github.com/johnbarn777/ToxicCommentClassification"
 ---

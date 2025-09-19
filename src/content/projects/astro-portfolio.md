@@ -7,6 +7,9 @@ tech:
   - TypeScript
   - GCP
   - Firestore
+tags:
+  - Mobile
+  - Web
 repo: "https://github.com/johnbarn777/House"
 demo: "https://johnbarn777.github.io/House-Portfolio/"
 ---
