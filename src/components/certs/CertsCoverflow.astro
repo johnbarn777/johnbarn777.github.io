@@ -1,0 +1,621 @@
+---
+import { Fragment } from 'astro/jsx-runtime';
+import CertCard from './CertCard.astro';
+import certsData from '../../../data/certs.json';
+
+interface Palette {
+  bg: string;
+  fg: string;
+  glow: string;
+}
+
+interface CertItem {
+  id: string;
+  title: string;
+  issuer: string;
+  issued?: string;
+  image: string;
+  largeImage: string;
+  verifyUrl?: string;
+  category?: string;
+  credId?: string;
+  skills?: string[];
+  palette: Palette;
+}
+
+const { items = [], featuredIds = [] } = certsData as {
+  items: CertItem[];
+  featuredIds: string[];
+};
+
+const featured = new Set(featuredIds);
+const sorted = items
+  .slice()
+  .sort((a, b) => {
+    const aFeatured = featured.has(a.id);
+    const bFeatured = featured.has(b.id);
+    if (aFeatured !== bFeatured) {
+      return Number(bFeatured) - Number(aFeatured);
+    }
+    if (a.issued && b.issued) {
+      return b.issued.localeCompare(a.issued);
+    }
+    if (a.category && b.category && a.category !== b.category) {
+      return a.category.localeCompare(b.category);
+    }
+    return a.title.localeCompare(b.title);
+  });
+
+const preloadIds = new Set(sorted.slice(0, 2).map(item => item.id));
+const total = sorted.length;
+const statusText = total ? `Loaded ${total} certifications` : 'No certifications available';
+const filterOptions = ['All', 'Cloud', 'ML/AI', 'Security', 'Data', 'Aviation'] as const;
+---
+{sorted.slice(0, 2).map(cert => (
+  <Fragment slot="head">
+    <link rel="preload" as="image" href={cert.largeImage} imagesrcset={`${cert.largeImage} 1x`} fetchpriority="high" />
+  </Fragment>
+))}
+
+<section
+  id="certifications"
+  class="certs-section section"
+  aria-labelledby="certs-title"
+  data-filter-section="certs"
+>
+  <div class="container certs-coverflow" data-certs data-total-certs={String(total)}>
+    <header class="certs-header">
+      <div class="certs-intro">
+        <p class="certs-eyebrow">Immersive Certifications</p>
+        <h2 class="certs-title" id="certs-title">Immersive Certification Coverflow</h2>
+        <p class="certs-copy">Hover or focus a certification to preview highlights, skills, and verification details.</p>
+      </div>
+      <p class="certs-total" aria-live="polite" aria-atomic="true">{statusText}</p>
+    </header>
+
+    <div class="certs-filters">
+      <div
+        class="filter-toolbar"
+        role="toolbar"
+        aria-label="Certification filters"
+        data-filter-toolbar
+      >
+        {filterOptions.map(value => (
+          <button
+            type="button"
+            class="filter-button"
+            data-filter-value={value}
+            aria-pressed={value === 'All' ? 'true' : 'false'}
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+
+      <div class="filter-summary certs-summary" data-filter-summary aria-live="polite" aria-atomic="true">
+        <p class="filter-count" data-filter-count>
+          Showing {total} of {total}
+        </p>
+        <div class="filter-summary__chips" data-filter-chips hidden>
+          <button type="button" class="filter-clear" data-filter-clear>Clear all</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="certs-carousel" data-certs-carousel>
+      <button
+        type="button"
+        class="certs-paddle"
+        data-certs-prev
+        aria-label="Previous certifications"
+      >
+        <span aria-hidden="true">‹</span>
+      </button>
+      <div
+        class="certs-viewport"
+        data-certs-viewport
+        data-filter-list
+        role="listbox"
+        aria-label="Featured certifications"
+        tabindex="0"
+      >
+        {sorted.map((item, index) => (
+          <div
+            class="certs-slide"
+            role="option"
+            data-cert-slide
+            data-filter-item
+            data-category={item.category ?? ''}
+            data-cert-page-index={Math.floor(index / 3)}
+          >
+            <CertCard {...item} index={index} preloadHero={preloadIds.has(item.id)} />
+          </div>
+        ))}
+      </div>
+      <button
+        type="button"
+        class="certs-paddle"
+        data-certs-next
+        aria-label="Next certifications"
+      >
+        <span aria-hidden="true">›</span>
+      </button>
+    </div>
+
+    <div class="certs-dots" data-certs-dots role="tablist" aria-label="Certification pages"></div>
+    <p class="certs-status sr-only" data-certs-status aria-live="polite" aria-atomic="true"></p>
+
+    <div class="filter-empty certs-empty" data-filter-empty hidden role="status" aria-live="polite">
+      <h3>No certifications found</h3>
+      <p>Try selecting a different category or reset filters.</p>
+      <button type="button" class="filter-clear" data-filter-clear>Reset filters</button>
+    </div>
+
+    <noscript>
+      <div class="certs-noscript">
+        {sorted.map(item => (
+          <article class="certs-noscript__card">
+            <img src={item.image} alt={`${item.title} badge`} width="80" height="80" loading="lazy" decoding="async" />
+            <div>
+              <h3>{item.title}</h3>
+              <p>{item.issuer}</p>
+              {item.skills && item.skills.length ? (
+                <ul>
+                  {item.skills.map(skill => (
+                    <li>{skill}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </article>
+        ))}
+      </div>
+    </noscript>
+  </div>
+</section>
+
+<script client:load>
+  (() => {
+    const root = document.querySelector('[data-certs]');
+    if (!root) return;
+
+    const viewport = root.querySelector('[data-certs-viewport]');
+    const allSlides = Array.from(root.querySelectorAll('[data-cert-slide]'));
+    const allCards = Array.from(root.querySelectorAll('[data-cert-card]'));
+    const prev = root.querySelector('[data-certs-prev]');
+    const next = root.querySelector('[data-certs-next]');
+    const dotsContainer = root.querySelector('[data-certs-dots]');
+    const status = root.querySelector('[data-certs-status]');
+
+    if (!(viewport instanceof HTMLElement) || !allSlides.length || !allCards.length || !(dotsContainer instanceof HTMLElement)) {
+      return;
+    }
+
+
+    const getVisibleSlides = () => allSlides.filter(slide => !slide.hasAttribute('hidden'));
+    const getVisibleCards = () =>
+      getVisibleSlides()
+        .map(slide => slide.querySelector('[data-cert-card]'))
+        .filter(node => node instanceof HTMLElement);
+
+    const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let prefersReducedMotion = reduceMotionQuery.matches;
+
+    reduceMotionQuery.addEventListener('change', event => {
+      prefersReducedMotion = event.matches;
+      if (prefersReducedMotion) {
+        allCards.forEach(card => resetTilt(card));
+      }
+    });
+
+    const maxTilt = 8;
+    const tiltState = new WeakMap();
+
+    const resetTilt = card => {
+      card.style.setProperty('--cert-tilt-x', '0deg');
+      card.style.setProperty('--cert-tilt-y', '0deg');
+      card.style.setProperty('--cert-glow-x', '0px');
+      card.style.setProperty('--cert-glow-y', '0px');
+    };
+
+    const applyTilt = (card, x, y) => {
+      const rect = card.getBoundingClientRect();
+      const relativeX = (x - rect.left) / rect.width;
+      const relativeY = (y - rect.top) / rect.height;
+      const clampedX = Math.max(0, Math.min(1, relativeX));
+      const clampedY = Math.max(0, Math.min(1, relativeY));
+      const offsetX = (clampedX - 0.5) * 2;
+      const offsetY = (clampedY - 0.5) * 2;
+      const tiltX = -(offsetY * maxTilt);
+      const tiltY = offsetX * maxTilt;
+      card.style.setProperty('--cert-tilt-x', `${tiltX.toFixed(2)}deg`);
+      card.style.setProperty('--cert-tilt-y', `${tiltY.toFixed(2)}deg`);
+      card.style.setProperty('--cert-glow-x', `${(offsetX * 18).toFixed(2)}px`);
+      card.style.setProperty('--cert-glow-y', `${(offsetY * 18).toFixed(2)}px`);
+    };
+
+    const handlePointerMove = event => {
+      if (prefersReducedMotion) return;
+      const card = event.currentTarget;
+      let state = tiltState.get(card);
+      if (!state) {
+        state = { frame: 0, x: event.clientX, y: event.clientY };
+        tiltState.set(card, state);
+      } else {
+        state.x = event.clientX;
+        state.y = event.clientY;
+      }
+      if (state.frame) return;
+      state.frame = window.requestAnimationFrame(() => {
+        const current = tiltState.get(card);
+        if (!current) return;
+        current.frame = 0;
+        applyTilt(card, current.x, current.y);
+      });
+    };
+
+    const handlePointerLeave = event => {
+      const card = event.currentTarget;
+      const state = tiltState.get(card);
+      if (state && state.frame) {
+        window.cancelAnimationFrame(state.frame);
+        state.frame = 0;
+      }
+      resetTilt(card);
+    };
+
+    allCards.forEach(card => {
+      card.addEventListener('pointermove', handlePointerMove, { passive: true });
+      card.addEventListener('pointerleave', handlePointerLeave);
+    });
+
+    const computePageSize = () => {
+      const width = viewport.clientWidth;
+      if (width >= 1280) return 5;
+      if (width >= 1024) return 4;
+      if (width >= 768) return 3;
+      if (width >= 560) return 2;
+      return 1;
+    };
+
+    let pageSize = computePageSize();
+    let pageCount = 0;
+    let currentPage = 0;
+
+    const updateStatus = () => {
+      if (!status) return;
+      const cards = getVisibleCards();
+      const total = cards.length;
+      if (total === 0) {
+        status.textContent = 'No certifications for the selected filters.';
+        return;
+      }
+      const start = Math.min(total, currentPage * pageSize + 1);
+      const end = Math.min(total, (currentPage + 1) * pageSize);
+      status.textContent = `Showing certifications ${start} to ${end} of ${total}`;
+    };
+
+    const focusCardAtIndex = index => {
+      const cards = getVisibleCards();
+      const card = cards[index];
+      if (card) {
+        card.focus({ preventScroll: true });
+      }
+    };
+
+    const scrollToPage = pageIndex => {
+      const cards = getVisibleCards();
+      const total = cards.length;
+      if (total === 0) {
+        currentPage = 0;
+        updateDots();
+        updateControls();
+        updateStatus();
+        return;
+      }
+      const maxPage = Math.max(0, Math.ceil(total / pageSize) - 1);
+      const nextPage = Math.max(0, Math.min(pageIndex, maxPage));
+      const targetIndex = Math.min(total - 1, nextPage * pageSize);
+      const targetCard = cards[targetIndex];
+      if (targetCard) {
+        const behavior = prefersReducedMotion ? 'auto' : 'smooth';
+        targetCard.scrollIntoView({ inline: 'center', block: 'nearest', behavior });
+      }
+      currentPage = nextPage;
+      updateDots();
+      updateControls();
+      updateStatus();
+    };
+
+    const updateDots = () => {
+      const buttons = Array.from(dotsContainer.querySelectorAll('button'));
+      if (pageCount <= 1) {
+        dotsContainer.setAttribute('hidden', '');
+        dotsContainer.setAttribute('aria-hidden', 'true');
+        buttons.forEach(button => {
+          button.tabIndex = -1;
+          button.setAttribute('aria-selected', 'false');
+        });
+        return;
+      }
+      dotsContainer.removeAttribute('hidden');
+      dotsContainer.removeAttribute('aria-hidden');
+      buttons.forEach((button, index) => {
+        const selected = index === currentPage;
+        button.setAttribute('aria-selected', selected ? 'true' : 'false');
+        button.tabIndex = selected ? 0 : -1;
+      });
+    };
+
+    const buildDots = () => {
+      dotsContainer.innerHTML = '';
+      if (pageCount <= 1) {
+        dotsContainer.setAttribute('data-page-count', '0');
+        dotsContainer.setAttribute('hidden', '');
+        dotsContainer.setAttribute('aria-hidden', 'true');
+        return;
+      }
+      dotsContainer.removeAttribute('hidden');
+      dotsContainer.removeAttribute('aria-hidden');
+      for (let i = 0; i < pageCount; i += 1) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'certs-dot';
+        button.setAttribute('role', 'tab');
+        button.dataset.pageIndex = String(i);
+        button.innerHTML = `<span class="sr-only">Page ${i + 1}</span><span aria-hidden="true">${i + 1}</span>`;
+        button.addEventListener('click', () => {
+          scrollToPage(i);
+          focusCardAtIndex(i * pageSize);
+        });
+        dotsContainer.appendChild(button);
+      }
+      dotsContainer.setAttribute('data-page-count', String(pageCount));
+      updateDots();
+    };
+
+    const updateControls = () => {
+      const cards = getVisibleCards();
+      const total = cards.length;
+      const maxPage = pageCount > 0 ? pageCount - 1 : 0;
+      if (prev instanceof HTMLButtonElement) {
+        prev.disabled = total === 0 || currentPage <= 0;
+      }
+      if (next instanceof HTMLButtonElement) {
+        next.disabled = total === 0 || currentPage >= maxPage;
+      }
+    };
+
+    const recalcPages = () => {
+      pageSize = computePageSize();
+      const visibleCards = getVisibleCards();
+      const newPageCount = visibleCards.length ? Math.ceil(visibleCards.length / pageSize) : 0;
+      if (newPageCount !== pageCount) {
+        pageCount = newPageCount;
+        buildDots();
+      } else {
+        pageCount = newPageCount;
+        updateDots();
+      }
+      if (pageCount === 0) {
+        currentPage = 0;
+      } else if (currentPage >= pageCount) {
+        currentPage = pageCount - 1;
+      }
+      updateDots();
+      updateControls();
+      updateStatus();
+    };
+
+    recalcPages();
+
+    const resizeObserver = new ResizeObserver(() => {
+      recalcPages();
+      updateCoverflow();
+      if (activeCard) {
+        positionPreview(activeCard, activePreview);
+      }
+    });
+    resizeObserver.observe(viewport);
+
+    let mutationFrame = 0;
+    const handleMutation = () => {
+      if (mutationFrame) return;
+      mutationFrame = window.requestAnimationFrame(() => {
+        mutationFrame = 0;
+        currentPage = 0;
+        recalcPages();
+        const cards = getVisibleCards();
+        if (cards.length) {
+          cards[0].scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'auto' });
+        }
+        updateCoverflow();
+      });
+    };
+
+    const listObserver = new MutationObserver(handleMutation);
+    listObserver.observe(viewport, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+
+    if (prev instanceof HTMLButtonElement) {
+      prev.addEventListener('click', () => {
+        if (currentPage === 0) return;
+        scrollToPage(currentPage - 1);
+      });
+    }
+
+    if (next instanceof HTMLButtonElement) {
+      next.addEventListener('click', () => {
+        if (currentPage >= pageCount - 1) return;
+        scrollToPage(currentPage + 1);
+      });
+    }
+
+    const updateCoverflow = () => {
+      const visibleSlides = getVisibleSlides();
+      const rect = viewport.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      if (visibleSlides.length === 0) {
+        allSlides.forEach(slide => slide.classList.remove('is-centered'));
+        return;
+      }
+      let closestIndex = 0;
+      let closestDistance = Number.POSITIVE_INFINITY;
+      visibleSlides.forEach((slide, index) => {
+        const slideRect = slide.getBoundingClientRect();
+        const slideCenter = slideRect.left + slideRect.width / 2;
+        const distance = Math.abs(slideCenter - center);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+        const offset = (slideCenter - center) / slideRect.width;
+        const clamped = Math.max(-2, Math.min(2, offset));
+        const absOffset = Math.min(Math.abs(clamped), 1.5);
+        const scale = 1 - absOffset * 0.12;
+        const rotate = clamped * -18;
+        const translate = clamped * -18;
+        const opacity = 1 - Math.min(absOffset, 1.5) * 0.28;
+        slide.setAttribute('data-offset', offset.toString());
+        slide.style.setProperty('--cover-offset', offset.toFixed(4));
+        slide.style.setProperty('--cover-scale', scale.toFixed(3));
+        slide.style.setProperty('--cover-rotate', `${rotate.toFixed(2)}deg`);
+        slide.style.setProperty('--cover-translate', `${translate.toFixed(2)}%`);
+        slide.style.setProperty('--cover-opacity', opacity.toFixed(3));
+      });
+      allSlides.forEach(slide => slide.classList.remove('is-centered'));
+      visibleSlides.forEach((slide, index) => {
+        if (index === closestIndex) {
+          slide.classList.add('is-centered');
+        }
+      });
+    };
+
+    let activeCard = null;
+    let activePreview = null;
+    let hideTimer;
+
+    let coverflowFrame = 0;
+    const requestCoverflowUpdate = () => {
+      if (coverflowFrame) return;
+      coverflowFrame = window.requestAnimationFrame(() => {
+        coverflowFrame = 0;
+        updateCoverflow();
+        if (activeCard && activePreview) {
+          positionPreview(activeCard, activePreview);
+        }
+      });
+    };
+
+    viewport.addEventListener('scroll', requestCoverflowUpdate, { passive: true });
+    window.addEventListener('scroll', requestCoverflowUpdate, { passive: true });
+
+    updateCoverflow();
+
+    const setPreviewVisibility = (preview, visible) => {
+      preview.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      preview.classList.toggle('is-visible', visible);
+    };
+
+    const positionPreview = (card, preview) => {
+      const rect = card.getBoundingClientRect();
+      preview.classList.add('is-measuring');
+      preview.style.visibility = 'hidden';
+      preview.style.display = 'block';
+      preview.classList.add('is-visible');
+      const previewRect = preview.getBoundingClientRect();
+      const margin = 16;
+      let top = rect.top - previewRect.height - 24;
+      let originY = 'bottom';
+      if (top < margin) {
+        top = rect.bottom + 24;
+        originY = 'top';
+      }
+      const maxTop = window.innerHeight - previewRect.height - margin;
+      if (top > maxTop) {
+        top = Math.max(margin, maxTop);
+        originY = top <= rect.top ? 'bottom' : 'top';
+      }
+      let left = rect.left + rect.width / 2 - previewRect.width / 2;
+      let originX = 'center';
+      if (left < margin) {
+        left = margin;
+        originX = 'left';
+      }
+      const maxLeft = window.innerWidth - previewRect.width - margin;
+      if (left > maxLeft) {
+        left = maxLeft;
+        originX = 'right';
+      }
+      preview.style.left = `${Math.round(left)}px`;
+      preview.style.top = `${Math.round(top)}px`;
+      preview.dataset.position = originY;
+      preview.dataset.origin = originX;
+      preview.classList.remove('is-measuring');
+      preview.style.visibility = '';
+    };
+
+    const closeActivePreview = (returnFocus = false) => {
+      if (!activeCard || !activePreview) return;
+      window.clearTimeout(hideTimer);
+      setPreviewVisibility(activePreview, false);
+      activeCard.classList.remove('is-preview-open');
+      if (returnFocus) {
+        activeCard.focus({ preventScroll: true });
+      }
+      activeCard = null;
+      activePreview = null;
+    };
+
+    const openPreview = card => {
+      window.clearTimeout(hideTimer);
+      if (activeCard && activeCard !== card) {
+        closeActivePreview(false);
+      }
+      const preview = card.querySelector('[data-cert-preview]');
+      if (!(preview instanceof HTMLElement)) return;
+      activeCard = card;
+      activePreview = preview;
+      positionPreview(card, preview);
+      setPreviewVisibility(preview, true);
+      card.classList.add('is-preview-open');
+    };
+
+    const scheduleClose = () => {
+      window.clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => {
+        closeActivePreview(false);
+      }, 150);
+    };
+
+    allCards.forEach(card => {
+      card.addEventListener('pointerenter', () => openPreview(card));
+      card.addEventListener('pointerleave', scheduleClose);
+      card.addEventListener('focusin', () => openPreview(card));
+      card.addEventListener('focusout', () => closeActivePreview(false));
+      card.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeActivePreview(true);
+        }
+      });
+      const preview = card.querySelector('[data-cert-preview]');
+      if (preview) {
+        preview.addEventListener('pointerenter', () => {
+          window.clearTimeout(hideTimer);
+        });
+        preview.addEventListener('pointerleave', scheduleClose);
+        const closeBtn = preview.querySelector('[data-cert-preview-close]');
+        closeBtn?.addEventListener('click', () => {
+          closeActivePreview(true);
+        });
+      }
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closeActivePreview(true);
+      }
+    });
+
+  })();
+</script>

@@ -1,14 +1,17 @@
 const FILTER_OPTIONS = {
     projects: ['All', 'Mobile', 'ML', 'Web', 'Data', 'Tools'],
     experience: ['All', 'AI/ML', 'Software', 'IT Support'],
+    certs: ['All', 'Cloud', 'ML/AI', 'Security', 'Data', 'Aviation'],
 };
 const QUERY_KEYS = {
     projects: 'p',
     experience: 'e',
+    certs: 'c',
 };
 const STORAGE_KEYS = {
     projects: 'filters:projects',
     experience: 'filters:experience',
+    certs: 'filters:certs',
 };
 const interactiveSelector = 'a[href], button, input, textarea, select, summary, details, [tabindex]';
 const warnOnce = (() => {
@@ -25,11 +28,13 @@ const supportsInert = typeof window !== 'undefined' && typeof document !== 'unde
 const allowedValues = {
     projects: new Set(FILTER_OPTIONS.projects.filter(value => value !== 'All')),
     experience: new Set(FILTER_OPTIONS.experience.filter(value => value !== 'All')),
+    certs: new Set(FILTER_OPTIONS.certs.filter(value => value !== 'All')),
 };
 const tagCache = new WeakMap();
 const state = {
     projects: { selected: new Set(), total: 0 },
     experience: { selected: new Set(), total: 0 },
+    certs: { selected: new Set(), total: 0 },
 };
 const sections = new Map();
 let initialised = false;
@@ -105,6 +110,16 @@ const matchers = {
         const category = (item.dataset.category || '').trim();
         if (!category) {
             warnOnce('Experience item missing category attribute.');
+            return selected.size === 0;
+        }
+        return selected.has(category);
+    },
+    certs: (item, selected) => {
+        if (selected.size === 0)
+            return true;
+        const category = (item.dataset.category || '').trim();
+        if (!category) {
+            warnOnce('Certification item missing category attribute.');
             return selected.size === 0;
         }
         return selected.has(category);

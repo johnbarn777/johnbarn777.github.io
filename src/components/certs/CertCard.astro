@@ -1,0 +1,143 @@
+---
+interface Palette {
+  bg: string;
+  fg: string;
+  glow: string;
+}
+
+interface Props {
+  id: string;
+  title: string;
+  issuer: string;
+  issued?: string;
+  image: string;
+  largeImage: string;
+  verifyUrl?: string;
+  category?: string;
+  credId?: string;
+  skills?: string[];
+  palette: Palette;
+  index: number;
+  preloadHero?: boolean;
+}
+
+const {
+  id,
+  title,
+  issuer,
+  issued,
+  image,
+  largeImage,
+  verifyUrl,
+  category,
+  credId,
+  skills = [],
+  palette,
+  index,
+  preloadHero = false,
+} = Astro.props as Props;
+
+const cardId = `cert-card-${id}`;
+const previewId = `${cardId}-preview`;
+
+const formatIssued = (value?: string) => {
+  if (!value) return '';
+  const parts = value.split('-');
+  if (parts.length >= 2) {
+    const [year, month] = parts;
+    const numericMonth = Number(month);
+    if (numericMonth >= 1 && numericMonth <= 12) {
+      const date = new Date(Number(year), numericMonth - 1, 1);
+      return new Intl.DateTimeFormat('en', {
+        month: 'short',
+        year: 'numeric',
+      }).format(date);
+    }
+  }
+  return value;
+};
+
+const issuedLabel = formatIssued(issued);
+const describedBy = [previewId];
+const labelledBy = `${cardId}-title`;
+const previewAlt = `${title} certificate preview`; 
+const cardStyle = `--cert-bg: ${palette.bg}; --cert-fg: ${palette.fg}; --cert-glow: ${palette.glow};`;
+---
+<div
+  class="cert-card"
+  data-cert-card
+  data-cert-index={String(index)}
+  data-cert-id={id}
+  data-cert-category={category ?? ''}
+  data-preload={preloadHero ? 'true' : 'false'}
+  role="group"
+  tabindex="0"
+  aria-labelledby={labelledBy}
+  aria-describedby={describedBy.join(' ')}
+  data-verify-url={verifyUrl ?? ''}
+  style={cardStyle}
+>
+  <div class="cert-card__inner">
+    <div class="cert-card__badge">
+      <img
+        src={image}
+        alt={`${title} badge`}
+        width="80"
+        height="80"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div class="cert-card__body">
+      {category ? <p class="cert-card__category">{category}</p> : null}
+      <h3 class="cert-card__title" id={`${cardId}-title`}>
+        {title}
+      </h3>
+      <p class="cert-card__issuer">{issuer}</p>
+      {issuedLabel ? <p class="cert-card__issued">Issued {issuedLabel}</p> : null}
+      {credId ? <p class="cert-card__cred">Credential ID: {credId}</p> : null}
+    </div>
+  </div>
+  <div
+    class="cert-preview"
+    id={previewId}
+    role="dialog"
+    aria-modal="false"
+    aria-hidden="true"
+    data-cert-preview
+  >
+    <div class="cert-preview__media">
+      <img
+        src={largeImage}
+        alt={previewAlt}
+        width="960"
+        height="600"
+        loading={preloadHero ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    </div>
+    <div class="cert-preview__body">
+      <p class="cert-preview__issuer">{issuer}</p>
+      {skills.length ? (
+        <ul class="cert-preview__skills" role="list">
+          {skills.map(skill => (
+            <li class="cert-preview__skill">{skill}</li>
+          ))}
+        </ul>
+      ) : null}
+      {verifyUrl ? (
+        <a
+          class="cert-preview__cta"
+          href={verifyUrl}
+          target="_blank"
+          rel="noopener"
+        >
+          Verify credential
+        </a>
+      ) : null}
+    </div>
+    <button type="button" class="cert-preview__close" data-cert-preview-close aria-label="Close preview">
+      ×
+    </button>
+  </div>
+</div>

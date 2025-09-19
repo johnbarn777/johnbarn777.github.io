@@ -1,0 +1,76 @@
+{
+  "featuredIds": [
+    "gcp-pca",
+    "aws-saa",
+    "azure-az305",
+    "cka",
+    "terraform-associate"
+  ],
+  "items": [
+    {
+      "id": "gcp-pca",
+      "title": "Professional Cloud Architect",
+      "issuer": "Google Cloud",
+      "issued": "2024-08",
+      "image": "/assets/img/certs/gcp-pca-badge.png",
+      "largeImage": "/assets/img/certs/gcp-pca-card.webp",
+      "verifyUrl": "https://cloud.google.com/certification/cloud-architect",
+      "category": "Cloud",
+      "credId": "GCP-PCA-2024",
+      "skills": ["GCP", "VPC", "IAM", "Kubernetes"],
+      "palette": {"bg": "#0b2545", "fg": "#e6f1ff", "glow": "#4ea1ff"}
+    },
+    {
+      "id": "aws-saa",
+      "title": "Solutions Architect Associate",
+      "issuer": "Amazon Web Services",
+      "issued": "2023-11",
+      "image": "/assets/img/certs/aws-saa-badge.png",
+      "largeImage": "/assets/img/certs/aws-saa-card.webp",
+      "verifyUrl": "https://www.certmetrics.com/amazon/public/badge.aspx",
+      "category": "Cloud",
+      "credId": "AWS-SAA-2023",
+      "skills": ["AWS", "VPC", "Cost Optimization", "Serverless"],
+      "palette": {"bg": "#1a1a40", "fg": "#fdf5e6", "glow": "#f7b733"}
+    },
+    {
+      "id": "azure-az305",
+      "title": "Azure Solutions Architect Expert",
+      "issuer": "Microsoft Azure",
+      "issued": "2023-05",
+      "image": "/assets/img/certs/azure-az305-badge.png",
+      "largeImage": "/assets/img/certs/azure-az305-card.webp",
+      "verifyUrl": "https://learn.microsoft.com/certifications/azure-solutions-architect/",
+      "category": "Cloud",
+      "credId": "AZ-305-2023",
+      "skills": ["Azure", "Security", "Networking", "Governance"],
+      "palette": {"bg": "#002244", "fg": "#e1eeff", "glow": "#3c8ce7"}
+    },
+    {
+      "id": "cka",
+      "title": "Certified Kubernetes Administrator",
+      "issuer": "The Linux Foundation",
+      "issued": "2022-09",
+      "image": "/assets/img/certs/cka-badge.png",
+      "largeImage": "/assets/img/certs/cka-card.webp",
+      "verifyUrl": "https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/",
+      "category": "Security",
+      "credId": "CKA-0922",
+      "skills": ["Kubernetes", "Cluster Ops", "Security", "Networking"],
+      "palette": {"bg": "#081c15", "fg": "#eafffd", "glow": "#52b788"}
+    },
+    {
+      "id": "terraform-associate",
+      "title": "HashiCorp Terraform Associate",
+      "issuer": "HashiCorp",
+      "issued": "2022-03",
+      "image": "/assets/img/certs/terraform-associate-badge.png",
+      "largeImage": "/assets/img/certs/terraform-associate-card.webp",
+      "verifyUrl": "https://www.hashicorp.com/certification/terraform-associate",
+      "category": "Data",
+      "credId": "TF-ASSOC-2203",
+      "skills": ["Terraform", "HCL", "IaC Automation", "State Management"],
+      "palette": {"bg": "#22162b", "fg": "#f3e8ff", "glow": "#9d4edd"}
+    }
+  ]
+}

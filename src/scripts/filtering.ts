@@ -1,4 +1,4 @@
-type FilterSectionId = 'projects' | 'experience';
+type FilterSectionId = 'projects' | 'experience' | 'certs';
 
 type SectionState = {
   selected: Set<string>;
@@ -21,16 +21,19 @@ type SectionDom = {
 const FILTER_OPTIONS: Record<FilterSectionId, readonly string[]> = {
   projects: ['All', 'Mobile', 'ML', 'Web', 'Data', 'Tools'] as const,
   experience: ['All', 'AI/ML', 'Software', 'IT Support'] as const,
+  certs: ['All', 'Cloud', 'ML/AI', 'Security', 'Data', 'Aviation'] as const,
 };
 
 const QUERY_KEYS: Record<FilterSectionId, string> = {
   projects: 'p',
   experience: 'e',
+  certs: 'c',
 };
 
 const STORAGE_KEYS: Record<FilterSectionId, string> = {
   projects: 'filters:projects',
   experience: 'filters:experience',
+  certs: 'filters:certs',
 };
 
 const interactiveSelector =
@@ -52,6 +55,7 @@ const supportsInert =
 const allowedValues: Record<FilterSectionId, Set<string>> = {
   projects: new Set(FILTER_OPTIONS.projects.filter(value => value !== 'All')),
   experience: new Set(FILTER_OPTIONS.experience.filter(value => value !== 'All')),
+  certs: new Set(FILTER_OPTIONS.certs.filter(value => value !== 'All')),
 };
 
 const tagCache = new WeakMap<HTMLElement, string[]>();
@@ -59,6 +63,7 @@ const tagCache = new WeakMap<HTMLElement, string[]>();
 const state: Record<FilterSectionId, SectionState> = {
   projects: { selected: new Set(), total: 0 },
   experience: { selected: new Set(), total: 0 },
+  certs: { selected: new Set(), total: 0 },
 };
 
 const sections = new Map<FilterSectionId, SectionDom>();
@@ -134,6 +139,15 @@ const matchers: Record<FilterSectionId, (item: HTMLElement, selected: Set<string
     const category = (item.dataset.category || '').trim();
     if (!category) {
       warnOnce('Experience item missing category attribute.');
+      return selected.size === 0;
+    }
+    return selected.has(category);
+  },
+  certs: (item, selected) => {
+    if (selected.size === 0) return true;
+    const category = (item.dataset.category || '').trim();
+    if (!category) {
+      warnOnce('Certification item missing category attribute.');
       return selected.size === 0;
     }
     return selected.has(category);
