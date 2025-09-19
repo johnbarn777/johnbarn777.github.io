@@ -1,0 +1,113 @@
+---
+import skillsData from '../../../data/skills.json';
+import SkillPill from './SkillPill.astro';
+
+const primarySkills = skillsData.items.filter(item => item.primary);
+const totalPrimary = primarySkills.length;
+const liveMessage = `Showing ${totalPrimary} primary skills`;
+---
+<section
+  id="skills"
+  class="skills-banner"
+  aria-labelledby="skills-banner-title"
+  data-skills-root
+>
+  <div class="container skills-banner__inner">
+    <div class="skills-banner__header">
+      <h2 id="skills-banner-title" class="skills-banner__title">Skills Snapshot</h2>
+      <p class="skills-banner__status" role="status" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </p>
+    </div>
+    <div class="skills-banner__viewport" data-skills-banner>
+      <button
+        type="button"
+        class="skills-banner__paddle"
+        data-paddle="prev"
+        aria-label="Scroll skills left"
+        disabled
+      >
+        <span aria-hidden="true">&#8592;</span>
+      </button>
+      <div class="skills-banner__list" role="list" data-skills-list>
+        {primarySkills.map(({ name, icon, level, years }) => (
+          <SkillPill name={name} icon={icon} level={level} years={years} />
+        ))}
+      </div>
+      <button
+        type="button"
+        class="skills-banner__paddle"
+        data-paddle="next"
+        aria-label="Scroll skills right"
+        disabled
+      >
+        <span aria-hidden="true">&#8594;</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script client:load>
+  const setupBanner = banner => {
+    const list = banner.querySelector('[data-skills-list]');
+    const prev = banner.querySelector('[data-paddle="prev"]');
+    const next = banner.querySelector('[data-paddle="next"]');
+    if (!list || !prev || !next) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const getBehavior = () => (prefersReduced.matches ? 'auto' : 'smooth');
+
+    const setDisabled = (button, value) => {
+      button.disabled = value;
+      button.setAttribute('aria-disabled', value ? 'true' : 'false');
+    };
+
+    const update = () => {
+      const maxScroll = Math.max(0, list.scrollWidth - list.clientWidth - 1);
+      const canScroll = list.scrollWidth - list.clientWidth > 1;
+      banner.dataset.scrollable = canScroll ? 'true' : 'false';
+      if (!canScroll) {
+        setDisabled(prev, true);
+        setDisabled(next, true);
+        return;
+      }
+      const left = list.scrollLeft;
+      setDisabled(prev, left <= 1);
+      setDisabled(next, left >= maxScroll);
+    };
+
+    prev.addEventListener('click', () => {
+      list.scrollBy({ left: -list.clientWidth, behavior: getBehavior() });
+    });
+
+    next.addEventListener('click', () => {
+      list.scrollBy({ left: list.clientWidth, behavior: getBehavior() });
+    });
+
+    list.addEventListener('scroll', () => {
+      window.requestAnimationFrame(update);
+    });
+
+    if ('ResizeObserver' in window) {
+      const resizeObserver = new ResizeObserver(() => update());
+      resizeObserver.observe(list);
+    } else {
+      window.addEventListener('resize', update);
+    }
+
+    const handlePrefersChange = () => {
+      // no-op needed beyond recalculating disabled state
+      update();
+    };
+
+    if (typeof prefersReduced.addEventListener === 'function') {
+      prefersReduced.addEventListener('change', handlePrefersChange);
+    } else if (typeof prefersReduced.addListener === 'function') {
+      prefersReduced.addListener(handlePrefersChange);
+    }
+
+    update();
+  };
+
+  document.querySelectorAll('[data-skills-banner]').forEach(setupBanner);
+</script>

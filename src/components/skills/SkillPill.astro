@@ -1,0 +1,34 @@
+---
+export interface Props {
+  name: string;
+  icon: string;
+  level?: string;
+  years?: number;
+}
+
+const { name, icon, level, years } = Astro.props;
+
+const detailParts: string[] = [];
+if (level) {
+  detailParts.push(level.charAt(0).toUpperCase() + level.slice(1));
+}
+if (typeof years === 'number' && Number.isFinite(years)) {
+  const formatted = years % 1 === 0 ? `${years}` : years.toFixed(1).replace(/\.0$/, '');
+  detailParts.push(`${formatted}+ yrs`);
+}
+const tooltip = detailParts.length ? `${name} · ${detailParts.join(' • ')}` : name;
+---
+<button
+  type="button"
+  class="skill-pill"
+  data-skill-name={name}
+  data-skill-level={level}
+  data-skill-years={typeof years === 'number' ? years : undefined}
+  role="listitem"
+  title={tooltip}
+>
+  <span class="skill-pill__icon" aria-hidden="true">
+    <img src={icon} alt="" width="32" height="32" loading="lazy" decoding="async" />
+  </span>
+  <span class="skill-pill__label">{name}</span>
+</button>
