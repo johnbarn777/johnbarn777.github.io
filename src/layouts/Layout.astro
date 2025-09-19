@@ -1,6 +1,5 @@
 ---
 import Navbar from '../components/Navbar.astro';
-import filteringScript from '../scripts/filtering.ts?url';
 ---
 <!doctype html>
 <html lang="en">
@@ -116,6 +115,6 @@ import filteringScript from '../scripts/filtering.ts?url';
         }
       })();
     </script>
-    <script type="module" src={filteringScript}></script>
+    <script type="module" src="/assets/js/filtering.js"></script>
   </body>
 </html>

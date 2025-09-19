@@ -528,14 +528,3 @@ export const initFiltering = () => {
 if (typeof window !== 'undefined') {
   initFiltering();
 }
-
-declare global {
-  interface HTMLElement {
-    dataset: DOMStringMap & {
-      filterPrevTabindex?: string;
-      filterPrevDisplay?: string;
-      filterPrevRootTabindex?: string;
-    };
-    inert?: boolean;
-  }
-}

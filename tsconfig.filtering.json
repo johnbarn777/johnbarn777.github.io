@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ES2020",
+    "lib": ["DOM", "ES2020"],
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "strict": false,
+    "outDir": "public/assets/js",
+    "noEmit": false
+  },
+  "include": ["src/scripts/filtering.ts"],
+  "exclude": []
+}

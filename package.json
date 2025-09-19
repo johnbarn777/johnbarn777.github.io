@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run build:filters && astro build",
+    "build:filters": "tsc --project tsconfig.filtering.json",
     "build:css": "tailwindcss -i ./assets/css/tailwind-input.css -o ./assets/css/main.css --minify && mkdir -p public/assets/css && cp ./assets/css/main.css ./public/assets/css/main.css",
     "lint": "astro check",
     "preview": "astro preview",
@@ -20,6 +21,7 @@
     "@types/node": "^24.0.14",
     "autoprefixer": "^10.4.20",
     "daisyui": "^4.12.20",
-    "postcss": "^8.4.47"
+    "postcss": "^8.4.47",
+    "typescript": "^5.8.3"
   }
 }
