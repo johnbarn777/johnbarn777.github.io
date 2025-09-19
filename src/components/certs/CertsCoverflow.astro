@@ -587,23 +587,38 @@ const filterOptions = ['All', 'Cloud', 'ML/AI', 'Security', 'Data', 'Aviation'] 
       }, 150);
     };
 
+    const getCardPreview = card => card.querySelector('[data-cert-preview]');
+
     allCards.forEach(card => {
       card.addEventListener('pointerenter', () => openPreview(card));
       card.addEventListener('pointerleave', scheduleClose);
       card.addEventListener('focusin', () => openPreview(card));
-      card.addEventListener('focusout', () => closeActivePreview(false));
+      card.addEventListener('focusout', event => {
+        const nextTarget = event.relatedTarget;
+        if (nextTarget instanceof Node && card.contains(nextTarget)) {
+          return;
+        }
+        closeActivePreview(false);
+      });
       card.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
           event.preventDefault();
           closeActivePreview(true);
         }
       });
-      const preview = card.querySelector('[data-cert-preview]');
+      const preview = getCardPreview(card);
       if (preview) {
         preview.addEventListener('pointerenter', () => {
           window.clearTimeout(hideTimer);
         });
         preview.addEventListener('pointerleave', scheduleClose);
+        preview.addEventListener('focusout', event => {
+          const nextTarget = event.relatedTarget;
+          if (nextTarget instanceof Node && card.contains(nextTarget)) {
+            return;
+          }
+          closeActivePreview(false);
+        });
         const closeBtn = preview.querySelector('[data-cert-preview-close]');
         closeBtn?.addEventListener('click', () => {
           closeActivePreview(true);
