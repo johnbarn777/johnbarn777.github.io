@@ -27,8 +27,10 @@ const tooltip = tooltipParts.length ? `${name} — ${tooltipParts.join(' · ')}`
   role="listitem"
   title={tooltip}
 >
-  <span class="skill-pill__icon" aria-hidden="true">
-    <img src={icon} alt="" width="32" height="32" loading="lazy" decoding="async" />
-  </span>
+   <span
+    class="skill-pill__icon"
+    aria-hidden="true"
+    style={`--skill-icon-url: url(${icon})`}
+  ></span>
   <span class="skill-pill__label">{name}</span>
 </button>
