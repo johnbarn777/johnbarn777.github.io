@@ -25,14 +25,14 @@ const style = [
   .join('; ');
 ---
 <a
-  class="cert-card group flex items-center gap-4 rounded-3xl border border-white/10 px-5 py-4 transition duration-150 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+  class="cert-card group flex items-center gap-4 rounded-3xl px-5 py-4 transition duration-150 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus-visible:ring-offset-2"
   style={style}
   href={href}
   target="_blank"
   rel="noopener noreferrer"
   tabindex={tabIndex}
 >
-  <span class="cert-card__badge flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/10">
+  <span class="cert-card__badge flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl">
     <img
       src={image}
       alt={`${title} badge`}
@@ -44,31 +44,114 @@ const style = [
     />
   </span>
   <span class="flex min-w-0 flex-col text-left">
-    <span class="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">{issuer}</span>
-    <span class="text-lg font-semibold leading-tight text-white transition-colors duration-150 group-hover:text-white group-focus-visible:text-white">
+    <span class="cert-card__issuer">{issuer}</span>
+    <span class="cert-card__title">
       {title}
     </span>
-    <span class="mt-1 text-sm font-medium text-sky-200/80">Verify credential →</span>
+    <span class="cert-card__cta">Verify credential →</span>
   </span>
 </a>
 
 <style>
   .cert-card {
+    --cert-card-border: color-mix(in srgb, var(--neutral-900) 8%, transparent);
+    --cert-card-ring-offset: var(--neutral-50);
     background: var(
       --cert-card-bg,
-      linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9))
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--neutral-50) 96%, transparent),
+        color-mix(in srgb, var(--neutral-100) 86%, transparent)
+      )
     );
-    color: var(--cert-card-fg, #ffffff);
-    box-shadow: 0 12px 30px rgba(8, 47, 73, 0.35);
+    color: var(--cert-card-fg, var(--neutral-900));
+    box-shadow: 0 12px 30px color-mix(
+      in srgb,
+      var(--cert-card-glow, var(--neutral-900)) 24%,
+      transparent
+    );
+    border: 1px solid var(--cert-card-border);
     text-decoration: none;
+    --tw-ring-offset-color: var(--cert-card-ring-offset);
   }
 
   .cert-card:hover,
   .cert-card:focus-visible {
-    color: var(--cert-card-fg, #ffffff);
+    color: var(--cert-card-fg, inherit);
   }
 
   .cert-card__badge img {
     background: transparent;
+  }
+
+  .cert-card__badge {
+    background: color-mix(in srgb, currentColor 6%, transparent);
+    border: 1px solid color-mix(in srgb, currentColor 8%, transparent);
+  }
+
+  .cert-card__issuer {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, currentColor 55%, transparent);
+  }
+
+  .cert-card__title {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.35;
+    transition: color 150ms ease;
+  }
+
+  .cert-card__cta {
+    display: block;
+    margin-top: 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--cert-card-glow, var(--brand-3)) 65%, currentColor 35%);
+  }
+
+  .cert-card:is(:hover, :focus-visible) .cert-card__cta {
+    color: color-mix(in srgb, var(--cert-card-glow, var(--brand-4)) 78%, currentColor 22%);
+  }
+
+  :root[data-theme='dark'] .cert-card,
+  .dark .cert-card {
+    --cert-card-border: color-mix(in srgb, var(--neutral-50) 22%, transparent);
+    --cert-card-ring-offset: var(--neutral-200);
+    background: var(
+      --cert-card-bg,
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--neutral-300) 14%, transparent),
+        color-mix(in srgb, var(--neutral-200) 10%, transparent)
+      )
+    );
+    color: var(--cert-card-fg, var(--neutral-50));
+    box-shadow: 0 12px 30px color-mix(
+      in srgb,
+      var(--cert-card-glow, var(--neutral-50)) 34%,
+      transparent
+    );
+  }
+
+  :root[data-theme='dark'] .cert-card__badge,
+  .dark .cert-card__badge {
+    background: color-mix(in srgb, currentColor 18%, transparent);
+    border-color: color-mix(in srgb, currentColor 26%, transparent);
+  }
+
+  :root[data-theme='dark'] .cert-card__issuer,
+  .dark .cert-card__issuer {
+    color: color-mix(in srgb, currentColor 72%, transparent);
+  }
+
+  :root[data-theme='dark'] .cert-card__cta,
+  .dark .cert-card__cta {
+    color: color-mix(in srgb, var(--brand-4) 78%, currentColor 22%);
   }
 </style>

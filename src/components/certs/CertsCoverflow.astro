@@ -39,14 +39,14 @@ const marqueeDuration = Math.max(24, items.length * 6);
   <div class="container">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div class="max-w-xl">
-        <h2 id="certifications-title" class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+        <h2 id="certifications-title" class="certs-heading text-2xl font-semibold tracking-tight sm:text-3xl">
           Certifications
         </h2>
-        <p class="mt-2 text-base text-white/70">
+        <p class="certs-lede mt-2 text-base">
           Recent credentials across cloud platforms, applied machine learning, and aviation technology.
         </p>
       </div>
-      <p class="text-sm font-medium uppercase tracking-[0.3em] text-white/50">
+      <p class="certs-tag text-sm font-medium uppercase tracking-[0.3em]">
         Auto-scrolling showcase
       </p>
     </div>
@@ -79,9 +79,48 @@ const marqueeDuration = Math.max(24, items.length * 6);
 
 <style is:global>
   .certs-section {
-    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 55%),
-      linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.65));
+    --certs-surface: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--neutral-50) 96%, transparent),
+      color-mix(in srgb, var(--neutral-100) 88%, transparent)
+    );
+    --certs-glow: color-mix(in srgb, var(--brand-4) 26%, transparent);
+    --certs-text-primary: var(--neutral-900);
+    --certs-text-muted: var(--neutral-600);
+    color: var(--certs-text-primary);
+    background: radial-gradient(circle at top right, var(--certs-glow), transparent 55%), var(--certs-surface);
     overflow: hidden;
+  }
+
+  .certs-heading {
+    color: var(--certs-text-primary);
+  }
+
+  .certs-lede {
+    color: var(--certs-text-muted);
+  }
+
+  .certs-tag {
+    color: color-mix(in srgb, var(--certs-text-muted) 78%, transparent);
+  }
+
+  :root[data-theme='dark'] .certs-section,
+  .dark .certs-section {
+    --certs-surface: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--neutral-900) 86%, transparent),
+      color-mix(in srgb, var(--neutral-800) 64%, transparent)
+    );
+    --certs-glow: color-mix(in srgb, var(--brand-3) 32%, transparent);
+    --certs-text-primary: var(--neutral-50);
+    --certs-text-muted: var(--neutral-400);
+    color: var(--certs-text-primary);
+    background: radial-gradient(circle at top right, var(--certs-glow), transparent 55%), var(--certs-surface);
+  }
+
+  :root[data-theme='dark'] .certs-tag,
+  .dark .certs-tag {
+    color: color-mix(in srgb, var(--certs-text-muted) 92%, transparent);
   }
 
   .certs-marquee {
