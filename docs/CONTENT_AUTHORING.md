@@ -57,27 +57,24 @@ Each category slide uses a fixed min-height so icons load without layout shift, 
 - When reordering categories, update each `order` value and keep them unique per desired slot.
 - When hiding categories temporarily, set `visible: false` so URL history and tests stay stable.
 
-# Certifications Coverflow Authoring Guide
+# Certifications Marquee Authoring Guide
 
-The certifications module mirrors the carousel-first ethos of the site: it preloads the hero assets you need, keeps state in sync across cards, detail, dots, and filters, and avoids hover-reliant interactions.
+The certifications banner is now a continuously scrolling marquee that highlights credential badges, issuers, and quick “Verify credential” links. There are no filters or detail panes—every card is a direct link to the source of truth.
 
 ## Data contract (`data/certs.json`)
 
 - `featuredIds[]`
-  - Array of certification `id` values to highlight in hero rows or additional callouts.
+  - Array of certification `id` values to highlight elsewhere on the site.
   - Every ID listed **must** exist in `items[]`.
 - `items[]`
-  - `id`: stable slug (lowercase, kebab-case). Used for anchors and test selectors.
-  - `title`: credential name rendered on cards and in the detail pane.
-  - `issuer`: organization responsible for the certification.
-  - `issued`: YYYY-MM string (e.g. `2024-08`). Parsed into “Month YYYY” for announcements and detail metadata.
-  - `verifyUrl`: absolute URL opened in a new tab when “Verify credential” is activated.
-  - `category`: filter bucket. Allowed values: `Cloud`, `ML/AI`, `Security`, `Data`, `Aviation`.
-  - `credId`: displayed credential identifier.
-  - `image`: badge icon (PNG, optimized for 64×64 display) placed on cards.
-  - `largeImage`: hero art showcased in the detail panel (WebP/AVIF ≤150 KB, 16:10 or similar aspect).
-  - `skills[]`: 3–6 chips surfaced in the detail panel.
-  - `palette` *(optional)*: `{ bg, fg, glow }` overrides for card/detail backdrop and glow accents.
+  - `id`: stable slug (lowercase, kebab-case). Used in tests and for cross-linking.
+  - `title`: credential name rendered inside the marquee card.
+  - `issuer`: organization responsible for the certification (shown above the title).
+  - `issued`: optional YYYY-MM string for record keeping. Not displayed in the marquee but useful for future timelines.
+  - `verifyUrl`: absolute URL opened in a new tab when the card is activated.
+  - `image`: badge icon (PNG/SVG) displayed at 64×64 px within the card.
+  - `palette` *(optional)*: `{ bg, fg, glow }` overrides for the card gradient and foreground colour.
+  - `category`, `credId`, `largeImage`, and `skills` remain supported in the data for compatibility with other surfaces, but they are not surfaced in the marquee.
 
 ```json
 {
@@ -89,11 +86,7 @@ The certifications module mirrors the carousel-first ethos of the site: it prelo
       "issuer": "Google Cloud",
       "issued": "2024-08",
       "verifyUrl": "https://…",
-      "category": "Cloud",
-      "credId": "ABC-123",
       "image": "/assets/img/certs/gcp-pca-badge.png",
-      "largeImage": "/assets/img/certs/gcp-pca-card.webp",
-      "skills": ["VPC", "IAM", "GKE", "Networking", "SRE"],
       "palette": { "bg": "#0B2545", "fg": "#E6F1FF", "glow": "#4EA1FF" }
     }
   ]
@@ -102,40 +95,29 @@ The certifications module mirrors the carousel-first ethos of the site: it prelo
 
 ## Image authoring
 
-- Badge art lives in `public/assets/img/certs/` alongside large hero images.
-- Badges should be exported at 64×64 px (or larger with safe transparent padding) as lightweight PNGs.
-- Large images **must** be WebP or AVIF and remain ≤150 KB. Use 720×450 (or 16:10 equivalent) to match the reserved layout.
-- Provide matching filenames for `image`/`largeImage`; the build preloads the first two hero assets automatically.
+- Badge art lives in `public/assets/img/certs/`.
+- Export badges at 64×64 px (or larger with generous transparent padding) as lightweight PNGs or SVGs.
+- Keep file sizes modest (<50 KB when possible) to preserve smooth marquee motion.
+- Large hero images are no longer required for this banner, but you may continue to track them in the dataset for reuse elsewhere.
 
 ## Palette and fallback rules
 
-- When `palette` is omitted, cards/detail panels inherit the site’s default gradient and foreground colors.
-- `bg` fills the card/detail background, `fg` sets foreground copy colour, `glow` feeds both the card halo and detail under-glow.
-- Stick to accessible contrast: body text and UI chrome must meet WCAG AA in both light and dark contexts.
-
-## Filters & categories
-
-- Filter chips are rendered in the order: **All · Cloud · ML/AI · Security · Data · Aviation**.
-- New certifications should reuse one of these categories. Introduce a new chip only when all tests/docs are updated.
-- Changing filters resets the active index to the first result—ensure each subset has at least one certification to avoid empty states.
+- When `palette` is omitted, cards inherit the site’s default midnight gradient with white typography.
+- `bg` sets the gradient base, `fg` sets text colour, and `glow` influences subtle drop shadows.
+- Maintain accessible contrast (WCAG AA) for both text and decorative cues.
 
 ## Visual & UX contract
 
-- No hover-only reveals. All changes occur through scroll, click/tap, or keyboard input.
-- The viewport behaves as a snap carousel; one card is visually dominant at any time (scale 1.0 / high opacity).
-- Detail content is pinned below the viewport and swaps instantly when the active card changes.
-- Verify CTA always opens in a new tab (`target="_blank"` + `rel="noopener"`).
-- Keyboard: Left/Right navigate cards; `V` focuses the Verify button for the active detail; dots expose `role="tab"` semantics.
-- Live region announces active changes (`Now viewing …`). Keep copy succinct and monotonic.
-- Motion respects `prefers-reduced-motion: reduce` with ≤120 ms fades and no smooth scrolling.
-- Hit targets (cards, filters, dots, buttons) remain ≥40×40 px with visible focus outlines.
+- The marquee auto-scrolls left-to-right continuously; hovering or focusing any card pauses the animation.
+- Reduced-motion users receive a static row of cards with no automatic scrolling.
+- Cards are direct links (`target="_blank"` + `rel="noopener noreferrer"`) and include issuer, title, and a “Verify credential” affordance.
+- Duplicate card instances are rendered for seamless looping but are hidden from assistive technologies and removed from the tab order.
+- Hit targets remain ≥40×40 px with clear focus outlines supplied by the shared card component.
 
 ## Manual acceptance checklist
 
-- Carousel snaps card-by-card; one card is clearly active (scaled/bright).
-- Clicking or tapping any card centers & activates it; keyboard Left/Right and dots all stay in sync.
-- Live detail shows only the active certification, including issued date, credential ID, skills, and Verify CTA.
-- Verify links open in a new tab and point to the correct `verifyUrl`.
-- Large images preload for the first two cards; subsequent assets lazy-load with no layout shift (CLS ≤0.02).
-- Filters immediately subset the list, reset the active detail to the first match, and update dots/counts.
-- AXE/Lighthouse accessibility score ≥95 with live announcements functioning.
+- Visiting `/#certifications` reveals the marquee immediately below the skills banner.
+- Cards display badge, issuer, title, and “Verify credential →” copy.
+- Links open in a new tab and route to the correct `verifyUrl`.
+- Hovering or focusing a card pauses the marquee; it resumes when focus/hover leaves (unless the user prefers reduced motion).
+- With `prefers-reduced-motion: reduce`, the row is static and fully accessible via keyboard.

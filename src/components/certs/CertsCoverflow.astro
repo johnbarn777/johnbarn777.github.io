@@ -1,8 +1,6 @@
 ---
-import { Fragment } from 'astro/jsx-runtime';
-import CertCard from './CertCard.astro';
-import CertDetail from './CertDetail.astro';
 import certsData from '../../../data/certs.json';
+import CertCard from './CertCard.astro';
 
 interface Palette {
   bg?: string;
@@ -14,13 +12,13 @@ interface CertItem {
   id: string;
   title: string;
   issuer: string;
-  issued: string;
+  issued?: string;
   verifyUrl: string;
-  category: string;
-  credId: string;
+  category?: string;
+  credId?: string;
   image: string;
-  largeImage: string;
-  skills: string[];
+  largeImage?: string;
+  skills?: string[];
   palette?: Palette;
 }
 
@@ -30,968 +28,99 @@ interface CertsData {
 }
 
 const { items } = certsData as CertsData;
-const total = items.length;
-const filters = ['All', 'Cloud', 'ML/AI', 'Security', 'Data', 'Aviation'] as const;
-const preloadLargeImages = Array.from(new Set(items.slice(0, 2).map(item => item.largeImage)));
-const initialActiveIndex = 0;
-
-const itemsJson = JSON.stringify(items).replace(/</g, '\u003c');
-
-const getAriaLabel = (item: CertItem, index: number) =>
-  `${item.title} by ${item.issuer}, ${index + 1} of ${total}`;
-
-const getInitialCardState = (index: number) => {
-  if (index === initialActiveIndex) return 'is-active';
-  if (Math.abs(index - initialActiveIndex) === 1) return 'is-near';
-  if (Math.abs(index - initialActiveIndex) === 2) return 'is-far';
-  return 'is-dimmed';
-};
+const marqueeItems = [...items, ...items];
+const marqueeDuration = Math.max(24, items.length * 6);
 ---
-{preloadLargeImages.length ? (
-  <Fragment slot="head">
-    {preloadLargeImages.map(src => (
-      <link rel="preload" as="image" href={src} fetchpriority="high" />
-    ))}
-  </Fragment>
-) : null}
-
 <section
   id="certifications"
-  role="region"
-  aria-roledescription="carousel"
-  aria-label="Professional certifications"
-  class="certs-section"
+  aria-labelledby="certifications-title"
+  class="certs-section py-12 sm:py-16"
 >
-  <div class="container certs-banner" data-cert-banner>
-    <header class="certs-header">
-      <h2 class="certs-title">Certifications</h2>
-      <p class="certs-subtitle">
-        A curated set of professional credentials spanning cloud, AI, and production machine learning.
+  <div class="container">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-xl">
+        <h2 id="certifications-title" class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+          Certifications
+        </h2>
+        <p class="mt-2 text-base text-white/70">
+          Recent credentials across cloud platforms, applied machine learning, and aviation technology.
+        </p>
+      </div>
+      <p class="text-sm font-medium uppercase tracking-[0.3em] text-white/50">
+        Auto-scrolling showcase
       </p>
-    </header>
+    </div>
 
-    <div class="certs-toolbar">
-      <div
-        class="certs-filters"
-        role="toolbar"
-        aria-label="Certification categories"
-        data-cert-filter-bar
-      >
-        {filters.map(filter => (
-          <button
-            type="button"
-            class={`certs-filter ${filter === 'All' ? 'is-active' : ''}`}
-            data-cert-filter={filter}
-            aria-pressed={filter === 'All' ? 'true' : 'false'}
-          >
-            {filter}
-          </button>
-        ))}
+    <div class="certs-marquee mt-8" role="list" aria-label="Professional certifications">
+      <div class="certs-track" style={`--certs-marquee-duration: ${marqueeDuration}s`}>
+        {marqueeItems.map((cert, index) => {
+          const isDuplicate = index >= items.length;
+          return (
+            <div
+              class="certs-item"
+              role={isDuplicate ? 'presentation' : 'listitem'}
+              aria-hidden={isDuplicate ? 'true' : undefined}
+            >
+              <CertCard
+                title={cert.title}
+                issuer={cert.issuer}
+                image={cert.image}
+                palette={cert.palette}
+                href={cert.verifyUrl}
+                tabIndex={isDuplicate ? -1 : undefined}
+              />
+            </div>
+          );
+        })}
       </div>
-    </div>
-
-    <div class="certs-carousel">
-      <button
-        id="certs-prev"
-        type="button"
-        class="certs-paddle certs-paddle--prev"
-        aria-controls="certs-viewport"
-        aria-label="Previous certification"
-        disabled={total <= 1}
-      >
-        <span aria-hidden="true">‹</span>
-        <span class="sr-only">Previous certification</span>
-      </button>
-      <div class="certs-viewport-wrapper">
-        <div
-          id="certs-viewport"
-          class="certs-viewport"
-          tabindex="0"
-        >
-          <div class="certs-track">
-            {items.map((cert, index) => (
-              <article
-                id={`cert-slide-${index}`}
-                class={`certs-card ${getInitialCardState(index)}`}
-                data-index={index}
-                data-cert-category={cert.category}
-                aria-roledescription="slide"
-                aria-label={getAriaLabel(cert, index)}
-                aria-current={index === initialActiveIndex ? 'true' : 'false'}
-              >
-                <CertCard
-                  title={cert.title}
-                  issuer={cert.issuer}
-                  image={cert.image}
-                  palette={cert.palette}
-                  active={index === initialActiveIndex}
-                />
-              </article>
-            ))}
-          </div>
-        </div>
-      </div>
-      <button
-        id="certs-next"
-        type="button"
-        class="certs-paddle certs-paddle--next"
-        aria-controls="certs-viewport"
-        aria-label="Next certification"
-        disabled={total <= 1}
-      >
-        <span aria-hidden="true">›</span>
-        <span class="sr-only">Next certification</span>
-      </button>
-    </div>
-
-    <div id="certs-dots" role="tablist" aria-label="Certification pages" class="certs-dots">
-      {items.map((cert, index) => (
-        <button
-          type="button"
-          role="tab"
-          aria-selected={index === initialActiveIndex ? 'true' : 'false'}
-          aria-controls={`cert-slide-${index}`}
-          class={`certs-dot ${index === initialActiveIndex ? 'is-active' : ''}`}
-          data-index={index}
-          data-cert-category={cert.category}
-          tabindex={index === initialActiveIndex ? '0' : '-1'}
-        >
-          <span class="sr-only">Go to {cert.title}</span>
-        </button>
-      ))}
-    </div>
-
-    <div id="certs-detail" aria-live="polite" aria-atomic="true" class="certs-detail">
-      {items.map((cert, index) => (
-        <div
-          data-detail-index={index}
-          data-cert-category={cert.category}
-          hidden={index !== initialActiveIndex}
-          class="certs-detail-panel"
-        >
-          <CertDetail
-            title={cert.title}
-            issuer={cert.issuer}
-            issued={cert.issued}
-            credId={cert.credId}
-            largeImage={cert.largeImage}
-            skills={cert.skills}
-            verifyUrl={cert.verifyUrl}
-            palette={cert.palette}
-            loading={index < 2 ? 'eager' : 'lazy'}
-          />
-        </div>
-      ))}
-      <span class="sr-only" data-cert-announcer></span>
     </div>
   </div>
 </section>
 
-<script type="application/json" id="certs-data" set:html={itemsJson}></script>
-
-<script type="module" is:inline>
-  const dataElement = document.getElementById('certs-data');
-  const viewport = document.getElementById('certs-viewport');
-  const track = viewport?.querySelector('.certs-track');
-  const filterBar = document.querySelector('[data-cert-filter-bar]');
-  const filterButtons = filterBar ? Array.from(filterBar.querySelectorAll('[data-cert-filter]')) : [];
-
-  const allCards = track ? Array.from(track.querySelectorAll('.certs-card')) : [];
-  const allDetailPanels = Array.from(document.querySelectorAll('[data-detail-index]'));
-  const prevButton = document.getElementById('certs-prev');
-  const nextButton = document.getElementById('certs-next');
-  const dotsContainer = document.getElementById('certs-dots');
-  const allDots = dotsContainer ? Array.from(dotsContainer.querySelectorAll('[role="tab"]')) : [];
-  const announcer = document.querySelector('[data-cert-announcer]');
-
-  const certs = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
-  if (dataElement) {
-    dataElement.remove();
-  }
-
-  let visibleOrder = certs.map((_, index) => index);
-  let cards = [...allCards];
-  let dots = [...allDots];
-  let total = visibleOrder.length;
-  let activeIndex = total ? 0 : -1;
-  let activeFilter = 'All';
-  let scrollTimeout = 0;
-  const loadedDetailIndices = new Set();
-
-  const AUTOPLAY_INTERVAL = 5500;
-  const AUTOPLAY_RESUME = 3500;
-  const reduceMotionQuery =
-    'matchMedia' in window ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
-  let prefersReducedMotion = reduceMotionQuery?.matches ?? false;
-  let autoplayTimer = 0;
-  let resumeTimer = 0;
-
-  const stopAutoplay = () => {
-    window.clearInterval(autoplayTimer);
-    window.clearTimeout(resumeTimer);
-    autoplayTimer = 0;
-    resumeTimer = 0;
-  };
-
-  const canAutoplay = () =>
-    total > 1 && !prefersReducedMotion && document.visibilityState !== 'hidden';
-
-  const scheduleAutoplay = delay => {
-    stopAutoplay();
-    if (!canAutoplay()) return;
-    if (delay > 0) {
-      resumeTimer = window.setTimeout(() => {
-        startAutoplayInterval();
-      }, delay);
-    } else {
-      startAutoplayInterval();
-    }
-  };
-
-  const pauseForInteraction = () => {
-    scheduleAutoplay(AUTOPLAY_RESUME);
-  };
-
-  const isElement = value => value instanceof Element;
-  const getDatasetIndex = visibleIndex => visibleOrder[visibleIndex] ?? -1;
-  const getVisibleIndex = datasetIndex => visibleOrder.indexOf(datasetIndex);
-
-  const clampIndex = index => {
-    if (total === 0) return 0;
-    const mod = ((index % total) + total) % total;
-    return mod;
-  };
-
-  const formatIssued = issued => {
-    if (!issued || typeof issued !== 'string') return issued;
-    const [year, month] = issued.split('-');
-    if (!year || !month) return issued;
-    const parsed = new Date(Number(year), Number(month) - 1, 1);
-    return parsed.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-  };
-
-  const updateControlDisabledState = () => {
-    const shouldDisable = total <= 1;
-    prevButton?.toggleAttribute('disabled', shouldDisable);
-    nextButton?.toggleAttribute('disabled', shouldDisable);
-  };
-
-  const ensureDetailLoaded = datasetIndex => {
-    if (!Number.isInteger(datasetIndex) || datasetIndex < 0 || loadedDetailIndices.has(datasetIndex)) {
-      return;
-    }
-    const panel = allDetailPanels[datasetIndex];
-    const img = panel ? panel.querySelector('img') : null;
-    if (img instanceof HTMLImageElement) {
-      img.loading = 'eager';
-      img.setAttribute('loading', 'eager');
-      img.setAttribute('fetchpriority', 'high');
-      if (typeof img.decode === 'function') {
-        img.decode().catch(() => {});
-      }
-      loadedDetailIndices.add(datasetIndex);
-    }
-  };
-
-  const primeDetailAssets = visibleIndex => {
-    if (total === 0 || visibleIndex < 0) return;
-    const focusIndices = new Set();
-    focusIndices.add(clampIndex(visibleIndex));
-    if (total > 1) {
-      focusIndices.add(clampIndex(visibleIndex - 1));
-      focusIndices.add(clampIndex(visibleIndex + 1));
-    }
-    focusIndices.forEach(index => {
-      const datasetIndex = getDatasetIndex(index);
-      ensureDetailLoaded(datasetIndex);
-    });
-  };
-
-  const updateAriaLabels = () => {
-    visibleOrder.forEach((datasetIndex, orderIndex) => {
-      const card = allCards[datasetIndex];
-      const cert = certs[datasetIndex];
-      if (card && cert) {
-        card.setAttribute('aria-label', `${cert.title} by ${cert.issuer}, ${orderIndex + 1} of ${total}`);
-      }
-    });
-  };
-
-  const updateCardStates = visibleIndex => {
-    allCards.forEach((card, datasetIndex) => {
-      const orderIndex = getVisibleIndex(datasetIndex);
-      const isVisible = orderIndex !== -1;
-      const isActive = isVisible && visibleIndex === orderIndex && visibleIndex >= 0 && total > 0;
-      const distance =
-        isVisible && visibleIndex >= 0 && total > 0
-          ? Math.min(Math.abs(orderIndex - visibleIndex), total - Math.abs(orderIndex - visibleIndex))
-          : Number.POSITIVE_INFINITY;
-
-      card.toggleAttribute('hidden', !isVisible);
-      card.setAttribute('aria-current', isActive ? 'true' : 'false');
-      card.classList.toggle('is-active', isActive);
-      card.classList.toggle('is-near', isVisible && distance === 1);
-      card.classList.toggle('is-far', isVisible && distance === 2);
-      card.classList.toggle('is-dimmed', !isVisible || distance > 2);
-
-      const innerCard = card.querySelector('.cert-card');
-      if (innerCard instanceof HTMLElement) {
-        innerCard.setAttribute('data-card-active', isActive ? 'true' : 'false');
-      }
-    });
-  };
-
-  const updateDetailPanels = visibleIndex => {
-    allDetailPanels.forEach((panel, datasetIndex) => {
-      const orderIndex = getVisibleIndex(datasetIndex);
-      const shouldShow = orderIndex === visibleIndex && visibleIndex >= 0 && total > 0;
-      panel.toggleAttribute('hidden', !shouldShow);
-    });
-  };
-
-  const updateDots = visibleIndex => {
-    allDots.forEach((dot, datasetIndex) => {
-      const orderIndex = getVisibleIndex(datasetIndex);
-      const isVisible = orderIndex !== -1;
-      const isActive = isVisible && orderIndex === visibleIndex && visibleIndex >= 0 && total > 0;
-      dot.toggleAttribute('hidden', !isVisible);
-      dot.classList.toggle('is-hidden', !isVisible);
-      dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      dot.classList.toggle('is-active', isActive);
-      const tabIndex = !isVisible ? '-1' : isActive ? '0' : '-1';
-      dot.setAttribute('tabindex', tabIndex);
-    });
-    dots = visibleOrder.map(index => allDots[index]).filter(Boolean);
-  };
-
-  const updateAnnouncement = visibleIndex => {
-    if (!announcer || visibleIndex < 0 || total === 0) return;
-    const datasetIndex = getDatasetIndex(visibleIndex);
-    const cert = certs[datasetIndex];
-    if (!cert) return;
-    const issued = formatIssued(cert.issued);
-    announcer.textContent = `Now viewing ${cert.title} — ${cert.issuer}. Issued ${issued}. Press V to verify.`;
-  };
-
-  const scrollToIndex = (visibleIndex, behavior = 'smooth') => {
-    if (!viewport || !cards[visibleIndex]) return;
-    const card = cards[visibleIndex];
-    const target = card.offsetLeft - (viewport.clientWidth - card.clientWidth) / 2;
-    viewport.scrollTo({ left: target, behavior });
-  };
-
-  const setActiveIndex = (nextIndex, options = {}) => {
-    if (total === 0) return;
-    const { scroll = true, behavior = 'smooth', focusVerify = false } = options;
-    const normalized = clampIndex(nextIndex);
-    activeIndex = normalized;
-    updateCardStates(activeIndex);
-    updateDetailPanels(activeIndex);
-    updateDots(activeIndex);
-    updateAnnouncement(activeIndex);
-    primeDetailAssets(activeIndex);
-
-    if (scroll) {
-      scrollToIndex(activeIndex, behavior);
-    }
-
-    if (focusVerify) {
-      const datasetIndex = getDatasetIndex(activeIndex);
-      const panel = allDetailPanels[datasetIndex];
-      const verify = panel?.querySelector('[data-verify-button]');
-      if (verify instanceof HTMLElement) {
-        verify.focus();
-      }
-    }
-  };
-
-  function startAutoplayInterval() {
-    stopAutoplay();
-    if (!canAutoplay()) return;
-    autoplayTimer = window.setInterval(() => {
-      setActiveIndex(activeIndex + 1, { origin: 'autoplay' });
-    }, AUTOPLAY_INTERVAL);
-  }
-
-  const handlePrev = () => {
-    if (total === 0) return;
-    setActiveIndex(activeIndex - 1);
-  };
-
-  const handleNext = () => {
-    if (total === 0) return;
-    setActiveIndex(activeIndex + 1);
-  };
-
-  const handleScrollSettled = () => {
-    if (!viewport || total === 0) return;
-    const viewportRect = viewport.getBoundingClientRect();
-    const viewportCenter = viewportRect.left + viewportRect.width / 2;
-    let nearestIndex = activeIndex;
-    let nearestDistance = Number.POSITIVE_INFINITY;
-
-    cards.forEach((card, index) => {
-      const rect = card.getBoundingClientRect();
-      const center = rect.left + rect.width / 2;
-      const distance = Math.abs(center - viewportCenter);
-      if (distance < nearestDistance - 1) {
-        nearestDistance = distance;
-        nearestIndex = index;
-      }
-    });
-
-    if (nearestIndex !== activeIndex) {
-      setActiveIndex(nearestIndex, { scroll: false });
-    } else {
-      updateCardStates(activeIndex);
-    }
-  };
-
-  const applyFilter = value => {
-    activeFilter = value;
-    visibleOrder =
-      value === 'All'
-        ? certs.map((_, index) => index)
-        : certs.reduce((acc, cert, index) => {
-            if (cert && cert.category === value) {
-              acc.push(index);
-            }
-            return acc;
-          }, []);
-    total = visibleOrder.length;
-    cards = visibleOrder.map(index => allCards[index]).filter(Boolean);
-    dots = visibleOrder.map(index => allDots[index]).filter(Boolean);
-
-    pauseForInteraction();
-
-    filterButtons.forEach(button => {
-      const buttonValue = button.getAttribute('data-cert-filter');
-      const isActive = buttonValue === value;
-      button.classList.toggle('is-active', isActive);
-      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-    });
-
-    updateAriaLabels();
-    updateControlDisabledState();
-
-    visibleOrder.slice(0, 2).forEach(datasetIndex => ensureDetailLoaded(datasetIndex));
-
-    if (viewport) {
-      viewport.scrollTo({ left: 0, behavior: 'auto' });
-    }
-
-    if (total > 0) {
-      activeIndex = clampIndex(0);
-      setActiveIndex(activeIndex, { behavior: 'auto' });
-      primeDetailAssets(activeIndex);
-    } else {
-      activeIndex = -1;
-      updateCardStates(activeIndex);
-      updateDetailPanels(activeIndex);
-      updateDots(activeIndex);
-      if (announcer) {
-        announcer.textContent = `No certifications available for ${value}.`;
-      }
-    }
-  };
-
-  if (prevButton) {
-    prevButton.addEventListener('click', () => {
-      pauseForInteraction();
-      handlePrev();
-    });
-  }
-
-  if (nextButton) {
-    nextButton.addEventListener('click', () => {
-      pauseForInteraction();
-      handleNext();
-    });
-  }
-
-  filterButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const value = button.getAttribute('data-cert-filter');
-      pauseForInteraction();
-      if (!value || value === activeFilter) return;
-      applyFilter(value);
-    });
-  });
-
-  if (viewport) {
-    if ('onscrollend' in viewport) {
-      viewport.addEventListener('scrollend', handleScrollSettled, { passive: true });
-    } else {
-      viewport.addEventListener(
-        'scroll',
-        () => {
-          window.clearTimeout(scrollTimeout);
-          scrollTimeout = window.setTimeout(handleScrollSettled, 120);
-        },
-        { passive: true }
-      );
-    }
-
-    viewport.addEventListener('keydown', event => {
-      if (event.defaultPrevented) return;
-      if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        pauseForInteraction();
-        handlePrev();
-      } else if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        pauseForInteraction();
-        handleNext();
-      } else if (event.key.toLowerCase() === 'v') {
-        event.preventDefault();
-        pauseForInteraction();
-        setActiveIndex(activeIndex, { scroll: false, focusVerify: true });
-      }
-    });
-
-    const handleViewportEngagement = () => {
-      pauseForInteraction();
-    };
-
-    viewport.addEventListener('pointerdown', handleViewportEngagement, { passive: true });
-    viewport.addEventListener('touchstart', handleViewportEngagement, { passive: true });
-    viewport.addEventListener('wheel', handleViewportEngagement, { passive: true });
-    viewport.addEventListener('focusin', handleViewportEngagement);
-  }
-
-  if (track) {
-    track.addEventListener('click', event => {
-      if (!isElement(event.target)) return;
-      const article = event.target.closest('.certs-card');
-      if (!article) return;
-      const indexAttr = article.getAttribute('data-index');
-      if (indexAttr == null) return;
-      const datasetIndex = Number(indexAttr);
-      if (Number.isNaN(datasetIndex)) return;
-      const visibleIndex = getVisibleIndex(datasetIndex);
-      if (visibleIndex === -1 || visibleIndex === activeIndex) return;
-      pauseForInteraction();
-      setActiveIndex(visibleIndex);
-    });
-  }
-
-  if (dotsContainer) {
-    dotsContainer.addEventListener('click', event => {
-      if (!isElement(event.target)) return;
-      const target = event.target.closest('[role="tab"]');
-      if (!target) return;
-      const indexAttr = target.getAttribute('data-index');
-      if (indexAttr == null) return;
-      const datasetIndex = Number(indexAttr);
-      if (Number.isNaN(datasetIndex)) return;
-      const visibleIndex = getVisibleIndex(datasetIndex);
-      if (visibleIndex === -1) return;
-      pauseForInteraction();
-      setActiveIndex(visibleIndex);
-    });
-
-    dotsContainer.addEventListener('keydown', event => {
-      const activeEl = document.activeElement;
-      const currentIndex = isElement(activeEl) ? dots.indexOf(activeEl) : -1;
-      if (event.key === 'ArrowRight') {
-        event.preventDefault();
-        pauseForInteraction();
-        if (dots.length === 0) return;
-        const nextIndex = clampIndex(currentIndex + 1);
-        dots[nextIndex]?.focus();
-      } else if (event.key === 'ArrowLeft') {
-        event.preventDefault();
-        pauseForInteraction();
-        if (dots.length === 0) return;
-        const prevIndex = clampIndex(currentIndex - 1);
-        dots[prevIndex]?.focus();
-      } else if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        const focusedIndex = isElement(activeEl) ? dots.indexOf(activeEl) : -1;
-        if (focusedIndex >= 0) {
-          pauseForInteraction();
-          setActiveIndex(focusedIndex);
-        }
-      }
-    });
-  }
-
-  const observer =
-    viewport && 'IntersectionObserver' in window
-      ? new IntersectionObserver(
-          entries => {
-            entries.forEach(entry => {
-              if (!entry.isIntersecting) return;
-              const indexAttr = entry.target.getAttribute('data-index');
-              if (indexAttr == null) return;
-              const datasetIndex = Number(indexAttr);
-              if (Number.isNaN(datasetIndex)) return;
-              const visibleIndex = getVisibleIndex(datasetIndex);
-              if (visibleIndex === -1) return;
-              primeDetailAssets(visibleIndex);
-            });
-          },
-          { root: viewport, threshold: 0.6, rootMargin: '0px 20%' }
-        )
-      : null;
-
-  if (observer) {
-    allCards.forEach(card => observer.observe(card));
-  }
-
-  if (reduceMotionQuery) {
-    const handleMotionChange = event => {
-      prefersReducedMotion = event.matches;
-      if (prefersReducedMotion) {
-        stopAutoplay();
-      } else {
-        scheduleAutoplay(AUTOPLAY_RESUME);
-      }
-    };
-
-    if (typeof reduceMotionQuery.addEventListener === 'function') {
-      reduceMotionQuery.addEventListener('change', handleMotionChange);
-    } else if (typeof reduceMotionQuery.addListener === 'function') {
-      reduceMotionQuery.addListener(handleMotionChange);
-    }
-  }
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      stopAutoplay();
-    } else {
-      scheduleAutoplay(AUTOPLAY_RESUME);
-    }
-  });
-
-  const init = () => {
-    applyFilter(activeFilter);
-    visibleOrder.slice(0, 2).forEach(datasetIndex => ensureDetailLoaded(datasetIndex));
-    updateControlDisabledState();
-    updateAriaLabels();
-  };
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  } else {
-    init();
-  }
-</script>
-
-
 <style>
   .certs-section {
-    padding: min(6vw, 3.5rem) 0;
+    background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.08), transparent 55%),
+      linear-gradient(180deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.65));
   }
 
-  .certs-banner {
-    position: relative;
+  .certs-marquee {
+    --certs-gap: 2.5rem;
+    --certs-marquee-duration: 36s;
     overflow: hidden;
-    border-radius: 1.75rem;
-    padding: clamp(1.5rem, 1.4vw + 1.2rem, 2.5rem);
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.7));
-    box-shadow: 0 30px 70px rgba(15, 23, 42, 0.45);
-    display: flex;
-    flex-direction: column;
-    gap: clamp(1.5rem, 2vw, 2.75rem);
-  }
-
-  .certs-banner::before {
-    content: '';
-    position: absolute;
-    inset: -40% -35% auto -35%;
-    height: 120%;
-    background: radial-gradient(
-      circle at 50% 0%,
-      rgba(96, 165, 250, 0.22) 0%,
-      rgba(96, 165, 250, 0.05) 45%,
-      transparent 70%
-    );
-    opacity: 0.9;
-    pointer-events: none;
-  }
-
-  .certs-banner > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  .certs-header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    max-width: 40rem;
-  }
-
-  .certs-title {
-    font-size: clamp(1.75rem, 2vw + 1.25rem, 2.5rem);
-    font-weight: 700;
-    letter-spacing: -0.015em;
-    color: #f8fafc;
-  }
-
-  .certs-subtitle {
-    max-width: 58ch;
-    color: rgba(226, 232, 240, 0.78);
-    line-height: 1.6;
-  }
-
-  .certs-toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  @media (min-width: 768px) {
-    .certs-toolbar {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.5rem;
-    }
-  }
-
-  .certs-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .certs-filter {
-    align-items: center;
-    background: rgba(148, 163, 184, 0.12);
-    border: 1px solid rgba(148, 163, 184, 0.3);
-    border-radius: 9999px;
-    color: #e2e8f0;
-    cursor: pointer;
-    display: inline-flex;
-    font-weight: 600;
-    gap: 0.5rem;
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.45rem 1.05rem;
-    backdrop-filter: blur(6px);
-    transition: background 140ms ease, border 140ms ease, color 140ms ease, transform 140ms ease;
-  }
-
-  .certs-filter:not([disabled]):hover {
-    background: rgba(148, 163, 184, 0.2);
-    border-color: rgba(148, 163, 184, 0.45);
-    transform: translateY(-1px);
-  }
-
-  .certs-filter.is-active {
-    background: rgba(59, 130, 246, 0.18);
-    border-color: rgba(96, 165, 250, 0.85);
-    color: #f8fafc;
-    box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2);
-  }
-
-  .certs-filter:focus-visible {
-    outline: 2px solid rgba(96, 165, 250, 0.9);
-    outline-offset: 3px;
-  }
-
-  .certs-filter[disabled] {
-    cursor: default;
-    opacity: 0.55;
-  }
-
-  .certs-paddle {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(148, 163, 184, 0.14);
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    color: #e2e8f0;
-    font-size: 1.5rem;
-    transition: background 160ms ease, transform 160ms ease, border 160ms ease;
-  }
-
-  .certs-paddle:not([disabled]):hover {
-    background: rgba(148, 163, 184, 0.24);
-    border-color: rgba(148, 163, 184, 0.42);
-    transform: translateY(-1px);
-  }
-
-  .certs-paddle:focus-visible {
-    outline: 2px solid rgba(96, 165, 250, 0.9);
-    outline-offset: 2px;
-  }
-
-  .certs-paddle[disabled] {
-    opacity: 0.45;
-  }
-
-  .certs-carousel {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .certs-viewport-wrapper {
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .certs-viewport {
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 0.75rem 0 1rem;
-    margin: 0 -0.25rem;
-    scrollbar-width: thin;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .certs-viewport::-webkit-scrollbar {
-    height: 6px;
-  }
-
-  .certs-viewport::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.2);
-    border-radius: 9999px;
+    padding: 1.5rem 0;
+    mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
   }
 
   .certs-track {
     display: flex;
-    gap: 0.75rem;
-    padding: 0 0.25rem;
-    min-height: 9rem;
+    align-items: stretch;
+    gap: var(--certs-gap);
+    width: max-content;
+    animation: certs-marquee var(--certs-marquee-duration) linear infinite;
   }
 
-  .certs-card {
-    position: relative;
-    scroll-snap-align: start;
-    flex: 0 0 clamp(260px, 58vw, 360px);
-    min-width: clamp(260px, 58vw, 360px);
-    transition: transform 140ms ease, opacity 140ms ease;
-    transform-origin: center;
-    transform: scale(0.86);
-    opacity: 0.55;
-    cursor: pointer;
+  .certs-item {
+    flex: 0 0 auto;
   }
 
-  @media (min-width: 1024px) {
-    .certs-card {
-      flex-basis: clamp(280px, 30vw, 340px);
-      min-width: clamp(280px, 30vw, 340px);
+  @keyframes certs-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
     }
   }
 
-  .certs-card.is-active {
-    transform: scale(1);
-    opacity: 1;
-    z-index: 3;
-  }
-
-  .certs-card.is-near {
-    transform: scale(0.93);
-    opacity: 0.78;
-    z-index: 2;
-  }
-
-  .certs-card.is-far {
-    transform: scale(0.88);
-    opacity: 0.68;
-    z-index: 1;
-  }
-
-  .certs-card.is-dimmed {
-    opacity: 0.45;
-  }
-
-  .certs-detail {
-    margin-top: clamp(1rem, 1.75vw, 2rem);
-    position: relative;
-  }
-
-  .certs-detail-panel[hidden] {
-    display: none;
-  }
-
-  .certs-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1rem;
-  }
-
-  .certs-dot {
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background: rgba(148, 163, 184, 0.08);
-    border: 1px solid transparent;
-    padding: 0;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: border 140ms ease, background 140ms ease;
-  }
-
-  .certs-dot::after {
-    content: '';
-    width: 12px;
-    height: 12px;
-    border-radius: 9999px;
-    background: rgba(148, 163, 184, 0.35);
-    transition: width 140ms ease, background 140ms ease;
-  }
-
-  .certs-dot.is-active {
-    border-color: rgba(96, 165, 250, 0.8);
-    background: rgba(96, 165, 250, 0.16);
-  }
-
-  .certs-dot.is-active::after {
-    width: 28px;
-    background: rgba(96, 165, 250, 0.92);
-  }
-
-  .certs-dot.is-hidden {
-    display: none;
-  }
-
-  .certs-dot:disabled {
-    cursor: default;
-  }
-
-  .certs-dot:focus-visible {
-    outline: 2px solid rgba(96, 165, 250, 0.9);
-    outline-offset: 2px;
+  .certs-track:hover,
+  .certs-track:focus-within {
+    animation-play-state: paused;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .certs-card {
-      transition-duration: 0.01ms !important;
-      transform: none !important;
+    .certs-track {
+      animation: none;
+      transform: none;
     }
-
-    .certs-card.is-active {
-      opacity: 1 !important;
-    }
-
-    .certs-card:not(.is-active) {
-      opacity: 0.7 !important;
-    }
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
   }
 </style>
