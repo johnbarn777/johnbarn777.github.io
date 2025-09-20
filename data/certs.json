@@ -125,6 +125,40 @@
         "fg": "#E4FFF8",
         "glow": "#5FF2C7"
       }
+    },
+    {
+      "id": "isc2-cissp",
+      "title": "Certified Information Systems Security Professional",
+      "issuer": "(ISC)²",
+      "issued": "2023-06",
+      "verifyUrl": "https://www.isc2.org/Certifications/CISSP/verify",
+      "category": "Security",
+      "credId": "ISC2-CISSP-2023-0615",
+      "image": "/assets/img/certs/isc2-cissp-badge.png",
+      "largeImage": "/assets/img/certs/isc2-cissp-card.webp",
+      "skills": ["Zero Trust", "Security Governance", "Risk Management", "Cloud Security"],
+      "palette": {
+        "bg": "#051E1C",
+        "fg": "#E5FFFB",
+        "glow": "#00C6A7"
+      }
+    },
+    {
+      "id": "faa-uas",
+      "title": "Remote Pilot (Small UAS)",
+      "issuer": "Federal Aviation Administration",
+      "issued": "2022-04",
+      "verifyUrl": "https://iacra.faa.gov/IACRA/HelpAndInfo/RemotePilot.aspx",
+      "category": "Aviation",
+      "credId": "FAA-UAS-2022-0410",
+      "image": "/assets/img/certs/faa-uas-badge.png",
+      "largeImage": "/assets/img/certs/faa-uas-card.webp",
+      "skills": ["Part 107", "Airspace Operations", "Mission Planning", "Safety Management"],
+      "palette": {
+        "bg": "#0A1B2D",
+        "fg": "#EAF6FF",
+        "glow": "#4FB4FF"
+      }
     }
   ]
 }

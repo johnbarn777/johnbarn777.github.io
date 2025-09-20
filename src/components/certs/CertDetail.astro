@@ -14,6 +14,7 @@ interface Props {
   skills: string[];
   verifyUrl: string;
   palette?: Palette;
+  loading?: 'lazy' | 'eager';
 }
 
 const {
@@ -24,7 +25,8 @@ const {
   largeImage,
   skills,
   verifyUrl,
-  palette
+  palette,
+  loading = 'lazy'
 } = Astro.props as Props;
 
 const issuedDate = (() => {
@@ -48,7 +50,7 @@ const style = [
       alt={`${title} certification showcase`}
       width="720"
       height="450"
-      loading="lazy"
+      loading={loading}
       decoding="async"
       class="cert-detail__image"
     />
@@ -202,10 +204,6 @@ const style = [
   .cert-detail__verify:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 3px;
-  }
-
-  .cert-detail__verify:hover {
-    transform: translateY(-1px);
   }
 
   @media (min-width: 768px) {

@@ -30,6 +30,8 @@ interface CertsData {
 
 const { items } = certsData as CertsData;
 const total = items.length;
+const filters = ['All', 'Cloud', 'ML/AI', 'Security', 'Data', 'Aviation'] as const;
+const preloadLargeImages = Array.from(new Set(items.slice(0, 2).map(item => item.largeImage)));
 const initialActiveIndex = 0;
 
 const itemsJson = JSON.stringify(items).replace(/</g, '\u003c');
@@ -44,6 +46,14 @@ const getInitialCardState = (index: number) => {
   return 'is-dimmed';
 };
 ---
+{preloadLargeImages.length ? (
+  <Fragment slot="head">
+    {preloadLargeImages.map(src => (
+      <link rel="preload" as="image" href={src} fetchpriority="high" />
+    ))}
+  </Fragment>
+) : null}
+
 <section
   id="certifications"
   role="region"
@@ -59,6 +69,24 @@ const getInitialCardState = (index: number) => {
   </div>
 
   <div
+    class="certs-filters"
+    role="toolbar"
+    aria-label="Certification categories"
+    data-cert-filter-bar
+  >
+    {filters.map(filter => (
+      <button
+        type="button"
+        class={`certs-filter ${filter === 'All' ? 'is-active' : ''}`}
+        data-cert-filter={filter}
+        aria-pressed={filter === 'All' ? 'true' : 'false'}
+      >
+        {filter}
+      </button>
+    ))}
+  </div>
+
+  <div
     id="certs-viewport"
     class="certs-viewport overflow-x-auto snap-x snap-mandatory scroll-pt-6"
     tabindex="0"
@@ -69,7 +97,8 @@ const getInitialCardState = (index: number) => {
           id={`cert-slide-${index}`}
           class={`certs-card snap-start flex-none min-w-[80%] sm:min-w-[60%] lg:min-w-[40%] ${getInitialCardState(index)}`}
           data-index={index}
-          aria-roledescription="slide"
+          data-cert-category={cert.category}
+        aria-roledescription="slide"
           aria-label={getAriaLabel(cert, index)}
           aria-current={index === initialActiveIndex ? 'true' : 'false'}
         >
@@ -89,6 +118,7 @@ const getInitialCardState = (index: number) => {
     {items.map((cert, index) => (
       <div
         data-detail-index={index}
+        data-cert-category={cert.category}
         hidden={index !== initialActiveIndex}
         class="certs-detail-panel"
       >
@@ -101,6 +131,7 @@ const getInitialCardState = (index: number) => {
           skills={cert.skills}
           verifyUrl={cert.verifyUrl}
           palette={cert.palette}
+          loading={index < 2 ? 'eager' : 'lazy'}
         />
       </div>
     ))}
@@ -139,7 +170,8 @@ const getInitialCardState = (index: number) => {
         aria-controls={`cert-slide-${index}`}
         class={`certs-dot ${index === initialActiveIndex ? 'is-active' : ''}`}
         data-index={index}
-        disabled={index === initialActiveIndex}
+        data-cert-category={cert.category}
+        tabindex={index === initialActiveIndex ? '0' : '-1'}
       >
         <span class="sr-only">Go to {cert.title}</span>
       </button>
@@ -147,33 +179,48 @@ const getInitialCardState = (index: number) => {
   </div>
 </section>
 
-<script type="application/json" id="certs-data">{itemsJson}</script>
+<script type="application/json" id="certs-data" set:html={itemsJson}></script>
 
 <script type="module" is:inline>
   const dataElement = document.getElementById('certs-data');
   const viewport = document.getElementById('certs-viewport');
   const track = viewport?.querySelector('.certs-track');
-  const cards = track ? Array.from(track.querySelectorAll('.certs-card')) : [];
-  const detailPanels = Array.from(document.querySelectorAll('[data-detail-index]'));
+  const filterBar = document.querySelector('[data-cert-filter-bar]');
+  const filterButtons = filterBar ? Array.from(filterBar.querySelectorAll('[data-cert-filter]')) : [];
+
+  const allCards = track ? Array.from(track.querySelectorAll('.certs-card')) : [];
+  const allDetailPanels = Array.from(document.querySelectorAll('[data-detail-index]'));
   const prevButton = document.getElementById('certs-prev');
   const nextButton = document.getElementById('certs-next');
   const dotsContainer = document.getElementById('certs-dots');
-  const dots = dotsContainer
-    ? Array.from(dotsContainer.querySelectorAll('[role="tab"]'))
-    : [];
+  const allDots = dotsContainer ? Array.from(dotsContainer.querySelectorAll('[role="tab"]')) : [];
   const announcer = document.querySelector('[data-cert-announcer]');
 
   const certs = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
   if (dataElement) {
     dataElement.remove();
   }
-  const total = certs.length;
-  let activeIndex = Math.min(Math.max(0, 0), Math.max(total - 1, 0));
+
+  let visibleOrder = certs.map((_, index) => index);
+  let cards = [...allCards];
+  let dots = [...allDots];
+  let total = visibleOrder.length;
+  let activeIndex = total ? 0 : -1;
+  let activeFilter = 'All';
   let scrollTimeout = 0;
+  const loadedDetailIndices = new Set();
 
-  const isElement = (value) => value instanceof Element;
+  const isElement = value => value instanceof Element;
+  const getDatasetIndex = visibleIndex => visibleOrder[visibleIndex] ?? -1;
+  const getVisibleIndex = datasetIndex => visibleOrder.indexOf(datasetIndex);
 
-  const formatIssued = (issued) => {
+  const clampIndex = index => {
+    if (total === 0) return 0;
+    const mod = ((index % total) + total) % total;
+    return mod;
+  };
+
+  const formatIssued = issued => {
     if (!issued || typeof issued !== 'string') return issued;
     const [year, month] = issued.split('-');
     if (!year || !month) return issued;
@@ -181,93 +228,152 @@ const getInitialCardState = (index: number) => {
     return parsed.toLocaleString('en-US', { month: 'long', year: 'numeric' });
   };
 
-  const clampIndex = (index) => {
-    if (total === 0) return 0;
-    const mod = ((index % total) + total) % total;
-    return mod;
+  const updateControlDisabledState = () => {
+    const shouldDisable = total <= 1;
+    prevButton?.toggleAttribute('disabled', shouldDisable);
+    nextButton?.toggleAttribute('disabled', shouldDisable);
   };
 
-  const updateAnnouncement = (index) => {
-    if (!announcer || !certs[index]) return;
-    const cert = certs[index];
-    const issued = formatIssued(cert.issued);
-    announcer.textContent = `Now viewing ${cert.title} — ${cert.issuer}. Issued ${issued}. Press V to verify.`;
+  const ensureDetailLoaded = datasetIndex => {
+    if (!Number.isInteger(datasetIndex) || datasetIndex < 0 || loadedDetailIndices.has(datasetIndex)) {
+      return;
+    }
+    const panel = allDetailPanels[datasetIndex];
+    const img = panel ? panel.querySelector('img') : null;
+    if (img instanceof HTMLImageElement) {
+      img.loading = 'eager';
+      img.setAttribute('loading', 'eager');
+      img.setAttribute('fetchpriority', 'high');
+      if (typeof img.decode === 'function') {
+        img.decode().catch(() => {});
+      }
+      loadedDetailIndices.add(datasetIndex);
+    }
   };
 
-  const updateDetailPanels = (index) => {
-    detailPanels.forEach((panel) => {
-      const panelIndex = Number(panel.getAttribute('data-detail-index'));
-      if (panelIndex === index) {
-        panel.removeAttribute('hidden');
-      } else {
-        panel.setAttribute('hidden', 'true');
+  const primeDetailAssets = visibleIndex => {
+    if (total === 0 || visibleIndex < 0) return;
+    const focusIndices = new Set();
+    focusIndices.add(clampIndex(visibleIndex));
+    if (total > 1) {
+      focusIndices.add(clampIndex(visibleIndex - 1));
+      focusIndices.add(clampIndex(visibleIndex + 1));
+    }
+    focusIndices.forEach(index => {
+      const datasetIndex = getDatasetIndex(index);
+      ensureDetailLoaded(datasetIndex);
+    });
+  };
+
+  const updateAriaLabels = () => {
+    visibleOrder.forEach((datasetIndex, orderIndex) => {
+      const card = allCards[datasetIndex];
+      const cert = certs[datasetIndex];
+      if (card && cert) {
+        card.setAttribute('aria-label', `${cert.title} by ${cert.issuer}, ${orderIndex + 1} of ${total}`);
       }
     });
   };
 
-  const updateDots = (index) => {
-    dots.forEach((dot, dotIndex) => {
-      const isActive = dotIndex === index;
-      dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      dot.toggleAttribute('disabled', isActive);
-      dot.classList.toggle('is-active', isActive);
-    });
-  };
+  const updateCardStates = visibleIndex => {
+    allCards.forEach((card, datasetIndex) => {
+      const orderIndex = getVisibleIndex(datasetIndex);
+      const isVisible = orderIndex !== -1;
+      const isActive = isVisible && visibleIndex === orderIndex && visibleIndex >= 0 && total > 0;
+      const distance =
+        isVisible && visibleIndex >= 0 && total > 0
+          ? Math.min(Math.abs(orderIndex - visibleIndex), total - Math.abs(orderIndex - visibleIndex))
+          : Number.POSITIVE_INFINITY;
 
-  const updateCardStates = (index) => {
-    cards.forEach((card, cardIndex) => {
-      const isActive = cardIndex === index;
-      const rawDistance = Math.abs(cardIndex - index);
-      const distance = Math.min(rawDistance, total - rawDistance);
+      card.toggleAttribute('hidden', !isVisible);
       card.setAttribute('aria-current', isActive ? 'true' : 'false');
       card.classList.toggle('is-active', isActive);
-      card.classList.toggle('is-near', distance === 1);
-      card.classList.toggle('is-far', distance === 2);
-      card.classList.toggle('is-dimmed', distance > 2);
+      card.classList.toggle('is-near', isVisible && distance === 1);
+      card.classList.toggle('is-far', isVisible && distance === 2);
+      card.classList.toggle('is-dimmed', !isVisible || distance > 2);
 
       const innerCard = card.querySelector('.cert-card');
-      if (innerCard) {
+      if (innerCard instanceof HTMLElement) {
         innerCard.setAttribute('data-card-active', isActive ? 'true' : 'false');
       }
     });
   };
 
-  const scrollToIndex = (index, behavior = 'smooth') => {
-    if (!viewport || !cards[index]) return;
-    const card = cards[index];
+  const updateDetailPanels = visibleIndex => {
+    allDetailPanels.forEach((panel, datasetIndex) => {
+      const orderIndex = getVisibleIndex(datasetIndex);
+      const shouldShow = orderIndex === visibleIndex && visibleIndex >= 0 && total > 0;
+      panel.toggleAttribute('hidden', !shouldShow);
+    });
+  };
+
+  const updateDots = visibleIndex => {
+    allDots.forEach((dot, datasetIndex) => {
+      const orderIndex = getVisibleIndex(datasetIndex);
+      const isVisible = orderIndex !== -1;
+      const isActive = isVisible && orderIndex === visibleIndex && visibleIndex >= 0 && total > 0;
+      dot.toggleAttribute('hidden', !isVisible);
+      dot.classList.toggle('is-hidden', !isVisible);
+      dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      dot.classList.toggle('is-active', isActive);
+      const tabIndex = !isVisible ? '-1' : isActive ? '0' : '-1';
+      dot.setAttribute('tabindex', tabIndex);
+    });
+    dots = visibleOrder.map(index => allDots[index]).filter(Boolean);
+  };
+
+  const updateAnnouncement = visibleIndex => {
+    if (!announcer || visibleIndex < 0 || total === 0) return;
+    const datasetIndex = getDatasetIndex(visibleIndex);
+    const cert = certs[datasetIndex];
+    if (!cert) return;
+    const issued = formatIssued(cert.issued);
+    announcer.textContent = `Now viewing ${cert.title} — ${cert.issuer}. Issued ${issued}. Press V to verify.`;
+  };
+
+  const scrollToIndex = (visibleIndex, behavior = 'smooth') => {
+    if (!viewport || !cards[visibleIndex]) return;
+    const card = cards[visibleIndex];
     const target = card.offsetLeft - (viewport.clientWidth - card.clientWidth) / 2;
     viewport.scrollTo({ left: target, behavior });
   };
 
   const setActiveIndex = (nextIndex, options = {}) => {
-    if (!total) return;
+    if (total === 0) return;
     const normalized = clampIndex(nextIndex);
     activeIndex = normalized;
     updateCardStates(activeIndex);
     updateDetailPanels(activeIndex);
     updateDots(activeIndex);
     updateAnnouncement(activeIndex);
+    primeDetailAssets(activeIndex);
 
     if (options.scroll !== false) {
       scrollToIndex(activeIndex, options.behavior || 'smooth');
     }
 
     if (options.focusVerify) {
-      const activeDetail = detailPanels.find(
-        (panel) => Number(panel.getAttribute('data-detail-index')) === activeIndex
-      );
-      const verify = activeDetail?.querySelector('[data-verify-button]');
+      const datasetIndex = getDatasetIndex(activeIndex);
+      const panel = allDetailPanels[datasetIndex];
+      const verify = panel?.querySelector('[data-verify-button]');
       if (verify instanceof HTMLElement) {
         verify.focus();
       }
     }
   };
 
-  const handlePrev = () => setActiveIndex(activeIndex - 1);
-  const handleNext = () => setActiveIndex(activeIndex + 1);
+  const handlePrev = () => {
+    if (total === 0) return;
+    setActiveIndex(activeIndex - 1);
+  };
+
+  const handleNext = () => {
+    if (total === 0) return;
+    setActiveIndex(activeIndex + 1);
+  };
 
   const handleScrollSettled = () => {
-    if (!viewport) return;
+    if (!viewport || total === 0) return;
     const viewportRect = viewport.getBoundingClientRect();
     const viewportCenter = viewportRect.left + viewportRect.width / 2;
     let nearestIndex = activeIndex;
@@ -290,6 +396,52 @@ const getInitialCardState = (index: number) => {
     }
   };
 
+  const applyFilter = value => {
+    activeFilter = value;
+    visibleOrder =
+      value === 'All'
+        ? certs.map((_, index) => index)
+        : certs.reduce((acc, cert, index) => {
+            if (cert && cert.category === value) {
+              acc.push(index);
+            }
+            return acc;
+          }, []);
+    total = visibleOrder.length;
+    cards = visibleOrder.map(index => allCards[index]).filter(Boolean);
+    dots = visibleOrder.map(index => allDots[index]).filter(Boolean);
+
+    filterButtons.forEach(button => {
+      const buttonValue = button.getAttribute('data-cert-filter');
+      const isActive = buttonValue === value;
+      button.classList.toggle('is-active', isActive);
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    updateAriaLabels();
+    updateControlDisabledState();
+
+    visibleOrder.slice(0, 2).forEach(datasetIndex => ensureDetailLoaded(datasetIndex));
+
+    if (viewport) {
+      viewport.scrollTo({ left: 0, behavior: 'auto' });
+    }
+
+    if (total > 0) {
+      activeIndex = clampIndex(0);
+      setActiveIndex(activeIndex, { behavior: 'auto' });
+      primeDetailAssets(activeIndex);
+    } else {
+      activeIndex = -1;
+      updateCardStates(activeIndex);
+      updateDetailPanels(activeIndex);
+      updateDots(activeIndex);
+      if (announcer) {
+        announcer.textContent = `No certifications available for ${value}.`;
+      }
+    }
+  };
+
   if (prevButton) {
     prevButton.addEventListener('click', handlePrev);
   }
@@ -297,6 +449,14 @@ const getInitialCardState = (index: number) => {
   if (nextButton) {
     nextButton.addEventListener('click', handleNext);
   }
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const value = button.getAttribute('data-cert-filter');
+      if (!value || value === activeFilter) return;
+      applyFilter(value);
+    });
+  });
 
   if (viewport) {
     if ('onscrollend' in viewport) {
@@ -312,7 +472,7 @@ const getInitialCardState = (index: number) => {
       );
     }
 
-    viewport.addEventListener('keydown', (event) => {
+    viewport.addEventListener('keydown', event => {
       if (event.defaultPrevented) return;
       if (event.key === 'ArrowLeft') {
         event.preventDefault();
@@ -328,37 +488,45 @@ const getInitialCardState = (index: number) => {
   }
 
   if (track) {
-    track.addEventListener('click', (event) => {
+    track.addEventListener('click', event => {
       if (!isElement(event.target)) return;
       const article = event.target.closest('.certs-card');
       if (!article) return;
-      const index = cards.indexOf(article);
-      if (index === -1 || index === activeIndex) return;
-      setActiveIndex(index);
+      const indexAttr = article.getAttribute('data-index');
+      if (indexAttr == null) return;
+      const datasetIndex = Number(indexAttr);
+      if (Number.isNaN(datasetIndex)) return;
+      const visibleIndex = getVisibleIndex(datasetIndex);
+      if (visibleIndex === -1 || visibleIndex === activeIndex) return;
+      setActiveIndex(visibleIndex);
     });
   }
 
   if (dotsContainer) {
-    dotsContainer.addEventListener('click', (event) => {
+    dotsContainer.addEventListener('click', event => {
       if (!isElement(event.target)) return;
       const target = event.target.closest('[role="tab"]');
       if (!target) return;
       const indexAttr = target.getAttribute('data-index');
       if (indexAttr == null) return;
-      const index = Number(indexAttr);
-      if (Number.isNaN(index)) return;
-      setActiveIndex(index);
+      const datasetIndex = Number(indexAttr);
+      if (Number.isNaN(datasetIndex)) return;
+      const visibleIndex = getVisibleIndex(datasetIndex);
+      if (visibleIndex === -1) return;
+      setActiveIndex(visibleIndex);
     });
 
-    dotsContainer.addEventListener('keydown', (event) => {
+    dotsContainer.addEventListener('keydown', event => {
       const activeEl = document.activeElement;
       const currentIndex = isElement(activeEl) ? dots.indexOf(activeEl) : -1;
       if (event.key === 'ArrowRight') {
         event.preventDefault();
+        if (dots.length === 0) return;
         const nextIndex = clampIndex(currentIndex + 1);
         dots[nextIndex]?.focus();
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
+        if (dots.length === 0) return;
         const prevIndex = clampIndex(currentIndex - 1);
         dots[prevIndex]?.focus();
       } else if (event.key === 'Enter' || event.key === ' ') {
@@ -371,18 +539,34 @@ const getInitialCardState = (index: number) => {
     });
   }
 
-  const updateControlDisabledState = () => {
-    const shouldDisable = total <= 1;
-    prevButton?.toggleAttribute('disabled', shouldDisable);
-    nextButton?.toggleAttribute('disabled', shouldDisable);
-  };
+  const observer =
+    viewport && 'IntersectionObserver' in window
+      ? new IntersectionObserver(
+          entries => {
+            entries.forEach(entry => {
+              if (!entry.isIntersecting) return;
+              const indexAttr = entry.target.getAttribute('data-index');
+              if (indexAttr == null) return;
+              const datasetIndex = Number(indexAttr);
+              if (Number.isNaN(datasetIndex)) return;
+              const visibleIndex = getVisibleIndex(datasetIndex);
+              if (visibleIndex === -1) return;
+              primeDetailAssets(visibleIndex);
+            });
+          },
+          { root: viewport, threshold: 0.6, rootMargin: '0px 20%' }
+        )
+      : null;
+
+  if (observer) {
+    allCards.forEach(card => observer.observe(card));
+  }
 
   const init = () => {
+    applyFilter(activeFilter);
+    visibleOrder.slice(0, 2).forEach(datasetIndex => ensureDetailLoaded(datasetIndex));
     updateControlDisabledState();
-    updateCardStates(activeIndex);
-    updateDetailPanels(activeIndex);
-    updateDots(activeIndex);
-    updateAnnouncement(activeIndex);
+    updateAriaLabels();
   };
 
   if (document.readyState === 'loading') {
@@ -391,6 +575,7 @@ const getInitialCardState = (index: number) => {
     init();
   }
 </script>
+
 
 <style>
   .certs-section {
@@ -404,6 +589,45 @@ const getInitialCardState = (index: number) => {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  .certs-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .certs-filter {
+    align-items: center;
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
+    color: #e2e8f0;
+    cursor: pointer;
+    display: inline-flex;
+    font-weight: 600;
+    gap: 0.5rem;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 1.1rem;
+    transition: background 120ms ease, border 120ms ease, color 120ms ease;
+  }
+
+  .certs-filter.is-active {
+    background: rgba(96, 165, 250, 0.16);
+    border-color: rgba(96, 165, 250, 0.85);
+    color: #f8fafc;
+  }
+
+  .certs-filter:focus-visible {
+    outline: 2px solid rgba(96, 165, 250, 0.9);
+    outline-offset: 3px;
+  }
+
+  .certs-filter[disabled] {
+    cursor: default;
+    opacity: 0.6;
   }
 
   .certs-title {
@@ -528,6 +752,10 @@ const getInitialCardState = (index: number) => {
   .certs-dot.is-active::after {
     width: 28px;
     background: rgba(96, 165, 250, 0.9);
+  }
+
+  .certs-dot.is-hidden {
+    display: none;
   }
 
   .certs-dot:disabled {
