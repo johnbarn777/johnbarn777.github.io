@@ -1,0 +1,169 @@
+---
+import certsData from '../../../data/certs.json';
+import CertCard from './CertCard.astro';
+
+interface Palette {
+  bg?: string;
+  fg?: string;
+  glow?: string;
+}
+
+interface CertItem {
+  id: string;
+  title: string;
+  issuer: string;
+  issued?: string;
+  verifyUrl: string;
+  category?: string;
+  credId?: string;
+  image: string;
+  largeImage?: string;
+  skills?: string[];
+  palette?: Palette;
+}
+
+interface CertsData {
+  featuredIds: string[];
+  items: CertItem[];
+}
+
+const { items } = certsData as CertsData;
+const marqueeItems = [...items, ...items];
+const marqueeDuration = Math.max(24, items.length * 6);
+---
+<section
+  id="certifications"
+  aria-labelledby="certifications-title"
+  class="certs-section py-12 sm:py-16"
+>
+  <div class="container">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-xl">
+        <h2 id="certifications-title" class="certs-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+          Certifications
+        </h2>
+        <p class="certs-lede mt-2 text-base">
+          Recent credentials across cloud platforms, applied machine learning, and aviation technology.
+        </p>
+      </div>
+      <p class="certs-tag text-sm font-medium uppercase tracking-[0.3em]">
+        Auto-scrolling showcase
+      </p>
+    </div>
+
+    <div class="certs-marquee mt-8" role="list" aria-label="Professional certifications">
+      <div class="certs-track" style={`--certs-marquee-duration: ${marqueeDuration}s`}>
+        {marqueeItems.map((cert, index) => {
+          const isDuplicate = index >= items.length;
+          return (
+            <div
+              class="certs-item"
+              role={isDuplicate ? 'presentation' : 'listitem'}
+              aria-hidden={isDuplicate ? 'true' : undefined}
+            >
+              <CertCard
+                title={cert.title}
+                issuer={cert.issuer}
+                image={cert.image}
+                palette={cert.palette}
+                href={cert.verifyUrl}
+                tabIndex={isDuplicate ? -1 : undefined}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .certs-section {
+    --certs-surface: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--neutral-50) 96%, transparent),
+      color-mix(in srgb, var(--neutral-100) 88%, transparent)
+    );
+    --certs-glow: color-mix(in srgb, var(--brand-4) 26%, transparent);
+    --certs-text-primary: var(--neutral-900);
+    --certs-text-muted: var(--neutral-600);
+    color: var(--certs-text-primary);
+    background: radial-gradient(circle at top right, var(--certs-glow), transparent 55%), var(--certs-surface);
+    overflow: hidden;
+  }
+
+  .certs-heading {
+    color: var(--certs-text-primary);
+  }
+
+  .certs-lede {
+    color: var(--certs-text-muted);
+  }
+
+  .certs-tag {
+    color: color-mix(in srgb, var(--certs-text-muted) 78%, transparent);
+  }
+
+  :root[data-theme='dark'] .certs-section,
+  .dark .certs-section {
+    --certs-surface: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--neutral-100) 88%, transparent),
+      color-mix(in srgb, var(--neutral-200) 72%, transparent)
+    );
+    --certs-glow: color-mix(in srgb, var(--brand-3) 32%, transparent);
+    --certs-text-primary: var(--neutral-50);
+    --certs-text-muted: var(--neutral-400);
+    color: var(--certs-text-primary);
+    background: radial-gradient(circle at top right, var(--certs-glow), transparent 55%), var(--certs-surface);
+  }
+
+  :root[data-theme='dark'] .certs-tag,
+  .dark .certs-tag {
+    color: color-mix(in srgb, var(--certs-text-muted) 92%, transparent);
+  }
+
+  .certs-marquee {
+    --certs-gap: 2.5rem;
+    --certs-marquee-duration: 36s;
+    overflow: hidden;
+    padding: 1.5rem 0;
+    mask-image: linear-gradient(90deg, transparent, black 12%, black 88%, transparent);
+    contain: layout paint;
+    max-width: 100vw;
+    margin-inline: calc((100vw - 100%) / -2);
+  }
+
+  .certs-track {
+    display: flex;
+    align-items: stretch;
+    gap: var(--certs-gap);
+    width: max-content;
+    animation: certs-marquee var(--certs-marquee-duration) linear infinite;
+  }
+
+  .certs-item {
+    flex: 0 0 auto;
+  }
+
+  @keyframes certs-marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .certs-track:hover,
+  .certs-track:focus-within {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .certs-track {
+      animation: none;
+      transform: none;
+    }
+  }
+</style>

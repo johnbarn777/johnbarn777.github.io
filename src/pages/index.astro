@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/Hero.astro';
 import SkillsBanner from '../components/skills/SkillsBanner.astro';
+import CertsCoverflow from '../components/certs/CertsCoverflow.astro';
 import Projects from '../components/Projects.astro';
 import ExperienceTimeline from '../components/ExperienceTimeline.astro';
 ---
@@ -13,6 +14,9 @@ import ExperienceTimeline from '../components/ExperienceTimeline.astro';
     ctas={[{ text: 'View Projects', href: '#projects' }, { text: 'Contact Me', href: '#contact' }]}
   />
   <SkillsBanner />
+  <div class="mt-8 lg:mt-16">
+    <CertsCoverflow />
+  </div>
   <ExperienceTimeline />
   <Projects />
 </Layout>
