@@ -29,12 +29,20 @@ interface CertsData {
 }
 
 const { items } = certsData as CertsData;
-const activeIndex = 0;
 const total = items.length;
-const activeCert = items[activeIndex];
+const initialActiveIndex = 0;
+
+const itemsJson = JSON.stringify(items).replace(/</g, '\u003c');
 
 const getAriaLabel = (item: CertItem, index: number) =>
   `${item.title} by ${item.issuer}, ${index + 1} of ${total}`;
+
+const getInitialCardState = (index: number) => {
+  if (index === initialActiveIndex) return 'is-active';
+  if (Math.abs(index - initialActiveIndex) === 1) return 'is-near';
+  if (Math.abs(index - initialActiveIndex) === 2) return 'is-far';
+  return 'is-dimmed';
+};
 ---
 <section
   id="certifications"
@@ -59,18 +67,18 @@ const getAriaLabel = (item: CertItem, index: number) =>
       {items.map((cert, index) => (
         <article
           id={`cert-slide-${index}`}
-          class="certs-card snap-start flex-none min-w-[80%] sm:min-w-[60%] lg:min-w-[40%]"
+          class={`certs-card snap-start flex-none min-w-[80%] sm:min-w-[60%] lg:min-w-[40%] ${getInitialCardState(index)}`}
           data-index={index}
           aria-roledescription="slide"
           aria-label={getAriaLabel(cert, index)}
-          aria-current={index === activeIndex ? 'true' : 'false'}
+          aria-current={index === initialActiveIndex ? 'true' : 'false'}
         >
           <CertCard
             title={cert.title}
             issuer={cert.issuer}
             image={cert.image}
             palette={cert.palette}
-            active={index === activeIndex}
+            active={index === initialActiveIndex}
           />
         </article>
       ))}
@@ -78,18 +86,25 @@ const getAriaLabel = (item: CertItem, index: number) =>
   </div>
 
   <div id="certs-detail" aria-live="polite" aria-atomic="true" class="certs-detail">
-    {activeCert ? (
-      <CertDetail
-        title={activeCert.title}
-        issuer={activeCert.issuer}
-        issued={activeCert.issued}
-        credId={activeCert.credId}
-        largeImage={activeCert.largeImage}
-        skills={activeCert.skills}
-        verifyUrl={activeCert.verifyUrl}
-        palette={activeCert.palette}
-      />
-    ) : null}
+    {items.map((cert, index) => (
+      <div
+        data-detail-index={index}
+        hidden={index !== initialActiveIndex}
+        class="certs-detail-panel"
+      >
+        <CertDetail
+          title={cert.title}
+          issuer={cert.issuer}
+          issued={cert.issued}
+          credId={cert.credId}
+          largeImage={cert.largeImage}
+          skills={cert.skills}
+          verifyUrl={cert.verifyUrl}
+          palette={cert.palette}
+        />
+      </div>
+    ))}
+    <span class="sr-only" data-cert-announcer></span>
   </div>
 
   <div class="certs-controls">
@@ -99,7 +114,7 @@ const getAriaLabel = (item: CertItem, index: number) =>
       aria-controls="certs-viewport"
       aria-label="Previous certification"
       class="certs-button"
-      disabled
+      disabled={total <= 1}
     >
       Previous
     </button>
@@ -120,16 +135,262 @@ const getAriaLabel = (item: CertItem, index: number) =>
       <button
         type="button"
         role="tab"
-        aria-selected={index === activeIndex ? 'true' : 'false'}
+        aria-selected={index === initialActiveIndex ? 'true' : 'false'}
         aria-controls={`cert-slide-${index}`}
-        class={`certs-dot ${index === activeIndex ? 'is-active' : ''}`}
-        disabled={index === activeIndex}
+        class={`certs-dot ${index === initialActiveIndex ? 'is-active' : ''}`}
+        data-index={index}
+        disabled={index === initialActiveIndex}
       >
         <span class="sr-only">Go to {cert.title}</span>
       </button>
     ))}
   </div>
 </section>
+
+<script type="application/json" id="certs-data">{itemsJson}</script>
+
+<script type="module" is:inline>
+  const dataElement = document.getElementById('certs-data');
+  const viewport = document.getElementById('certs-viewport');
+  const track = viewport?.querySelector('.certs-track');
+  const cards = track ? Array.from(track.querySelectorAll('.certs-card')) : [];
+  const detailPanels = Array.from(document.querySelectorAll('[data-detail-index]'));
+  const prevButton = document.getElementById('certs-prev');
+  const nextButton = document.getElementById('certs-next');
+  const dotsContainer = document.getElementById('certs-dots');
+  const dots = dotsContainer
+    ? Array.from(dotsContainer.querySelectorAll('[role="tab"]'))
+    : [];
+  const announcer = document.querySelector('[data-cert-announcer]');
+
+  const certs = dataElement ? JSON.parse(dataElement.textContent || '[]') : [];
+  if (dataElement) {
+    dataElement.remove();
+  }
+  const total = certs.length;
+  let activeIndex = Math.min(Math.max(0, 0), Math.max(total - 1, 0));
+  let scrollTimeout = 0;
+
+  const isElement = (value) => value instanceof Element;
+
+  const formatIssued = (issued) => {
+    if (!issued || typeof issued !== 'string') return issued;
+    const [year, month] = issued.split('-');
+    if (!year || !month) return issued;
+    const parsed = new Date(Number(year), Number(month) - 1, 1);
+    return parsed.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  };
+
+  const clampIndex = (index) => {
+    if (total === 0) return 0;
+    const mod = ((index % total) + total) % total;
+    return mod;
+  };
+
+  const updateAnnouncement = (index) => {
+    if (!announcer || !certs[index]) return;
+    const cert = certs[index];
+    const issued = formatIssued(cert.issued);
+    announcer.textContent = `Now viewing ${cert.title} — ${cert.issuer}. Issued ${issued}. Press V to verify.`;
+  };
+
+  const updateDetailPanels = (index) => {
+    detailPanels.forEach((panel) => {
+      const panelIndex = Number(panel.getAttribute('data-detail-index'));
+      if (panelIndex === index) {
+        panel.removeAttribute('hidden');
+      } else {
+        panel.setAttribute('hidden', 'true');
+      }
+    });
+  };
+
+  const updateDots = (index) => {
+    dots.forEach((dot, dotIndex) => {
+      const isActive = dotIndex === index;
+      dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      dot.toggleAttribute('disabled', isActive);
+      dot.classList.toggle('is-active', isActive);
+    });
+  };
+
+  const updateCardStates = (index) => {
+    cards.forEach((card, cardIndex) => {
+      const isActive = cardIndex === index;
+      const rawDistance = Math.abs(cardIndex - index);
+      const distance = Math.min(rawDistance, total - rawDistance);
+      card.setAttribute('aria-current', isActive ? 'true' : 'false');
+      card.classList.toggle('is-active', isActive);
+      card.classList.toggle('is-near', distance === 1);
+      card.classList.toggle('is-far', distance === 2);
+      card.classList.toggle('is-dimmed', distance > 2);
+
+      const innerCard = card.querySelector('.cert-card');
+      if (innerCard) {
+        innerCard.setAttribute('data-card-active', isActive ? 'true' : 'false');
+      }
+    });
+  };
+
+  const scrollToIndex = (index, behavior = 'smooth') => {
+    if (!viewport || !cards[index]) return;
+    const card = cards[index];
+    const target = card.offsetLeft - (viewport.clientWidth - card.clientWidth) / 2;
+    viewport.scrollTo({ left: target, behavior });
+  };
+
+  const setActiveIndex = (nextIndex, options = {}) => {
+    if (!total) return;
+    const normalized = clampIndex(nextIndex);
+    activeIndex = normalized;
+    updateCardStates(activeIndex);
+    updateDetailPanels(activeIndex);
+    updateDots(activeIndex);
+    updateAnnouncement(activeIndex);
+
+    if (options.scroll !== false) {
+      scrollToIndex(activeIndex, options.behavior || 'smooth');
+    }
+
+    if (options.focusVerify) {
+      const activeDetail = detailPanels.find(
+        (panel) => Number(panel.getAttribute('data-detail-index')) === activeIndex
+      );
+      const verify = activeDetail?.querySelector('[data-verify-button]');
+      if (verify instanceof HTMLElement) {
+        verify.focus();
+      }
+    }
+  };
+
+  const handlePrev = () => setActiveIndex(activeIndex - 1);
+  const handleNext = () => setActiveIndex(activeIndex + 1);
+
+  const handleScrollSettled = () => {
+    if (!viewport) return;
+    const viewportRect = viewport.getBoundingClientRect();
+    const viewportCenter = viewportRect.left + viewportRect.width / 2;
+    let nearestIndex = activeIndex;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    cards.forEach((card, index) => {
+      const rect = card.getBoundingClientRect();
+      const center = rect.left + rect.width / 2;
+      const distance = Math.abs(center - viewportCenter);
+      if (distance < nearestDistance - 1) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+
+    if (nearestIndex !== activeIndex) {
+      setActiveIndex(nearestIndex, { scroll: false });
+    } else {
+      updateCardStates(activeIndex);
+    }
+  };
+
+  if (prevButton) {
+    prevButton.addEventListener('click', handlePrev);
+  }
+
+  if (nextButton) {
+    nextButton.addEventListener('click', handleNext);
+  }
+
+  if (viewport) {
+    if ('onscrollend' in viewport) {
+      viewport.addEventListener('scrollend', handleScrollSettled, { passive: true });
+    } else {
+      viewport.addEventListener(
+        'scroll',
+        () => {
+          window.clearTimeout(scrollTimeout);
+          scrollTimeout = window.setTimeout(handleScrollSettled, 120);
+        },
+        { passive: true }
+      );
+    }
+
+    viewport.addEventListener('keydown', (event) => {
+      if (event.defaultPrevented) return;
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        handlePrev();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        handleNext();
+      } else if (event.key.toLowerCase() === 'v') {
+        event.preventDefault();
+        setActiveIndex(activeIndex, { scroll: false, focusVerify: true });
+      }
+    });
+  }
+
+  if (track) {
+    track.addEventListener('click', (event) => {
+      if (!isElement(event.target)) return;
+      const article = event.target.closest('.certs-card');
+      if (!article) return;
+      const index = cards.indexOf(article);
+      if (index === -1 || index === activeIndex) return;
+      setActiveIndex(index);
+    });
+  }
+
+  if (dotsContainer) {
+    dotsContainer.addEventListener('click', (event) => {
+      if (!isElement(event.target)) return;
+      const target = event.target.closest('[role="tab"]');
+      if (!target) return;
+      const indexAttr = target.getAttribute('data-index');
+      if (indexAttr == null) return;
+      const index = Number(indexAttr);
+      if (Number.isNaN(index)) return;
+      setActiveIndex(index);
+    });
+
+    dotsContainer.addEventListener('keydown', (event) => {
+      const activeEl = document.activeElement;
+      const currentIndex = isElement(activeEl) ? dots.indexOf(activeEl) : -1;
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        const nextIndex = clampIndex(currentIndex + 1);
+        dots[nextIndex]?.focus();
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const prevIndex = clampIndex(currentIndex - 1);
+        dots[prevIndex]?.focus();
+      } else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const focusedIndex = isElement(activeEl) ? dots.indexOf(activeEl) : -1;
+        if (focusedIndex >= 0) {
+          setActiveIndex(focusedIndex);
+        }
+      }
+    });
+  }
+
+  const updateControlDisabledState = () => {
+    const shouldDisable = total <= 1;
+    prevButton?.toggleAttribute('disabled', shouldDisable);
+    nextButton?.toggleAttribute('disabled', shouldDisable);
+  };
+
+  const init = () => {
+    updateControlDisabledState();
+    updateCardStates(activeIndex);
+    updateDetailPanels(activeIndex);
+    updateDots(activeIndex);
+    updateAnnouncement(activeIndex);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>
 
 <style>
   .certs-section {
@@ -159,6 +420,7 @@ const getAriaLabel = (item: CertItem, index: number) =>
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 1rem;
+    scrollbar-width: thin;
   }
 
   .certs-track {
@@ -166,7 +428,42 @@ const getAriaLabel = (item: CertItem, index: number) =>
   }
 
   .certs-card {
-    transition: transform 160ms ease, opacity 160ms ease;
+    position: relative;
+    transition: transform 120ms ease, opacity 120ms ease;
+    transform-origin: center;
+    transform: scale(0.84);
+    opacity: 0.6;
+    cursor: pointer;
+  }
+
+  .certs-card.is-active {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+    z-index: 3;
+  }
+
+  .certs-card.is-near {
+    transform: scale(0.92) rotate(var(--cert-tilt, 0deg));
+    opacity: 0.75;
+    z-index: 2;
+  }
+
+  .certs-card.is-far {
+    transform: scale(0.84) rotate(var(--cert-tilt, 0deg));
+    opacity: 0.7;
+    z-index: 1;
+  }
+
+  .certs-card.is-dimmed {
+    opacity: 0.4;
+  }
+
+  .certs-card:nth-child(odd) {
+    --cert-tilt: -4deg;
+  }
+
+  .certs-card:nth-child(even) {
+    --cert-tilt: 4deg;
   }
 
   .certs-controls {
@@ -190,6 +487,11 @@ const getAriaLabel = (item: CertItem, index: number) =>
     opacity: 0.5;
   }
 
+  .certs-button:focus-visible {
+    outline: 2px solid rgba(96, 165, 250, 0.9);
+    outline-offset: 2px;
+  }
+
   .certs-dots {
     display: flex;
     justify-content: center;
@@ -197,16 +499,33 @@ const getAriaLabel = (item: CertItem, index: number) =>
   }
 
   .certs-dot {
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background: transparent;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .certs-dot::after {
+    content: '';
     width: 12px;
     height: 12px;
     border-radius: 9999px;
     background: rgba(148, 163, 184, 0.35);
-    border: none;
-    padding: 0;
-    cursor: pointer;
+    transition: width 120ms ease, background 120ms ease;
   }
 
   .certs-dot.is-active {
+    border-color: rgba(96, 165, 250, 0.75);
+  }
+
+  .certs-dot.is-active::after {
     width: 28px;
     background: rgba(96, 165, 250, 0.9);
   }
@@ -215,8 +534,33 @@ const getAriaLabel = (item: CertItem, index: number) =>
     cursor: default;
   }
 
+  .certs-dot:focus-visible {
+    outline: 2px solid rgba(96, 165, 250, 0.9);
+    outline-offset: 2px;
+  }
+
   .certs-detail {
     margin-top: 0.5rem;
+    position: relative;
+  }
+
+  .certs-detail-panel[hidden] {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .certs-card {
+      transition-duration: 0.01ms !important;
+      transform: none !important;
+    }
+
+    .certs-card.is-active {
+      opacity: 1 !important;
+    }
+
+    .certs-card:not(.is-active) {
+      opacity: 0.7 !important;
+    }
   }
 
   .sr-only {
