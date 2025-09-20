@@ -1,0 +1,233 @@
+---
+import CertCard from './CertCard.astro';
+import CertDetail from './CertDetail.astro';
+import certsData from '../../../data/certs.json';
+
+interface Palette {
+  bg?: string;
+  fg?: string;
+  glow?: string;
+}
+
+interface CertItem {
+  id: string;
+  title: string;
+  issuer: string;
+  issued: string;
+  verifyUrl: string;
+  category: string;
+  credId: string;
+  image: string;
+  largeImage: string;
+  skills: string[];
+  palette?: Palette;
+}
+
+interface CertsData {
+  featuredIds: string[];
+  items: CertItem[];
+}
+
+const { items } = certsData as CertsData;
+const activeIndex = 0;
+const total = items.length;
+const activeCert = items[activeIndex];
+
+const getAriaLabel = (item: CertItem, index: number) =>
+  `${item.title} by ${item.issuer}, ${index + 1} of ${total}`;
+---
+<section
+  id="certifications"
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="Professional certifications"
+  class="certs-section"
+>
+  <div class="certs-header">
+    <h2 class="certs-title">Certifications</h2>
+    <p class="certs-subtitle">
+      A curated set of professional credentials spanning cloud, AI, and production machine learning.
+    </p>
+  </div>
+
+  <div
+    id="certs-viewport"
+    class="certs-viewport overflow-x-auto snap-x snap-mandatory scroll-pt-6"
+    tabindex="0"
+  >
+    <div class="certs-track flex gap-6">
+      {items.map((cert, index) => (
+        <article
+          id={`cert-slide-${index}`}
+          class="certs-card snap-start flex-none min-w-[80%] sm:min-w-[60%] lg:min-w-[40%]"
+          data-index={index}
+          aria-roledescription="slide"
+          aria-label={getAriaLabel(cert, index)}
+          aria-current={index === activeIndex ? 'true' : 'false'}
+        >
+          <CertCard
+            title={cert.title}
+            issuer={cert.issuer}
+            image={cert.image}
+            palette={cert.palette}
+            active={index === activeIndex}
+          />
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <div id="certs-detail" aria-live="polite" aria-atomic="true" class="certs-detail">
+    {activeCert ? (
+      <CertDetail
+        title={activeCert.title}
+        issuer={activeCert.issuer}
+        issued={activeCert.issued}
+        credId={activeCert.credId}
+        largeImage={activeCert.largeImage}
+        skills={activeCert.skills}
+        verifyUrl={activeCert.verifyUrl}
+        palette={activeCert.palette}
+      />
+    ) : null}
+  </div>
+
+  <div class="certs-controls">
+    <button
+      id="certs-prev"
+      type="button"
+      aria-controls="certs-viewport"
+      aria-label="Previous certification"
+      class="certs-button"
+      disabled
+    >
+      Previous
+    </button>
+    <button
+      id="certs-next"
+      type="button"
+      aria-controls="certs-viewport"
+      aria-label="Next certification"
+      class="certs-button"
+      disabled={total <= 1}
+    >
+      Next
+    </button>
+  </div>
+
+  <div id="certs-dots" role="tablist" aria-label="Certification pages" class="certs-dots">
+    {items.map((cert, index) => (
+      <button
+        type="button"
+        role="tab"
+        aria-selected={index === activeIndex ? 'true' : 'false'}
+        aria-controls={`cert-slide-${index}`}
+        class={`certs-dot ${index === activeIndex ? 'is-active' : ''}`}
+        disabled={index === activeIndex}
+      >
+        <span class="sr-only">Go to {cert.title}</span>
+      </button>
+    ))}
+  </div>
+</section>
+
+<style>
+  .certs-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: min(4vw, 1.5rem) 0;
+  }
+
+  .certs-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .certs-title {
+    font-size: clamp(1.75rem, 2vw + 1.25rem, 2.5rem);
+    font-weight: 700;
+  }
+
+  .certs-subtitle {
+    max-width: 60ch;
+    color: rgba(226, 232, 240, 0.8);
+  }
+
+  .certs-viewport {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem;
+  }
+
+  .certs-track {
+    padding: 0 0.5rem 0.5rem;
+  }
+
+  .certs-card {
+    transition: transform 160ms ease, opacity 160ms ease;
+  }
+
+  .certs-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .certs-button {
+    flex: 1 1 0;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    background: rgba(148, 163, 184, 0.15);
+    color: #e2e8f0;
+    font-weight: 600;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  .certs-button:disabled {
+    opacity: 0.5;
+  }
+
+  .certs-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .certs-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    background: rgba(148, 163, 184, 0.35);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .certs-dot.is-active {
+    width: 28px;
+    background: rgba(96, 165, 250, 0.9);
+  }
+
+  .certs-dot:disabled {
+    cursor: default;
+  }
+
+  .certs-detail {
+    margin-top: 0.5rem;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

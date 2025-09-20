@@ -1,0 +1,68 @@
+---
+interface Palette {
+  bg?: string;
+  fg?: string;
+  glow?: string;
+}
+
+interface Props {
+  title: string;
+  issuer: string;
+  image: string;
+  palette?: Palette;
+  active?: boolean;
+}
+
+const { title, issuer, image, palette, active = false } = Astro.props as Props;
+
+const style = [
+  palette?.bg ? `--cert-card-bg: ${palette.bg}` : '',
+  palette?.fg ? `--cert-card-fg: ${palette.fg}` : '',
+  palette?.glow ? `--cert-card-glow: ${palette.glow}` : ''
+]
+  .filter(Boolean)
+  .join('; ');
+---
+<div
+  class={`cert-card flex items-center gap-4 rounded-3xl border border-white/10 px-5 py-4 transition duration-150 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${
+    active ? 'cert-card--active shadow-lg ring-1 ring-white/40' : 'opacity-80'
+  }`}
+  style={style}
+  data-card-active={active ? 'true' : 'false'}
+>
+  <div class="cert-card__badge flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/10">
+    <img
+      src={image}
+      alt={`${title} badge`}
+      width="64"
+      height="64"
+      loading="lazy"
+      decoding="async"
+      class="h-16 w-16 object-contain"
+    />
+  </div>
+  <div class="flex flex-col">
+    <span class="text-sm uppercase tracking-wide text-white/70">{issuer}</span>
+    <h3 class="text-lg font-semibold leading-tight text-white">{title}</h3>
+  </div>
+</div>
+
+<style>
+  .cert-card {
+    background: var(--cert-card-bg, linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.75)));
+    color: var(--cert-card-fg, #ffffff);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .cert-card[data-card-active='true'] {
+    box-shadow: 0 0 30px rgba(15, 118, 255, 0.25);
+  }
+
+  .cert-card--active {
+    opacity: 1 !important;
+  }
+
+  .cert-card__badge img {
+    background: transparent;
+  }
+</style>
