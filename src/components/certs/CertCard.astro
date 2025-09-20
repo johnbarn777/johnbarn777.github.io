@@ -24,21 +24,21 @@ const style = [
   .join('; ');
 ---
 <div
-  class={`cert-card flex items-center gap-4 rounded-3xl border border-white/10 px-5 py-4 transition duration-100 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${
+  class={`cert-card flex items-center gap-3 rounded-3xl border border-white/10 px-4 py-3 transition duration-100 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 ${
     active ? 'cert-card--active shadow-lg ring-1 ring-white/40' : 'opacity-80'
   }`}
   style={style}
   data-card-active={active ? 'true' : 'false'}
 >
-  <div class="cert-card__badge flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/10">
+  <div class="cert-card__badge flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-white/10">
     <img
       src={image}
       alt={`${title} badge`}
-      width="64"
-      height="64"
+      width="56"
+      height="56"
       loading="lazy"
       decoding="async"
-      class="h-16 w-16 object-contain"
+      class="h-14 w-14 object-contain"
     />
   </div>
   <div class="flex flex-col">
