@@ -1306,6 +1306,18 @@
   .cert-card {
     --cert-card-border: color-mix(in srgb, var(--neutral-900) 8%, transparent);
     --cert-card-ring-offset: var(--neutral-50);
+    --cert-card-ink: var(--cert-card-fg, var(--neutral-900));
+    --cert-card-muted: color-mix(in srgb, var(--cert-card-ink) 58%, transparent);
+    --cert-card-accent: color-mix(
+      in srgb,
+      var(--cert-card-glow, var(--brand-3)) 68%,
+      var(--cert-card-ink) 32%
+    );
+    --cert-card-accent-strong: color-mix(
+      in srgb,
+      var(--cert-card-glow, var(--brand-4)) 80%,
+      var(--cert-card-ink) 20%
+    );
     background: var(
       --cert-card-bg,
       linear-gradient(
@@ -1314,7 +1326,7 @@
         color-mix(in srgb, var(--neutral-100) 86%, transparent)
       )
     );
-    color: var(--cert-card-fg, var(--neutral-900));
+    color: var(--cert-card-ink);
     box-shadow: 0 12px 30px color-mix(
       in srgb,
       var(--cert-card-glow, var(--neutral-900)) 24%,
@@ -1345,7 +1357,7 @@
     font-weight: 600;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: color-mix(in srgb, currentColor 55%, transparent);
+    color: var(--cert-card-muted);
   }
 
   .cert-card__title {
@@ -1354,6 +1366,7 @@
     font-size: 1.125rem;
     font-weight: 600;
     line-height: 1.35;
+    color: var(--cert-card-ink);
     transition: color 150ms ease;
   }
 
@@ -1362,17 +1375,29 @@
     margin-top: 0.35rem;
     font-size: 0.95rem;
     font-weight: 500;
-    color: color-mix(in srgb, var(--cert-card-glow, var(--brand-3)) 65%, currentColor 35%);
+    color: var(--cert-card-accent);
   }
 
   .cert-card:is(:hover, :focus-visible) .cert-card__cta {
-    color: color-mix(in srgb, var(--cert-card-glow, var(--brand-4)) 78%, currentColor 22%);
+    color: var(--cert-card-accent-strong);
   }
 
   :root[data-theme='dark'] .cert-card,
   .dark .cert-card {
     --cert-card-border: color-mix(in srgb, var(--neutral-50) 22%, transparent);
     --cert-card-ring-offset: var(--neutral-200);
+    --cert-card-ink: var(--cert-card-fg, var(--neutral-50));
+    --cert-card-muted: color-mix(in srgb, var(--cert-card-ink) 72%, transparent);
+    --cert-card-accent: color-mix(
+      in srgb,
+      var(--cert-card-glow, var(--brand-3)) 72%,
+      var(--cert-card-ink) 28%
+    );
+    --cert-card-accent-strong: color-mix(
+      in srgb,
+      var(--cert-card-glow, var(--brand-4)) 86%,
+      var(--cert-card-ink) 14%
+    );
     background: var(
       --cert-card-bg,
       linear-gradient(
@@ -1381,7 +1406,7 @@
         color-mix(in srgb, var(--neutral-200) 10%, transparent)
       )
     );
-    color: var(--cert-card-fg, var(--neutral-50));
+    color: var(--cert-card-ink);
     box-shadow: 0 12px 30px color-mix(
       in srgb,
       var(--cert-card-glow, var(--neutral-50)) 34%,
@@ -1397,12 +1422,17 @@
 
   :root[data-theme='dark'] .cert-card__issuer,
   .dark .cert-card__issuer {
-    color: color-mix(in srgb, currentColor 72%, transparent);
+    color: var(--cert-card-muted);
+  }
+
+  :root[data-theme='dark'] .cert-card__title,
+  .dark .cert-card__title {
+    color: var(--cert-card-ink);
   }
 
   :root[data-theme='dark'] .cert-card__cta,
   .dark .cert-card__cta {
-    color: color-mix(in srgb, var(--brand-4) 78%, currentColor 22%);
+    color: var(--cert-card-accent);
   }
 
   .certs-section {
