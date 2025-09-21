@@ -17,8 +17,7 @@ interface Props {
 const { title, issuer, image, palette, href, tabIndex } = Astro.props as Props;
 
 const style = [
-  palette?.bg ? `--cert-card-bg: ${palette.bg}` : '',
-  palette?.fg ? `--cert-card-fg: ${palette.fg}` : '',
+  palette?.bg ? `--cert-card-tint: ${palette.bg}` : '',
   palette?.glow ? `--cert-card-glow: ${palette.glow}` : ''
 ]
   .filter(Boolean)

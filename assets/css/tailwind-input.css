@@ -1304,10 +1304,11 @@
 @layer components {
   /* Certification components */
   .cert-card {
-    --cert-card-border: color-mix(in srgb, var(--neutral-900) 8%, transparent);
-    --cert-card-ring-offset: var(--neutral-50);
-    --cert-card-ink: var(--cert-card-fg, var(--neutral-900));
-    --cert-card-muted: color-mix(in srgb, var(--cert-card-ink) 58%, transparent);
+    --cert-card-surface: rgba(255, 255, 255, 0.78);
+    --cert-card-border: rgba(15, 23, 42, 0.08);
+    --cert-card-ring-offset: rgba(248, 250, 252, 0.88);
+    --cert-card-ink: var(--neutral-900);
+    --cert-card-muted: color-mix(in srgb, var(--neutral-600) 82%, transparent);
     --cert-card-accent: color-mix(
       in srgb,
       var(--cert-card-glow, var(--brand-3)) 68%,
@@ -1318,28 +1319,29 @@
       var(--cert-card-glow, var(--brand-4)) 80%,
       var(--cert-card-ink) 20%
     );
-    background: var(
-      --cert-card-bg,
-      linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--neutral-50) 96%, transparent),
-        color-mix(in srgb, var(--neutral-100) 86%, transparent)
-      )
-    );
+    --cert-card-tint: var(--cert-card-surface);
+    background: var(--cert-card-surface);
     color: var(--cert-card-ink);
-    box-shadow: 0 12px 30px color-mix(
-      in srgb,
-      var(--cert-card-glow, var(--neutral-900)) 24%,
-      transparent
-    );
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.18);
     border: 1px solid var(--cert-card-border);
     text-decoration: none;
+    backdrop-filter: blur(14px);
     --tw-ring-offset-color: var(--cert-card-ring-offset);
+  }
+
+  @supports (color: color-mix(in srgb, white 50%, black)) {
+    .cert-card {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--cert-card-surface) 88%, var(--cert-card-tint) 12%),
+        color-mix(in srgb, var(--cert-card-surface) 72%, var(--cert-card-tint) 28%)
+      );
+    }
   }
 
   .cert-card:hover,
   .cert-card:focus-visible {
-    color: var(--cert-card-fg, inherit);
+    color: inherit;
   }
 
   .cert-card__badge {
@@ -1384,10 +1386,11 @@
 
   :root[data-theme='dark'] .cert-card,
   .dark .cert-card {
-    --cert-card-border: color-mix(in srgb, var(--neutral-50) 22%, transparent);
-    --cert-card-ring-offset: var(--neutral-200);
-    --cert-card-ink: var(--cert-card-fg, var(--neutral-50));
-    --cert-card-muted: color-mix(in srgb, var(--cert-card-ink) 72%, transparent);
+    --cert-card-surface: rgba(15, 23, 42, 0.72);
+    --cert-card-border: rgba(226, 232, 240, 0.08);
+    --cert-card-ring-offset: rgba(30, 41, 59, 0.72);
+    --cert-card-ink: var(--neutral-50);
+    --cert-card-muted: color-mix(in srgb, var(--neutral-400) 85%, transparent);
     --cert-card-accent: color-mix(
       in srgb,
       var(--cert-card-glow, var(--brand-3)) 72%,
@@ -1398,20 +1401,7 @@
       var(--cert-card-glow, var(--brand-4)) 86%,
       var(--cert-card-ink) 14%
     );
-    background: var(
-      --cert-card-bg,
-      linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--neutral-300) 14%, transparent),
-        color-mix(in srgb, var(--neutral-200) 10%, transparent)
-      )
-    );
-    color: var(--cert-card-ink);
-    box-shadow: 0 12px 30px color-mix(
-      in srgb,
-      var(--cert-card-glow, var(--neutral-50)) 34%,
-      transparent
-    );
+    box-shadow: 0 20px 44px rgba(2, 6, 23, 0.62);
   }
 
   :root[data-theme='dark'] .cert-card__badge,
