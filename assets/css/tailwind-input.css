@@ -1304,8 +1304,8 @@
 @layer components {
   /* Certification components */
   .cert-card {
-    --cert-card-surface: rgba(248, 250, 255, 0.78);
-    --cert-card-border: rgba(132, 166, 225, 0.28);
+    --cert-card-surface: rgba(255, 250, 255, 0.78);
+    --cert-card-border: rgba(211, 219, 233, 0.28);
     --cert-card-ring-offset: rgba(248, 250, 255, 0.88);
     --cert-card-ink: var(--ink-900);
     --cert-card-muted: var(--neutral-600);
@@ -1334,7 +1334,7 @@
       background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--cert-card-surface) 88%, var(--cert-card-tint) 12%),
-        color-mix(in srgb, var(--cert-card-surface) 72%, var(--cert-card-tint) 28%)
+        color-mix(in srgb, var(--cert-card-surface) 82%, var(--cert-card-tint) 18%)
       );
     }
   }
