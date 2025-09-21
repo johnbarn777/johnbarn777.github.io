@@ -1,164 +1,48 @@
 {
   "featuredIds": [
-    "gcp-pca",
-    "deeplearning-ai-nlp",
+    "tf-nlp",
     "tf-cnn",
-    "tf-seq",
-    "azure-ai-900"
+    "tf-seq"
   ],
   "items": [
     {
-      "id": "gcp-pca",
-      "title": "Professional Cloud Architect",
-      "issuer": "Google Cloud",
-      "issued": "2024-08",
-      "verifyUrl": "https://www.credential.net/example-gcp-pca",
-      "category": "Cloud",
-      "credId": "GCP-ARCH-2024-0815",
-      "image": "/assets/img/certs/gcp-pca-badge.png",
-      "largeImage": "/assets/img/certs/gcp-pca-card.webp",
-      "skills": ["VPC", "IAM", "GKE", "Networking", "SRE"],
-      "palette": {
-        "bg": "#0B2545",
-        "fg": "#E6F1FF",
-        "glow": "#4EA1FF"
-      }
-    },
-    {
-      "id": "deeplearning-ai-nlp",
-      "title": "Natural Language Processing Specialization",
-      "issuer": "DeepLearning.AI",
-      "issued": "2024-05",
-      "verifyUrl": "https://coursera.org/verify/example-nlp",
+      "id": "tf-nlp",
+      "title": "Natural Language Processing in TensorFlow",
+      "issuer": "DeepLearning.AI · Coursera",
+      "issued": null,
+      "verifyUrl": "https://www.coursera.org/account/accomplishments/verify/TFV2IZI9C0J1",
       "category": "ML/AI",
-      "credId": "DL-NLP-2024-0501",
-      "image": "/assets/img/certs/deeplearning-ai-nlp-badge.png",
-      "largeImage": "/assets/img/certs/deeplearning-ai-nlp-card.webp",
-      "skills": ["Transformers", "Seq2Seq", "Attention", "Tokenization"],
-      "palette": {
-        "bg": "#1B0C3B",
-        "fg": "#F5EEFF",
-        "glow": "#9E7CFF"
-      }
+      "credId": "TFV2IZI9C0J1",
+      "image": "/assets/img/certs/DeepLearningAI.png",
+      "largeImage": "/assets/img/certs/DeepLearningAI.png",
+      "skills": ["Tokenization", "Word Embeddings", "RNN", "Text Classification"],
+      "palette": { "bg": "#1B0C3B", "fg": "#F5EEFF", "glow": "#9E7CFF" }
     },
     {
       "id": "tf-cnn",
-      "title": "Convolutional Neural Networks",
-      "issuer": "TensorFlow",
-      "issued": "2023-11",
-      "verifyUrl": "https://www.tensorflow.org/cert/example-cnn",
+      "title": "Convolutional Neural Networks in TensorFlow",
+      "issuer": "DeepLearning.AI · Coursera",
+      "issued": null,
+      "verifyUrl": "https://www.coursera.org/account/accomplishments/verify/LOB5TXKT2Q44",
       "category": "ML/AI",
-      "credId": "TF-CNN-2023-1120",
-      "image": "/assets/img/certs/tf-cnn-badge.png",
-      "largeImage": "/assets/img/certs/tf-cnn-card.webp",
-      "skills": ["CNN", "TensorFlow", "Image Augmentation", "Regularization"],
-      "palette": {
-        "bg": "#06192B",
-        "fg": "#E8F7FF",
-        "glow": "#2FD3FF"
-      }
+      "credId": "LOB5TXKT2Q44",
+      "image": "/assets/img/certs/DeepLearningAI.png",
+      "largeImage": "/assets/img/certs/DeepLearningAI.png",
+      "skills": ["CNN", "Image Augmentation", "Transfer Learning", "Regularization"],
+      "palette": { "bg": "#06192B", "fg": "#E8F7FF", "glow": "#2FD3FF" }
     },
     {
       "id": "tf-seq",
-      "title": "Sequence Models",
-      "issuer": "TensorFlow",
-      "issued": "2023-12",
-      "verifyUrl": "https://www.tensorflow.org/cert/example-seq",
+      "title": "Sequences, Time Series and Prediction",
+      "issuer": "DeepLearning.AI · Coursera",
+      "issued": null,
+      "verifyUrl": "https://www.coursera.org/account/accomplishments/records/PQNKSXOIA8RP",
       "category": "ML/AI",
-      "credId": "TF-SEQ-2023-1222",
-      "image": "/assets/img/certs/tf-seq-badge.png",
-      "largeImage": "/assets/img/certs/tf-seq-card.webp",
-      "skills": ["RNN", "LSTM", "GRU", "Time Series"],
-      "palette": {
-        "bg": "#121F33",
-        "fg": "#F0F6FF",
-        "glow": "#5BA8FF"
-      }
-    },
-    {
-      "id": "azure-ai-900",
-      "title": "Microsoft Azure AI Fundamentals",
-      "issuer": "Microsoft",
-      "issued": "2024-02",
-      "verifyUrl": "https://learn.microsoft.com/credentials/certifications/azure-ai-fundamentals/verify",
-      "category": "Cloud",
-      "credId": "AZAI-900-2024-0212",
-      "image": "/assets/img/certs/azure-ai-900-badge.png",
-      "largeImage": "/assets/img/certs/azure-ai-900-card.webp",
-      "skills": ["Azure ML", "Responsible AI", "Computer Vision", "Conversational AI"],
-      "palette": {
-        "bg": "#001E36",
-        "fg": "#E5F2FF",
-        "glow": "#2B9CFF"
-      }
-    },
-    {
-      "id": "aws-ml-specialty",
-      "title": "AWS Certified Machine Learning – Specialty",
-      "issuer": "Amazon Web Services",
-      "issued": "2022-09",
-      "verifyUrl": "https://aws.amazon.com/verification",
-      "category": "Cloud",
-      "credId": "AWS-MLS-2022-0910",
-      "image": "/assets/img/certs/aws-ml-specialty-badge.png",
-      "largeImage": "/assets/img/certs/aws-ml-specialty-card.webp",
-      "skills": ["SageMaker", "Feature Engineering", "MLOps", "AutoML", "Deployment"],
-      "palette": {
-        "bg": "#1A1200",
-        "fg": "#FFEFD6",
-        "glow": "#FFB347"
-      }
-    },
-    {
-      "id": "mlops-production",
-      "title": "MLOps Production Engineering",
-      "issuer": "Coursera Project Network",
-      "issued": "2023-03",
-      "verifyUrl": "https://coursera.org/verify/example-mlops",
-      "category": "Data",
-      "credId": "CNP-ML-2023-0307",
-      "image": "/assets/img/certs/mlops-production-badge.png",
-      "largeImage": "/assets/img/certs/mlops-production-card.webp",
-      "skills": ["Model Monitoring", "CI/CD", "Docker", "Kubernetes"],
-      "palette": {
-        "bg": "#0E1F1C",
-        "fg": "#E4FFF8",
-        "glow": "#5FF2C7"
-      }
-    },
-    {
-      "id": "isc2-cissp",
-      "title": "Certified Information Systems Security Professional",
-      "issuer": "(ISC)²",
-      "issued": "2023-06",
-      "verifyUrl": "https://www.isc2.org/Certifications/CISSP/verify",
-      "category": "Security",
-      "credId": "ISC2-CISSP-2023-0615",
-      "image": "/assets/img/certs/isc2-cissp-badge.png",
-      "largeImage": "/assets/img/certs/isc2-cissp-card.webp",
-      "skills": ["Zero Trust", "Security Governance", "Risk Management", "Cloud Security"],
-      "palette": {
-        "bg": "#051E1C",
-        "fg": "#E5FFFB",
-        "glow": "#00C6A7"
-      }
-    },
-    {
-      "id": "faa-uas",
-      "title": "Remote Pilot (Small UAS)",
-      "issuer": "Federal Aviation Administration",
-      "issued": "2022-04",
-      "verifyUrl": "https://iacra.faa.gov/IACRA/HelpAndInfo/RemotePilot.aspx",
-      "category": "Aviation",
-      "credId": "FAA-UAS-2022-0410",
-      "image": "/assets/img/certs/faa-uas-badge.png",
-      "largeImage": "/assets/img/certs/faa-uas-card.webp",
-      "skills": ["Part 107", "Airspace Operations", "Mission Planning", "Safety Management"],
-      "palette": {
-        "bg": "#0A1B2D",
-        "fg": "#EAF6FF",
-        "glow": "#4FB4FF"
-      }
+      "credId": "PQNKSXOIA8RP",
+      "image": "/assets/img/certs/DeepLearningAI.png",
+      "largeImage": "/assets/img/certs/DeepLearningAI.png",
+      "skills": ["RNN", "LSTM", "GRU", "Forecasting"],
+      "palette": { "bg": "#121F33", "fg": "#F0F6FF", "glow": "#5BA8FF" }
     }
   ]
 }
