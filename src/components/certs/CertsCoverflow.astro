@@ -1,0 +1,78 @@
+---
+import certsData from '../../../data/certs.json';
+import CertCard from './CertCard.astro';
+
+interface Palette {
+  bg?: string;
+  fg?: string;
+  glow?: string;
+}
+
+interface CertItem {
+  id: string;
+  title: string;
+  issuer: string;
+  issued?: string;
+  verifyUrl: string;
+  category?: string;
+  credId?: string;
+  image: string;
+  largeImage?: string;
+  skills?: string[];
+  palette?: Palette;
+}
+
+interface CertsData {
+  featuredIds: string[];
+  items: CertItem[];
+}
+
+const { items } = certsData as CertsData;
+const marqueeItems = [...items, ...items];
+const marqueeDuration = Math.max(24, items.length * 6);
+---
+<section
+  id="certifications"
+  aria-labelledby="certifications-title"
+  class="certs-section py-12 sm:py-16"
+>
+  <div class="container">
+    <div class="certs-banner flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-xl">
+        <h2 id="certifications-title" class="certs-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+          Certifications
+        </h2>
+        <p class="certs-lede mt-2 text-base">
+          Recent credentials across disciplines.
+        </p>
+      </div>
+      <p class="certs-tag text-sm font-medium uppercase tracking-[0.3em]">
+      </p>
+    </div>
+
+    <div class="certs-marquee mt-8" role="list" aria-label="Professional certifications">
+      <div class="certs-track" style={`--certs-marquee-duration: ${marqueeDuration}s`}>
+        {marqueeItems.map((cert, index) => {
+          const isDuplicate = index >= items.length;
+          return (
+            <div
+              class="certs-item"
+              role={isDuplicate ? 'presentation' : 'listitem'}
+              aria-hidden={isDuplicate ? 'true' : undefined}
+            >
+              <CertCard
+                title={cert.title}
+                issuer={cert.issuer}
+                image={cert.image}
+                palette={cert.palette}
+                href={cert.verifyUrl}
+                tabIndex={isDuplicate ? -1 : undefined}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</section>
+

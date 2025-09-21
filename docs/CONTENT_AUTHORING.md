@@ -56,3 +56,68 @@ Each category slide uses a fixed min-height so icons load without layout shift, 
 - Add new icons to `public/assets/icons/skills/` (24×24 viewBox, visually centered). The first two categories' icons are preloaded automatically.
 - When reordering categories, update each `order` value and keep them unique per desired slot.
 - When hiding categories temporarily, set `visible: false` so URL history and tests stay stable.
+
+# Certifications Marquee Authoring Guide
+
+The certifications banner is now a continuously scrolling marquee that highlights credential badges, issuers, and quick “Verify credential” links. There are no filters or detail panes—every card is a direct link to the source of truth.
+
+## Data contract (`data/certs.json`)
+
+- `featuredIds[]`
+  - Array of certification `id` values to highlight elsewhere on the site.
+  - Every ID listed **must** exist in `items[]`.
+- `items[]`
+  - `id`: stable slug (lowercase, kebab-case). Used in tests and for cross-linking.
+  - `title`: credential name rendered inside the marquee card.
+  - `issuer`: organization responsible for the certification (shown above the title).
+  - `issued`: optional YYYY-MM string for record keeping. Not displayed in the marquee but useful for future timelines.
+  - `verifyUrl`: absolute URL opened in a new tab when the card is activated.
+  - `image`: badge icon (PNG/SVG) displayed at 64×64 px within the card.
+  - `palette` *(optional)*: `{ bg, fg, glow }` overrides for the card gradient and foreground colour.
+  - `category`, `credId`, `largeImage`, and `skills` remain supported in the data for compatibility with other surfaces, but they are not surfaced in the marquee.
+
+```json
+{
+  "featuredIds": ["gcp-pca", "deeplearning-ai-nlp"],
+  "items": [
+    {
+      "id": "gcp-pca",
+      "title": "Professional Cloud Architect",
+      "issuer": "Google Cloud",
+      "issued": "2024-08",
+      "verifyUrl": "https://…",
+      "image": "/assets/img/certs/gcp-pca-badge.png",
+      "palette": { "bg": "#0B2545", "fg": "#E6F1FF", "glow": "#4EA1FF" }
+    }
+  ]
+}
+```
+
+## Image authoring
+
+- Badge art lives in `public/assets/img/certs/`.
+- Export badges at 64×64 px (or larger with generous transparent padding) as lightweight PNGs or SVGs.
+- Keep file sizes modest (<50 KB when possible) to preserve smooth marquee motion.
+- Large hero images are no longer required for this banner, but you may continue to track them in the dataset for reuse elsewhere.
+
+## Palette and fallback rules
+
+- When `palette` is omitted, cards inherit the site’s default midnight gradient with white typography.
+- `bg` sets the gradient base, `fg` sets text colour, and `glow` influences subtle drop shadows.
+- Maintain accessible contrast (WCAG AA) for both text and decorative cues.
+
+## Visual & UX contract
+
+- The marquee auto-scrolls left-to-right continuously; hovering or focusing any card pauses the animation.
+- Reduced-motion users receive a static row of cards with no automatic scrolling.
+- Cards are direct links (`target="_blank"` + `rel="noopener noreferrer"`) and include issuer, title, and a “Verify credential” affordance.
+- Duplicate card instances are rendered for seamless looping but are hidden from assistive technologies and removed from the tab order.
+- Hit targets remain ≥40×40 px with clear focus outlines supplied by the shared card component.
+
+## Manual acceptance checklist
+
+- Visiting `/#certifications` reveals the marquee immediately below the skills banner.
+- Cards display badge, issuer, title, and “Verify credential →” copy.
+- Links open in a new tab and route to the correct `verifyUrl`.
+- Hovering or focusing a card pauses the marquee; it resumes when focus/hover leaves (unless the user prefers reduced motion).
+- With `prefers-reduced-motion: reduce`, the row is static and fully accessible via keyboard.

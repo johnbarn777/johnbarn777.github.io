@@ -1,0 +1,89 @@
+---
+interface Palette {
+  bg?: string;
+  fg?: string;
+  glow?: string;
+}
+
+interface Props {
+  title: string;
+  issuer: string;
+  issued: string;
+  credId: string;
+  largeImage: string;
+  skills: string[];
+  verifyUrl: string;
+  palette?: Palette;
+  loading?: 'lazy' | 'eager';
+}
+
+const {
+  title,
+  issuer,
+  issued,
+  credId,
+  largeImage,
+  skills,
+  verifyUrl,
+  palette,
+  loading = 'lazy'
+} = Astro.props as Props;
+
+const issuedDate = (() => {
+  const [year, month] = issued.split('-');
+  const parsed = year && month ? new Date(Number(year), Number(month) - 1, 1) : undefined;
+  return parsed ? parsed.toLocaleString('en-US', { month: 'long', year: 'numeric' }) : issued;
+})();
+
+const style = [
+  palette?.bg ? `--cert-detail-bg: ${palette.bg}` : '',
+  palette?.fg ? `--cert-detail-fg: ${palette.fg}` : '',
+  palette?.glow ? `--cert-detail-glow: ${palette.glow}` : ''
+]
+  .filter(Boolean)
+  .join('; ');
+---
+<div class="cert-detail" style={style} data-cert-detail>
+  <div class="cert-detail__media">
+    <img
+      src={largeImage}
+      alt={`${title} certification showcase`}
+      width="640"
+      height="360"
+      loading={loading}
+      decoding="async"
+      class="cert-detail__image"
+    />
+  </div>
+  <div class="cert-detail__content">
+    <p class="cert-detail__issuer">{issuer}</p>
+    <h3 class="cert-detail__title">{title}</h3>
+    <dl class="cert-detail__meta">
+      <div>
+        <dt>Issued</dt>
+        <dd>{issuedDate}</dd>
+      </div>
+      <div>
+        <dt>Credential ID</dt>
+        <dd>{credId}</dd>
+      </div>
+    </dl>
+    <ul class="cert-detail__skills" aria-label="Key skills">
+      {skills.map(skill => (
+        <li class="cert-detail__skill" role="listitem">{skill}</li>
+      ))}
+    </ul>
+    <div class="cert-detail__actions">
+      <a
+        href={verifyUrl}
+        class="cert-detail__verify"
+        target="_blank"
+        rel="noopener noreferrer"
+        data-verify-button
+      >
+        Verify credential
+      </a>
+    </div>
+  </div>
+</div>
+
