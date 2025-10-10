@@ -1,0 +1,43 @@
+---
+const { github = null, leetcode = null } = Astro.props as { github?: any; leetcode?: any };
+
+const items = [] as Array<{ title: string; value: string; desc?: string }>; 
+
+if (github && github.topRepo && github.topRepo.name) {
+  const monthCommits = github.topRepo.recentMonthCommits ?? 0;
+  const totalCommits = github.topRepo.commitCount ?? 0;
+  const desc = monthCommits
+    ? `${monthCommits} commits this month · ${totalCommits} last 52w`
+    : `${totalCommits} commits last 52w`;
+  items.push({ title: 'Top Repo', value: github.topRepo.name, desc });
+}
+if (github && github.dominantLanguage && github.dominantLanguage.name) {
+  const pct = github.dominantLanguage.percent || 0;
+  items.push({ title: 'Dominant Lang', value: `${github.dominantLanguage.name} – ${pct}%` });
+}
+if (github && github.streak) {
+  items.push({ title: 'GitHub Streak', value: `${github.streak.current || 0}d`, desc: `Longest ${github.streak.longest || 0}d` });
+}
+if (leetcode && leetcode.totals) {
+  items.push({ title: 'LC Solved', value: String(leetcode.totals.solved || 0), desc: `${leetcode.totals.easy || 0}E / ${leetcode.totals.medium || 0}M / ${leetcode.totals.hard || 0}H` });
+}
+---
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  {items.length ? (
+    items.map((card) => (
+      <article class="experience-card" aria-label={`${card.title}: ${card.value}`}>
+        <div class="experience-card__body">
+          <h3 class="experience-card__title" style="margin:0">{card.title}</h3>
+          <p class="experience-card__summary" style="font-size:1.25rem;font-weight:700">{card.value}</p>
+          {card.desc ? (<p class="experience-card__meta">{card.desc}</p>) : null}
+        </div>
+      </article>
+    ))
+  ) : (
+    <div class="filter-empty" role="status" aria-live="polite">
+      <h3>No highlights yet</h3>
+      <p>Add data/github.json and data/leetcode.json to see insights.</p>
+    </div>
+  )}
+  
+</div>

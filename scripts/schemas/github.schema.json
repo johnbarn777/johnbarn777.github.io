@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/github.schema.json",
+  "type": "object",
+  "properties": {
+    "user": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "totals": {
+      "type": "object",
+      "properties": {
+        "commits": { "type": "number" },
+        "prs": { "type": "number" },
+        "issues": { "type": "number" },
+        "stars": { "type": "number" }
+      },
+      "required": ["commits", "prs", "issues", "stars"]
+    },
+    "streak": {
+      "type": "object",
+      "properties": {
+        "current": { "type": "number" },
+        "longest": { "type": "number" }
+      },
+      "required": ["current", "longest"]
+    },
+    "repos": { "type": "array" },
+    "monthlyCommits": { "type": "array" },
+    "languages": { "type": "array" }
+  },
+  "required": ["user", "generatedAt", "totals", "streak"]
+}

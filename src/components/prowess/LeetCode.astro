@@ -1,0 +1,76 @@
+---
+const { leetcode = null } = Astro.props as { leetcode?: any };
+const totals = leetcode?.totals || null;
+const weekly = Array.isArray(leetcode?.weekly) ? leetcode.weekly : [];
+const recent = Array.isArray(leetcode?.recent) ? leetcode.recent : [];
+
+function rects(data: Array<{ count: number }>, cols = 26, size = 10, gap = 2) {
+  const rects: Array<{ x: number; y: number; v: number }>= [];
+  let col = 0, row = 0;
+  for (const item of data.slice(-cols * 7)) {
+    rects.push({ x: col * (size + gap), y: row * (size + gap), v: item.count || 0 });
+    row++;
+    if (row >= 7) { row = 0; col++; }
+  }
+  return rects;
+}
+---
+<div class="flex flex-col gap-6">
+  {totals ? (
+    <div class="experience-metrics">
+      <span class="experience-metric-chip"><span>Solved</span><strong>{totals.solved}</strong></span>
+      <span class="experience-metric-chip"><span>Easy</span><strong>{totals.easy}</strong></span>
+      <span class="experience-metric-chip"><span>Medium</span><strong>{totals.medium}</strong></span>
+      <span class="experience-metric-chip"><span>Hard</span><strong>{totals.hard}</strong></span>
+    </div>
+  ) : (
+    <div class="filter-empty" role="status" aria-live="polite">
+      <p>LeetCode totals unavailable.</p>
+    </div>
+  )}
+
+  {weekly.length ? (
+    <div>
+      <h3 class="sr-only">52-week activity heatmap</h3>
+      <svg
+        viewBox="0 0 400 90"
+        width="100%"
+        height="90"
+        role="img"
+        aria-label="LeetCode weekly submissions heatmap"
+        style="--heat-low: var(--neutral-300); --heat-high: var(--brand-3);"
+      >
+        {(() => {
+          const cells = rects(weekly.flatMap(w => Array(7).fill({ count: w.count || 0 })), 52, 8, 2);
+          return cells.map((c) => (
+            <rect x={c.x} y={c.y} width="8" height="8" rx="1" ry="1" fill="currentColor" opacity={String(Math.min(1, 0.2 + (c.v/10)*0.8))} />
+          ));
+        })()}
+      </svg>
+    </div>
+  ) : null}
+
+  {recent.length ? (
+    <div>
+      <h3 class="sr-only">Recent problems</h3>
+      <div role="list" class="flex flex-col gap-2">
+        {recent.slice(0, 8).map(item => (
+          <div role="listitem" class="experience-card" aria-label={`${item.title} ${item.difficulty}`}>
+            <div class="experience-card__body">
+              <div class="flex items-center justify-between gap-2">
+                <a href={item.url} target="_blank" rel="noopener noreferrer" class="font-semibold">{item.title}</a>
+                <span class="experience-tech-chip" aria-label={`Difficulty ${item.difficulty}`}>{item.difficulty}</span>
+              </div>
+              <p class="experience-card__meta">{item.language || '—'} · {item.status || '—'}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div class="filter-empty" role="status" aria-live="polite">
+      <p>No recent LeetCode submissions.</p>
+    </div>
+  )}
+</div>
+

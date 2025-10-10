@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "test": "playwright test",
-    "icons:fetch": "node scripts/fetch-skill-icons.mjs"
+    "icons:fetch": "node scripts/fetch-skill-icons.mjs",
+    "prowess:collect": "node scripts/collect-prowess.mjs"
   },
   "dependencies": {
     "astro": "^5.11.1",
@@ -30,6 +31,7 @@
     "daisyui": "^4.12.20",
     "postcss": "^8.4.47",
     "svgo": "^3.3.2",
+    "ajv": "^8.17.1",
     "typescript": "^5.8.3"
   }
 }
