@@ -208,7 +208,8 @@
   }
 
   .site-nav.is-open .nav-panel {
-    max-height: 24rem;
+    max-height: 100vh;
+    overflow-y: auto;
     opacity: 1;
     pointer-events: auto;
     padding-top: 0.5rem;
