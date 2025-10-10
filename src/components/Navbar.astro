@@ -24,42 +24,163 @@ const socialLinks = [
 ];
 ---
 
-<nav class="site-nav" aria-label="Primary">
+<nav class="site-nav" aria-label="Primary" data-nav>
   <div class="container nav-inner">
-    <a href="/" class="nav-logo">Y V P</a>
-    <ul class="nav-links" role="list">
-      {primaryLinks.map(link => (
-        <li>
-          <a href={link.href} class="nav-link">{link.label}</a>
-        </li>
-      ))}
-    </ul>
-    <div class="nav-actions">
-      <button
-        type="button"
-        class="theme-toggle"
-        data-theme-toggle
-        aria-pressed="false"
-      >
-        <span class="sr-only" data-theme-label>Switch to dark mode</span>
-        <span aria-hidden="true" data-theme-icon="moon">🌙</span>
-        <span aria-hidden="true" data-theme-icon="sun" hidden>☀️</span>
-      </button>
-      <ul class="nav-social" role="list">
-        {socialLinks.map(link => (
+    <div class="nav-header">
+      <a href="/" class="nav-logo">Y V P</a>
+      <div class="nav-controls">
+        <button
+          type="button"
+          class="theme-toggle"
+          data-theme-toggle
+          aria-pressed="false"
+        >
+          <span class="sr-only" data-theme-label>Switch to dark mode</span>
+          <span aria-hidden="true" data-theme-icon="moon">🌙</span>
+          <span aria-hidden="true" data-theme-icon="sun" hidden>☀️</span>
+        </button>
+        <button
+          type="button"
+          class="nav-toggle"
+          data-nav-toggle
+          aria-expanded="false"
+          aria-controls="primary-navigation"
+        >
+          <span class="sr-only">Toggle navigation</span>
+          <svg
+            class="nav-toggle__icon nav-toggle__icon--open"
+            aria-hidden="true"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <svg
+            class="nav-toggle__icon nav-toggle__icon--close"
+            aria-hidden="true"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            hidden
+          >
+            <path d="M6 6l12 12M6 18L18 6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="primary-navigation" class="nav-panel" data-nav-panel>
+      <ul class="nav-links" role="list">
+        {primaryLinks.map(link => (
           <li>
-            <a
-              href={link.href}
-              class="nav-social-link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span class="sr-only">{link.label}</span>
-              <img src={link.icon} alt="" width="28" height="28" loading="lazy" />
-            </a>
+            <a href={link.href} class="nav-link">{link.label}</a>
           </li>
         ))}
       </ul>
+      <div class="nav-panel__meta">
+        <span class="nav-panel__label">Connect</span>
+        <ul class="nav-social" role="list">
+          {socialLinks.map(link => (
+            <li>
+              <a
+                href={link.href}
+                class="nav-social-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <span class="sr-only">{link.label}</span>
+                <img src={link.icon} alt="" width="28" height="28" loading="lazy" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   </div>
 </nav>
+
+<script is:inline>
+  (() => {
+    const nav = document.querySelector('[data-nav]');
+    if (!nav) return;
+    const toggle = nav.querySelector('[data-nav-toggle]');
+    const panel = nav.querySelector('[data-nav-panel]');
+    if (!(toggle instanceof HTMLElement) || !(panel instanceof HTMLElement)) return;
+
+    const openClass = 'is-open';
+    window.__navInitialized = true;
+    const mq = window.matchMedia('(min-width: 768px)');
+
+    const syncToggleIcon = expanded => {
+      const openIcon = toggle.querySelector('.nav-toggle__icon--open');
+      const closeIcon = toggle.querySelector('.nav-toggle__icon--close');
+      if (openIcon) openIcon.hidden = expanded;
+      if (closeIcon) closeIcon.hidden = !expanded;
+    };
+
+    const setOpen = open => {
+      nav.classList.toggle(openClass, open);
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.dataset.navState = open ? 'open' : 'closed';
+      syncToggleIcon(open);
+      if (open && !mq.matches) {
+        const firstLink = panel.querySelector('.nav-link');
+        if (firstLink instanceof HTMLElement) {
+          requestAnimationFrame(() => firstLink.focus());
+        }
+      }
+    };
+
+    const handleResize = () => {
+      if (mq.matches) {
+        setOpen(true);
+      } else {
+        setOpen(false);
+      }
+    };
+
+    handleResize();
+    if (typeof mq.addEventListener === 'function') {
+      mq.addEventListener('change', handleResize);
+    } else if (typeof mq.addListener === 'function') {
+      mq.addListener(handleResize);
+    }
+
+    toggle.addEventListener('click', () => {
+      const isOpen = nav.classList.contains(openClass);
+      setOpen(!isOpen);
+    });
+
+    panel.addEventListener('click', event => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!mq.matches && target.closest('.nav-link')) {
+        setOpen(false);
+        if (typeof toggle.focus === 'function') {
+          toggle.focus({ preventScroll: true });
+        }
+      }
+    });
+
+    window.addEventListener(
+      'keydown',
+      event => {
+        if (!mq.matches && event.key === 'Escape' && nav.classList.contains(openClass)) {
+          event.preventDefault();
+          setOpen(false);
+          if (typeof toggle.focus === 'function') {
+            toggle.focus({ preventScroll: true });
+          }
+        }
+      },
+      { passive: false }
+    );
+  })();
+</script>
