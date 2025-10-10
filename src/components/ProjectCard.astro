@@ -8,17 +8,17 @@ const summary = project.data.summary.slice(0, 120);
 const tags = Array.isArray(project.data.tags) ? project.data.tags : [];
 ---
 <article
-  class="card glass surface-tinted"
+  class="card project-card"
   data-filter-item="projects"
   data-tags={tags.join(',')}
   data-index={String(index)}
   role="listitem"
   aria-label={project.data.title}
 >
-  <figure class="px-4 pt-4">
+  <figure class="project-card__media">
     <img src={project.data.image} alt={project.data.title + ' logo'} class="w-24 h-24 object-contain" loading="lazy" />
   </figure>
-  <div class="card-body">
+  <div class="card-body project-card__body">
     <h3 class="card-title">{project.data.title}</h3>
     <p>{summary}</p>
     <div class="flex flex-wrap gap-2">

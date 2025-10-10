@@ -31,6 +31,25 @@ test.describe('Coding Prowess panel', () => {
     await expect(svgs.first()).toHaveAttribute('aria-label', /Weekly commits/);
   });
 
+  test('tab buttons surface active styling when selected', async ({ page }) => {
+    await gotoHome(page);
+    const highlightsTab = page.locator('#prowess [role="tab"]').first();
+    const reposTab = page.locator('#prowess [role="tab"]').nth(1);
+
+    const initialBackground = await highlightsTab.evaluate(el => getComputedStyle(el).backgroundImage);
+    expect(initialBackground).toContain('linear-gradient');
+
+    await reposTab.click();
+    await expect(reposTab).toHaveAttribute('aria-selected', 'true');
+    await expect(highlightsTab).toHaveAttribute('aria-selected', 'false');
+
+    const reposBackground = await reposTab.evaluate(el => getComputedStyle(el).backgroundImage);
+    const highlightsBackground = await highlightsTab.evaluate(el => getComputedStyle(el).backgroundImage);
+
+    expect(reposBackground).toContain('linear-gradient');
+    expect(highlightsBackground).not.toContain('linear-gradient');
+  });
+
   test('empty states do not crash when data missing', async ({ page }) => {
     await gotoHome(page);
     await page.locator('#prowess [role="tab"]').nth(2).click();
