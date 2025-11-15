@@ -1,5 +1,14 @@
 # Astro Starter Kit: Basics
 
+## Mobile layout & testing
+
+- Global CSS clips horizontal overflow and exposes a `.full-bleed` helper; keep new edge-to-edge sections inside this utility instead of custom negative margins.
+- Navigation collapses into a stacked layout below 420px and the hero avatar scales down for 320px devices—verify with DevTools device mode (`npm run dev`) at 320, 360, and 375 widths.
+- Skills carousel trims viewport padding below 360px; ensure slides remain scrollable without introducing page-level scroll.
+- Cert marquee relies on `full-bleed` plus `overscroll-behavior-x: contain`; no additional negative margins are required.
+- Run responsive regressions with `npx playwright test e2e/responsive.spec.ts --reporter=list` and, for full coverage, `npx playwright test --project="Mobile Safari" --project="Mobile Chrome" --reporter=list`.
+- `npm run build:css` regenerates `assets/css/main.css` after editing Tailwind sources; commit the generated file once linting/tests pass.
+
 ```sh
 npm create astro@latest -- --template basics
 ```

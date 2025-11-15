@@ -50,7 +50,7 @@ const marqueeDuration = Math.max(24, items.length * 6);
       </p>
     </div>
 
-    <div class="certs-marquee mt-8" role="list" aria-label="Professional certifications">
+    <div class="certs-marquee full-bleed mt-8" role="list" aria-label="Professional certifications">
       <div class="certs-track" style={`--certs-marquee-duration: ${marqueeDuration}s`}>
         {marqueeItems.map((cert, index) => {
           const isDuplicate = index >= items.length;
@@ -75,4 +75,3 @@ const marqueeDuration = Math.max(24, items.length * 6);
     </div>
   </div>
 </section>
-
