@@ -158,9 +158,15 @@
   }
 
   .nav-logo {
-    font-size: var(--fs-20);
+    font-size: clamp(1.4rem, 1.1rem + 0.6vw, 1.85rem);
     font-weight: 700;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+    color: var(--brand-3-light);
+  }
+
+  .nav-logo--desktop {
+    display: none;
   }
 
   .nav-controls {
@@ -255,6 +261,17 @@
     color: var(--neutral-500);
   }
 
+  .nav-panel__slot {
+    width: 100%;
+  }
+
+  .nav-panel__slot--meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: center;
+  }
+
   .nav-social {
     align-items: center;
     justify-content: center;
@@ -268,39 +285,42 @@
     flex-shrink: 0;
   }
 
+  .theme-toggle--inline {
+    display: none;
+  }
+
   @media (min-width: 640px) {
     .nav-inner {
-      flex-direction: row;
-      align-items: center;
+      flex-direction: column;
+      align-items: stretch;
       gap: var(--space-2);
-      flex-wrap: wrap;
+    }
+
+    .nav-header {
+      display: none;
     }
 
     .nav-panel {
-      flex-direction: row;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: var(--space-2);
+      gap: clamp(1rem, 2.5vw, 3rem);
       padding-top: 0;
       border-top: none;
-      margin-left: auto;
-      width: auto;
-      flex: 1 1 auto;
-      min-width: 0;
+      margin-left: 0;
       max-height: none;
       opacity: 1;
       pointer-events: auto;
       overflow: visible;
-    }
-
-    .nav-header {
-      width: auto;
-      flex: 0 1 auto;
+      width: 100%;
     }
 
     .nav-links {
       flex-direction: row;
       align-items: center;
-      justify-content: center;
+      justify-content: space-evenly;
+      width: 100%;
+      gap: 0;
     }
 
     .nav-links > li {
@@ -311,17 +331,65 @@
       width: auto;
     }
 
+    .nav-panel__slot {
+      width: 100%;
+    }
+
+    .nav-panel__slot--links,
+    .nav-panel__slot--meta {
+      justify-self: stretch;
+    }
+
+    .nav-panel__slot--links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-panel__slot--meta {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space-2);
+      justify-content: flex-end;
+    }
+
     .nav-panel__meta {
       flex-direction: row;
       align-items: center;
       gap: var(--space-2);
+      flex: 0 1 auto;
+      width: auto;
     }
 
     .nav-panel__label {
       display: none;
     }
 
+    .nav-logo--desktop {
+      display: inline-flex;
+    }
+
+    .nav-logo--mobile {
+      display: none;
+    }
+
+    .nav-social {
+      justify-content: center;
+      width: auto;
+      gap: var(--space-2);
+    }
+
     .nav-toggle {
+      display: none;
+    }
+
+    .theme-toggle--inline {
+      display: inline-flex;
+      margin-left: var(--space-2);
+    }
+
+    .theme-toggle--mobile {
       display: none;
     }
   }

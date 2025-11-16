@@ -62,16 +62,9 @@ import filteringScript from '../scripts/filtering.ts?url';
           }
         };
 
-        const applyTheme = theme => {
-          const resolved = theme === 'dark' ? 'dark' : 'light';
-          root.dataset.theme = resolved;
-          root.classList.toggle('dark', resolved === 'dark');
-          root.style.colorScheme = resolved === 'dark' ? 'dark' : 'light';
+        const getThemeToggles = () => Array.from(document.querySelectorAll('[data-theme-toggle]'));
 
-          const toggle = document.querySelector('[data-theme-toggle]');
-          if (!toggle) return;
-
-          const isDark = resolved === 'dark';
+        const syncToggleState = (toggle, isDark) => {
           toggle.setAttribute('aria-pressed', String(isDark));
 
           const label = toggle.querySelector('[data-theme-label]');
@@ -83,6 +76,16 @@ import filteringScript from '../scripts/filtering.ts?url';
           const sunIcon = toggle.querySelector('[data-theme-icon="sun"]');
           if (moonIcon) moonIcon.hidden = isDark;
           if (sunIcon) sunIcon.hidden = !isDark;
+        };
+
+        const applyTheme = theme => {
+          const resolved = theme === 'dark' ? 'dark' : 'light';
+          root.dataset.theme = resolved;
+          root.classList.toggle('dark', resolved === 'dark');
+          root.style.colorScheme = resolved === 'dark' ? 'dark' : 'light';
+
+          const isDark = resolved === 'dark';
+          getThemeToggles().forEach(toggle => syncToggleState(toggle, isDark));
         };
 
         const toggleTheme = () => {
@@ -97,10 +100,10 @@ import filteringScript from '../scripts/filtering.ts?url';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-          const toggle = document.querySelector('[data-theme-toggle]');
-          if (!toggle) return;
+          const toggles = getThemeToggles();
+          if (!toggles.length) return;
           applyTheme(root.dataset.theme ?? 'light');
-          toggle.addEventListener('click', toggleTheme);
+          toggles.forEach(toggle => toggle.addEventListener('click', toggleTheme));
         });
 
         const handleMediaChange = event => {
