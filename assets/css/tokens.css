@@ -1,38 +1,39 @@
 :root {
-  /* Brand palette */
-  --ink-900: #060b1a;
-  --brand-1: #fddbd9;
-  --brand-2: #fac9c3;
-  --brand-3: #84a6e1;
-  --brand-4: #8dcde9;
-  --brand-3-light: #84a6e1;
+  /* ── Dark-first palette (Mitra-inspired warm dark) ── */
+  --bg-primary: #19181A;
+  --bg-secondary: #222125;
+  --bg-elevated: #2A292E;
+  --bg-subtle: rgba(255, 234, 223, 0.05);
 
-  --surface-raised: rgba(255, 255, 255, 0.82);
+  --text-primary: #FFEADF;
+  --text-secondary: rgba(255, 234, 223, 0.5);
+  --text-muted: rgba(255, 234, 223, 0.3);
 
-  /* Neutral scale */
-  --neutral-50: #fafbff;
-  --neutral-100: #eef1f8;
-  --neutral-200: #d8deeb;
-  --neutral-300: #c0c8d7;
-  --neutral-400: #a0a8b9;
-  --neutral-500: #7a8498;
-  --neutral-600: #5f6879;
-  --neutral-700: #454b5b;
-  --neutral-800: #272c39;
-  --neutral-900: #121421;
+  --accent: #FFEADF;
+  --accent-hover: #FFD4C4;
+  --accent-dim: rgba(255, 234, 223, 0.12);
+
+  --border: rgba(255, 234, 223, 0.08);
+  --border-hover: rgba(255, 234, 223, 0.2);
+
+  --surface-raised: rgba(34, 33, 37, 0.85);
 
   /* Status colors */
-  --success-500: #22c55e;
-  --warn-500: #facc15;
+  --success: #22c55e;
+  --warn: #facc15;
 
   /* Type scale */
-  --fs-11: 0.6875rem;
-  --fs-13: 0.8125rem;
-  --fs-16: 1rem;
-  --fs-20: 1.25rem;
-  --fs-24: 1.5rem;
-  --fs-32: 2rem;
-  --fs-48: 3rem;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-base: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.25rem;
+  --fs-2xl: 1.5rem;
+  --fs-3xl: 2rem;
+  --fs-4xl: 2.5rem;
+  --fs-5xl: 3rem;
+  --fs-6xl: 4rem;
+  --fs-hero: clamp(3rem, 6vw, 5rem);
 
   /* Spacing scale (8px base) */
   --space-0: 0rem;
@@ -46,27 +47,32 @@
   --space-8: 4rem;
   --space-9: 4.5rem;
   --space-10: 5rem;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.44, 0, 0.56, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
 }
 
-:root[data-theme='dark'],
-.dark {
-  --ink-900: #f8fafc;
-  --brand-1: #1f476f;
-  --brand-2: #2c3b71;
-  --brand-3: #4f75c2;
-  --brand-4: #6ea6d7;
-  --brand-3-light: #84a6e1;
+/* Light theme override (optional toggle) */
+:root[data-theme='light'],
+.light {
+  --bg-primary: #FAFAF9;
+  --bg-secondary: #F0EFED;
+  --bg-elevated: #FFFFFF;
+  --bg-subtle: rgba(25, 24, 26, 0.04);
 
-  --neutral-50: #0f172a;
-  --neutral-100: #111827;
-  --neutral-200: #1e293b;
-  --neutral-300: #273247;
-  --neutral-400: #334155;
-  --neutral-500: #475569;
-  --neutral-600: #64748b;
-  --neutral-700: #94a3b8;
-  --neutral-800: #cbd5f5;
-  --neutral-900: #e2e8f0;
+  --text-primary: #19181A;
+  --text-secondary: rgba(25, 24, 26, 0.55);
+  --text-muted: rgba(25, 24, 26, 0.35);
 
-  --surface-raised: rgba(15, 23, 42, 0.75);
+  --accent: #19181A;
+  --accent-hover: #33323A;
+  --accent-dim: rgba(25, 24, 26, 0.08);
+
+  --border: rgba(25, 24, 26, 0.1);
+  --border-hover: rgba(25, 24, 26, 0.25);
+
+  --surface-raised: rgba(255, 255, 255, 0.9);
 }
