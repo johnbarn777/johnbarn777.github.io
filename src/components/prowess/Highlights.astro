@@ -25,12 +25,15 @@ if (leetcode && leetcode.totals) {
 <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
   {items.length ? (
     items.map((card) => (
-      <article class="experience-card" aria-label={`${card.title}: ${card.value}`}>
-        <div class="experience-card__body">
-          <h3 class="experience-card__title" style="margin:0">{card.title}</h3>
-          <p class="experience-card__summary" style="font-size:1.25rem;font-weight:700">{card.value}</p>
-          {card.desc ? (<p class="experience-card__meta">{card.desc}</p>) : null}
-        </div>
+      <article
+        class="rounded-lg border border-border bg-bg-secondary p-5 flex flex-col gap-2 transition-all duration-300 hover:border-border-hover"
+        aria-label={`${card.title}: ${card.value}`}
+        data-animate="fade-up"
+        data-animate-delay={String(items.indexOf(card) * 100)}
+      >
+        <h3 class="text-xs uppercase tracking-wider text-text-muted font-heading font-semibold m-0">{card.title}</h3>
+        <p class="text-2xl font-bold text-text-primary font-heading m-0">{card.value}</p>
+        {card.desc ? (<p class="text-sm text-text-secondary m-0">{card.desc}</p>) : null}
       </article>
     ))
   ) : (

@@ -8,27 +8,47 @@ const summary = project.data.summary.slice(0, 120);
 const tags = Array.isArray(project.data.tags) ? project.data.tags : [];
 ---
 <article
-  class="card project-card"
+  class="project-card"
   data-filter-item="projects"
   data-tags={tags.join(',')}
   data-index={String(index)}
+  data-animate="fade-up"
+  data-animate-delay={String(index * 100)}
   role="listitem"
   aria-label={project.data.title}
 >
   <figure class="project-card__media">
     <img src={project.data.image} alt={project.data.title + ' logo'} class="w-24 h-24 object-contain" loading="lazy" />
   </figure>
-  <div class="card-body project-card__body">
-    <h3 class="card-title">{project.data.title}</h3>
-    <p>{summary}</p>
+  <div class="project-card__body flex flex-col gap-3 p-5">
+    <h3 class="font-heading font-semibold text-lg text-text-primary">{project.data.title}</h3>
+    <p class="text-sm text-text-secondary leading-relaxed m-0">{summary}</p>
     <div class="flex flex-wrap gap-2">
       {project.data.tech.map(t => (
-        <span class="badge badge-outline">{t}</span>
+        <span class="badge">{t}</span>
       ))}
     </div>
-    <div class="card-actions justify-end mt-2">
-      {project.data.demo && <a class="link link-hover" href={project.data.demo} target="_blank" rel="noopener">Demo</a>}
-      {project.data.repo && <a class="link link-hover" href={project.data.repo} target="_blank" rel="noopener">Repo</a>}
+    <div class="flex gap-4 mt-1">
+      {project.data.demo && (
+        <a
+          class="text-sm font-medium text-text-primary underline underline-offset-4 decoration-1 decoration-border-hover hover:decoration-accent transition-colors duration-300"
+          href={project.data.demo}
+          target="_blank"
+          rel="noopener"
+        >
+          Demo
+        </a>
+      )}
+      {project.data.repo && (
+        <a
+          class="text-sm font-medium text-text-primary underline underline-offset-4 decoration-1 decoration-border-hover hover:decoration-accent transition-colors duration-300"
+          href={project.data.repo}
+          target="_blank"
+          rel="noopener"
+        >
+          Repo
+        </a>
+      )}
     </div>
   </div>
 </article>

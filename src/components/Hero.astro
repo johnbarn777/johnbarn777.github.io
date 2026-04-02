@@ -3,26 +3,46 @@ const { firstName = 'Yohann', lastName = '', titles = ['Developer'], ctas = [] }
 ---
 <section id="intro" class="section hero min-h-screen" aria-labelledby="intro-title">
   <div class="container hero-content flex flex-col items-center gap-6 text-center">
-    <img
-      src="/avatar.png"
-      alt={`${firstName} ${lastName} avatar`}
-      class="w-40 sm:w-56 md:w-80 lg:w-96 h-auto rounded-2xl"
-      loading="lazy"
-    />
+    <p
+      class="text-text-muted text-sm tracking-[0.2em] uppercase font-heading"
+      data-animate="fade-in"
+    >
+      Portfolio
+    </p>
     <h1
       id="intro-title"
-      class="text-4xl sm:text-5xl lg:text-6xl font-bold flex items-center justify-center gap-1 flex-wrap"
+      class="text-hero font-bold flex items-center justify-center gap-1 flex-wrap font-heading"
+      data-animate="fade-up"
     >
       <span id="hero-rotating-title">{`${firstName} ${lastName}`}</span>
       <span id="hero-cursor" class="hero-cursor" aria-hidden="true">|</span>
     </h1>
-    <div class="hero-ctas">
-      {ctas.map(({ text, href }) => (
-        <a href={href} class="cta-button">
+    <p
+      class="text-text-secondary text-lg max-w-xl leading-relaxed"
+      data-animate="fade-up"
+      data-animate-delay="150"
+    >
+      Developer, ML Engineer & Innovator — building intelligent systems at the intersection of software and machine learning.
+    </p>
+    <div class="hero-ctas" data-animate="fade-up" data-animate-delay="300">
+      {ctas.map(({ text, href }, i) => (
+        <a href={href} class={`cta-button ${i > 0 ? 'cta-button--outline' : ''}`}>
           {text}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12" />
+            <polyline points="12 5 19 12 12 19" />
+          </svg>
         </a>
       ))}
     </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="scroll-indicator" data-animate="fade-in" data-animate-delay="800">
+    <span>Scroll</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
   </div>
 </section>
 

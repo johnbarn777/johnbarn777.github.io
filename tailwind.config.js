@@ -1,47 +1,51 @@
-import daisyui from 'daisyui';
-
 /** @type {import('tailwindcss').Config} */
 const config = {
   content: ['./*.html', './public/**/*.html', './src/**/*.{astro,html,js,jsx,ts,tsx,md,mdx}'],
   theme: {
     extend: {
       colors: {
-        ink: {
-          900: 'var(--ink-900)',
+        bg: {
+          primary: 'var(--bg-primary)',
+          secondary: 'var(--bg-secondary)',
+          elevated: 'var(--bg-elevated)',
+          subtle: 'var(--bg-subtle)',
         },
-        brand: {
-          1: 'var(--brand-1)',
-          2: 'var(--brand-2)',
-          3: 'var(--brand-3)',
-          4: 'var(--brand-4)',
+        text: {
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
         },
-        success: {
-          500: 'var(--success-500)',
+        accent: {
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)',
+          dim: 'var(--accent-dim)',
         },
-        warn: {
-          500: 'var(--warn-500)',
+        border: {
+          DEFAULT: 'var(--border)',
+          hover: 'var(--border-hover)',
         },
-        neutral: {
-          50: 'var(--neutral-50)',
-          100: 'var(--neutral-100)',
-          200: 'var(--neutral-200)',
-          300: 'var(--neutral-300)',
-          400: 'var(--neutral-400)',
-          500: 'var(--neutral-500)',
-          600: 'var(--neutral-600)',
-          700: 'var(--neutral-700)',
-          800: 'var(--neutral-800)',
-          900: 'var(--neutral-900)',
+        surface: {
+          raised: 'var(--surface-raised)',
         },
+        success: 'var(--success)',
+        warn: 'var(--warn)',
+      },
+      fontFamily: {
+        heading: ['"Space Grotesk"', 'sans-serif'],
+        body: ['Archivo', 'sans-serif'],
       },
       fontSize: {
-        11: 'var(--fs-11)',
-        13: 'var(--fs-13)',
-        16: 'var(--fs-16)',
-        20: 'var(--fs-20)',
-        24: 'var(--fs-24)',
-        32: 'var(--fs-32)',
-        48: 'var(--fs-48)',
+        xs: 'var(--fs-xs)',
+        sm: 'var(--fs-sm)',
+        base: 'var(--fs-base)',
+        lg: 'var(--fs-lg)',
+        xl: 'var(--fs-xl)',
+        '2xl': 'var(--fs-2xl)',
+        '3xl': 'var(--fs-3xl)',
+        '4xl': 'var(--fs-4xl)',
+        '5xl': 'var(--fs-5xl)',
+        '6xl': 'var(--fs-6xl)',
+        hero: 'var(--fs-hero)',
       },
       spacing: {
         1: 'var(--space-1)',
@@ -55,10 +59,41 @@ const config = {
         9: 'var(--space-9)',
         10: 'var(--space-10)',
       },
+      transitionTimingFunction: {
+        smooth: 'var(--ease-out)',
+      },
+      transitionDuration: {
+        fast: 'var(--duration-fast)',
+        normal: 'var(--duration-normal)',
+        slow: 'var(--duration-slow)',
+      },
+      keyframes: {
+        'fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'drift': {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(30px, -20px)' },
+        },
+        'scroll-hint': {
+          '0%, 100%': { opacity: '0.4', transform: 'translateY(0)' },
+          '50%': { opacity: '1', transform: 'translateY(8px)' },
+        },
+      },
+      animation: {
+        'fade-up': 'fade-up 0.6s var(--ease-out) forwards',
+        'fade-in': 'fade-in 0.6s var(--ease-out) forwards',
+        'drift': 'drift 8s ease-in-out infinite',
+        'scroll-hint': 'scroll-hint 2s ease-in-out infinite',
+      },
     },
   },
-  plugins: [daisyui],
+  plugins: [],
 };
 
 export default config;
-
