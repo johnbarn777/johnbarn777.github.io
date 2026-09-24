@@ -505,6 +505,115 @@ function frost(x: number, y: number) {
   window.setTimeout(() => svg.remove(), 900);
 }
 
+/* ==========================================================================
+   Theme picker (five clicks on a theme button, or /themes)
+   ========================================================================== */
+
+let picker: HTMLElement | null = null;
+let pickerCleanup = () => {};
+
+const baseTheme = () =>
+  (root.dataset.theme ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) as 'light' | 'dark';
+const mode = () => (root.hasAttribute('data-spidey') ? 'spidey' : root.hasAttribute('data-sparta') ? 'sparta' : 'standard');
+
+/** Straight into Ghost of Sparta, with a flash of embers instead of the quote. */
+function enterSparta() {
+  if (reduce()) return applySparta(true);
+  const flash = el('div', 'gos-ash gos-ember');
+  flash.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(flash);
+  window.setTimeout(() => applySparta(true), 420);
+  window.setTimeout(() => flash.remove(), 1000);
+}
+
+export function openThemePicker(anchor?: HTMLElement | null) {
+  if (picker) return closePicker();
+  anchor ??= document.querySelector<HTMLElement>('header [data-theme-toggle]');
+  const previous = document.activeElement as HTMLElement | null;
+
+  picker = el('div', 'egg-picker');
+  picker.setAttribute('role', 'dialog');
+  picker.setAttribute('aria-label', 'Themes');
+  picker.innerHTML = `
+    <p class="egg-picker-title">Themes unlocked</p>
+    <div class="egg-picker-base" role="group" aria-label="Light or dark">
+      <button type="button" data-pick="light">Light</button>
+      <button type="button" data-pick="dark">Dark</button>
+    </div>
+    <div class="egg-picker-modes" role="group" aria-label="Theme">
+      <button type="button" data-pick="standard"><i class="egg-sw egg-sw-standard"></i>Standard</button>
+      <button type="button" data-pick="spidey"><i class="egg-sw egg-sw-spidey"></i>Spider-Man</button>
+      <button type="button" data-pick="sparta"><i class="egg-sw egg-sw-sparta"></i>Ghost of Sparta</button>
+    </div>`;
+  document.body.appendChild(picker);
+
+  const place = () => {
+    if (!picker) return;
+    const r = anchor?.getBoundingClientRect();
+    const w = picker.offsetWidth;
+    const left = r ? Math.min(window.innerWidth - w - 16, Math.max(16, r.right - w)) : window.innerWidth - w - 16;
+    const top = r ? Math.min(r.bottom + 8, window.innerHeight - picker.offsetHeight - 16) : 72;
+    picker.style.left = `${left}px`;
+    picker.style.top = `${Math.max(16, top)}px`;
+  };
+  const sync = () => {
+    picker?.querySelectorAll<HTMLButtonElement>('[data-pick]').forEach((b) => {
+      const v = b.dataset.pick;
+      b.setAttribute('aria-pressed', String(v === baseTheme() || v === mode()));
+    });
+  };
+  place();
+  sync();
+
+  picker.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-pick]');
+    if (!b) return;
+    const v = b.dataset.pick!;
+    if (v === 'light' || v === 'dark') {
+      document.dispatchEvent(new CustomEvent('settheme', { detail: v }));
+      sync();
+      return;
+    }
+    const now = mode();
+    closePicker();
+    if (v === now) return;
+    if (v === 'spidey') toggleSpidey(true);
+    else if (v === 'sparta') enterSparta();
+    else if (now === 'spidey') toggleSpidey(false);
+    else toggleSparta(false);
+  });
+
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closePicker();
+    }
+  };
+  const onDown = (e: PointerEvent) => {
+    const t = e.target as HTMLElement;
+    if (!picker?.contains(t) && !t.closest('[data-theme-toggle]')) closePicker();
+  };
+  document.addEventListener('keydown', onKey);
+  document.addEventListener('pointerdown', onDown);
+  window.addEventListener('resize', place);
+  window.addEventListener('scroll', place, { passive: true });
+  pickerCleanup = () => {
+    document.removeEventListener('keydown', onKey);
+    document.removeEventListener('pointerdown', onDown);
+    window.removeEventListener('resize', place);
+    window.removeEventListener('scroll', place);
+    previous?.focus?.({ preventScroll: true });
+  };
+  picker.querySelector<HTMLButtonElement>('[aria-pressed="true"]')?.focus({ preventScroll: true });
+}
+
+function closePicker() {
+  picker?.remove();
+  picker = null;
+  pickerCleanup();
+  pickerCleanup = () => {};
+}
+
 /** Rising embers, with a burst when the sigil lands. Returns a stop function. */
 function embers(canvas: HTMLCanvasElement, origin: () => Pt) {
   const ctx = canvas.getContext('2d');

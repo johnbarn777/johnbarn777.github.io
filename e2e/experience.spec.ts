@@ -138,6 +138,28 @@ test.describe('interactive pieces', () => {
     await expect(quote).toBeHidden();
   });
 
+  test('five clicks on the theme button open the theme picker', async ({ page }) => {
+    await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+    await page.goto('/');
+    const toggle = page.locator('header [data-theme-toggle]');
+    for (let i = 0; i < 5; i++) await toggle.click();
+    const picker = page.getByRole('dialog', { name: 'Themes' });
+    await expect(picker).toBeVisible();
+    // The five flips are undone: still on the theme we started with.
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await expect(picker.getByRole('button', { name: 'Standard' })).toHaveAttribute('aria-pressed', 'true');
+    await picker.getByRole('button', { name: 'Ghost of Sparta' }).click();
+    await expect(picker).toBeHidden();
+    await expect(page.locator('html')).toHaveAttribute('data-sparta', '');
+    for (let i = 0; i < 5; i++) await toggle.click();
+    await picker.getByRole('button', { name: 'Spider-Man' }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-spidey', '');
+    await expect(page.locator('html')).not.toHaveAttribute('data-sparta');
+    for (let i = 0; i < 5; i++) await toggle.click();
+    await picker.getByRole('button', { name: 'Standard' }).click();
+    await expect(page.locator('html')).not.toHaveAttribute('data-spidey');
+  });
+
   test('closing the quote leaves Ghost of Sparta mode, and boy ends it', async ({ page, isMobile }) => {
     test.skip(isMobile, 'keyboard shortcut');
     await page.emulateMedia({ reducedMotion: 'reduce' });

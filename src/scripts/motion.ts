@@ -291,12 +291,30 @@ function initTerminalTrigger() {
 /**
  * Easter eggs. The listeners are tiny; the eggs themselves load on first use.
  * Shift five times fast toggles Spider-Man mode. Typing "boy" summons Kratos, and
- * Ghost of Sparta mode after him; typing it again ends that mode.
+ * Ghost of Sparta mode after him; typing it again ends that mode. Clicking a theme
+ * button five times opens a picker with all of them.
  */
 function initEggs() {
   const eggs = () => import('./eggs');
   if (document.documentElement.hasAttribute('data-spidey')) eggs().then((m) => m.mountSpidey());
   if (document.documentElement.hasAttribute('data-sparta')) eggs().then((m) => m.mountSparta());
+
+  // Five quick clicks on a theme button open the theme picker. Five flips net out to
+  // one, so flip back first and the picker opens on the theme you started with.
+  let clicks = 0;
+  let lastClick = 0;
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-theme-toggle]');
+    if (!btn) return;
+    const now = performance.now();
+    clicks = now - lastClick < 700 ? clicks + 1 : 1;
+    lastClick = now;
+    if (clicks < 5) return;
+    clicks = 0;
+    const back = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    document.dispatchEvent(new CustomEvent('settheme', { detail: back }));
+    eggs().then((m) => m.openThemePicker(btn));
+  });
 
   let shifts = 0;
   let lastShift = 0;
