@@ -268,6 +268,14 @@ const commands: Record<string, Command> = {
       (await eggs()).playKratos();
     },
   },
+  themes: {
+    help: 'every theme, including the secret ones',
+    hidden: true,
+    run: async () => {
+      close();
+      (await eggs()).openThemePicker();
+    },
+  },
   sparta: {
     help: 'toggle Ghost of Sparta mode',
     aliases: ['ghost', 'ghostofsparta'],
@@ -286,6 +294,7 @@ const commands: Record<string, Command> = {
         '  • press Shift five times, fast',
         '  • type "boy" anywhere on the page, then close the quote',
         '  • in either mode, click empty space',
+        '  • click the theme button five times, fast',
         '  • /spidey and /sparta, if you want the shortcut',
         '  • /coffee, /vim, /sudo rm -rf /',
       ),
