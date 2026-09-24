@@ -1,0 +1,266 @@
+---
+import { site, mailto } from '../../data/site';
+
+const offer = [
+  {
+    title: 'Designed around your visitors',
+    body: 'Every page starts from what people come to do, then gets out of their way. No template layouts to squeeze into.',
+  },
+  {
+    title: 'Fast on any phone',
+    body: 'Static pages, tiny scripts, images sized for the screen they land on. The live numbers in this section are from this very page.',
+  },
+  {
+    title: 'Yours to keep',
+    body: 'You own the code and the domain. No page-builder subscription, no platform to be locked into.',
+  },
+];
+---
+
+<section class="section websites" id="websites" aria-labelledby="web-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal><span class="idx">05</span> Also: websites</p>
+      <h2 class="h2" id="web-title" data-reveal style="--d:1">
+        Like this site? <span class="grad-text">I’ll build yours.</span>
+      </h2>
+      <p class="lede" data-reveal style="--d:2">
+        I design and build custom websites for people and small businesses. No templates and no page builders. The site
+        you’re scrolling is the portfolio piece.
+      </p>
+    </header>
+
+    <div class="layout">
+      <div class="perf card" data-perf-panel data-reveal>
+        <div class="perf-head">
+          <span class="live" aria-hidden="true"></span>
+          <p class="mono">This page, measured in your browser just now</p>
+        </div>
+        <dl class="perf-grid">
+          <div>
+            <dt>Loaded in</dt>
+            <dd><span data-perf="load">…</span><small>ms</small></dd>
+          </div>
+          <div>
+            <dt>Page weight</dt>
+            <dd><span data-perf="weight">…</span><small>KB</small></dd>
+          </div>
+          <div>
+            <dt>JavaScript</dt>
+            <dd><span data-perf="js">…</span><small>KB</small></dd>
+          </div>
+          <div>
+            <dt>Third-party requests</dt>
+            <dd><span data-perf="third">…</span></dd>
+          </div>
+        </dl>
+        <p class="perf-note">
+          Read from your browser’s Performance API. Nothing is sent anywhere, because there are no trackers to send it
+          to.
+        </p>
+      </div>
+
+      <div class="side">
+        <ul class="offer" role="list">
+          {
+            offer.map((o, i) => (
+              <li data-reveal style={`--d:${i}`}>
+                <h3>{o.title}</h3>
+                <p>{o.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="details card" data-reveal>
+          <p class="mono details-title">Small details, on purpose</p>
+          <ul role="list">
+            <li>
+              <span>Light and dark themes that follow your system</span>
+              <button class="mini-btn" type="button" data-theme-toggle>Try it</button>
+            </li>
+            <li>
+              <span>A background your graphics card draws live, scroll to steer it</span>
+            </li>
+            <li>
+              <span>Built for keyboards and screen readers, and calm if you prefer reduced motion</span>
+            </li>
+            <li>
+              <span>A hidden terminal, for the curious</span>
+              <button class="mini-btn" type="button" data-terminal-open>Open it</button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-row" data-reveal>
+      <a class="btn btn-primary" href={mailto('Website project')}>Start a website project</a>
+      <a class="link-arrow" href={site.repo}>
+        <span>See how this one is built</span><span class="arr" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initPerf } from '../../scripts/perf';
+  initPerf();
+</script>
+
+<style>
+  .layout {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 960px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
+  }
+
+  .perf {
+    padding: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .perf-head {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--muted);
+  }
+
+  .live {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--good);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--good) 20%, transparent);
+  }
+
+  .perf-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    margin-block: 2rem;
+  }
+
+  .perf-grid dt {
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .perf-grid dd {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+    font-size: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+    font-weight: 650;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .perf-grid small {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--muted);
+    letter-spacing: 0;
+  }
+
+  .perf-note {
+    font-size: 0.8125rem;
+    color: var(--faint);
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--hair);
+  }
+
+  .side {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .offer {
+    display: grid;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0.5rem 0.25rem 0.75rem;
+  }
+
+  .offer h3 {
+    font-size: 1.1875rem;
+    letter-spacing: -0.018em;
+    margin-bottom: 0.35rem;
+  }
+
+  .offer p {
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  .details {
+    padding: 1.5rem 1.5rem 0.75rem;
+  }
+
+  .details-title {
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .details ul {
+    margin: 0;
+  }
+
+  .details li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 52px;
+    padding-block: 0.5rem;
+    font-size: var(--fs-small);
+    border-top: 1px solid var(--hair);
+  }
+
+  .details li:first-child {
+    border-top: 0;
+  }
+
+  .mini-btn {
+    flex: none;
+    min-height: 36px;
+    padding: 0 0.9rem;
+    border: 0;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 560;
+    color: var(--accent);
+    background: var(--accent-soft);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.3s var(--ease-spring);
+  }
+
+  .mini-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+  }
+
+  .mini-btn:active {
+    transform: scale(0.95);
+  }
+
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 3rem;
+  }
+</style>

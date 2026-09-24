@@ -1,75 +1,58 @@
-# Astro Starter Kit: Basics
+# johnbarn777.github.io
 
-## Mobile layout & testing
+Personal site for **Yohann Pittappillil**: AI engineer in Vancouver, BC.
+Live at <https://johnbarn777.github.io>.
 
-- Global CSS clips horizontal overflow and exposes a `.full-bleed` helper; keep new edge-to-edge sections inside this utility instead of custom negative margins.
-- Navigation collapses into a stacked layout below 420px and the hero avatar scales down for 320px devices—verify with DevTools device mode (`npm run dev`) at 320, 360, and 375 widths.
-- Skills carousel trims viewport padding below 360px; ensure slides remain scrollable without introducing page-level scroll.
-- Cert marquee relies on `full-bleed` plus `overscroll-behavior-x: contain`; no additional negative margins are required.
-- Run responsive regressions with `npx playwright test e2e/responsive.spec.ts --reporter=list` and, for full coverage, `npx playwright test --project="Mobile Safari" --project="Mobile Chrome" --reporter=list`.
-- `npm run build:css` regenerates `assets/css/main.css` after editing Tailwind sources; commit the generated file once linting/tests pass.
+## What's here
 
-```sh
-npm create astro@latest -- --template basics
-```
+| Route | What it is |
+| --- | --- |
+| `/` | AI-first home page: hero, selected work (sticky scroll story), how I work, experience, projects, websites, about, contact |
+| `/work/agent-eval` | Case study of the agent vs. retrieval benchmark, with an interactive recall demo |
+| `/tutoring` | Tutoring page with its own green accent, linked from the footer and one line in About |
+| `/writing` | Placeholder, `noindex` and out of the sitemap until the first post exists |
+| `/404` | The one page with an overt joke |
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/basics)
-[![Open with CodeSandbox](https://assets.codesandbox.io/github/button-edit-lime.svg)](https://codesandbox.io/p/sandbox/github/withastro/astro/tree/latest/examples/basics)
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/withastro/astro?devcontainer_path=.devcontainer/basics/devcontainer.json)
+## Stack
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+- **Astro 5**, static output, deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`.
+- **Hand-written CSS** with design tokens in `src/styles/global.css`. No CSS framework.
+- **Vanilla TypeScript** for motion and interaction (`src/scripts/`), about 7 KB gzipped on the home page. The terminal easter egg is split out and loads on first use.
+- **WebGL2 background** (`src/scripts/background.ts`): a fragment shader draws contour lines of a noise field. Scrolling moves across the terrain, the pointer raises a hill, and it idles down when nothing moves. Falls back to a plain background without WebGL and renders a single still frame under `prefers-reduced-motion`.
+- **Self-hosted fonts**: Inter (opsz + wght) and JetBrains Mono, subset to Latin and trimmed to the weights in use (`public/fonts/`).
 
-![just-the-basics](https://github.com/withastro/astro/assets/2244813/a0a5533c-a856-4198-8470-2d67b1d7c554)
+## Commands
 
-## 🚀 Project Structure
+| Command | Does |
+| --- | --- |
+| `npm install` | Install dependencies |
+| `npm run dev` | Dev server at `localhost:4321` |
+| `npm run build` | Production build to `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run check` | Astro and TypeScript diagnostics |
+| `npm test` | Build, serve, and run the Playwright suite (desktop and mobile) |
+| `npm run og` | Regenerate `og.png`, `og-tutoring.png`, `favicon.png`, and `apple-touch-icon.png` |
 
-Inside of your Astro project, you'll see the following folders and files:
+Tests use Playwright's bundled Chromium. To use a Chromium that's already installed, set `CHROMIUM_PATH`.
+
+## Where things live
 
 ```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+src/
+  data/site.ts          name, links, nav, and the open decisions (D3, D8)
+  data/content.ts       home page copy: work, principles, experience, projects, skills
+  data/tutoring.ts      tutoring page copy
+  components/home/      one component per home page section
+  components/visuals/   architecture diagram, benchmark chart, chat mock, recall demo
+  layouts/Base.astro    <head>, meta and Open Graph tags, JSON-LD, nav, footer, background
+  scripts/              background shader, scroll motion, terminal, live page stats
+  styles/global.css     tokens (light, dark, green accent), type scale, primitives
+e2e/                    Playwright tests
+scripts/make-images.mjs share images and icons, rendered with the site's own shader and fonts
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+See `docs/CONTENT_AUTHORING.md` for how to change copy safely.
 
-## Icons & licensing
+## Tests
 
-- `npm run icons:fetch` downloads the current icon set from Iconify, normalises everything to a 24×24 viewBox, and runs SVGO.
-- Icon sources: Devicon (MIT), Simple Icons (CC0 1.0), Material Symbols (Apache-2.0).
-- Keep icons driven by `currentColor`; if a brand requires a specific colour, set it via CSS variables rather than editing the SVG.
-- Follow each brand’s usage guide (no stretching, skewing, or unapproved recolours) when you place icons in UI.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## Icons & licensing
-
-- `npm run icons:fetch` downloads the current icon set from Iconify, normalises everything to a 24×24 viewBox, and runs SVGO.
-- Icon sources: Devicon (MIT), Simple Icons (CC0 1.0), Material Symbols (Apache-2.0).
-- Keep icons driven by `currentColor`; if a brand requires a specific colour, set it via CSS variables rather than editing the SVG.
-- Follow each brand’s usage guide (no stretching, skewing, or unapproved recolours) when you place icons in UI.
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+`e2e/` checks what matters before shipping: every link and CTA resolves, no horizontal scroll at 375, 768, 1024, and 1440 px, theme choice persists, reduced motion shows everything, the 404 works, the terminal runs, axe finds no WCAG 2.2 AA violations in either theme, SEO tags and JSON-LD are present, and the built HTML has no em dashes, banned hype words, or stale claims.

@@ -1,0 +1,163 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Terminal from '../components/Terminal.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  accent?: 'navy' | 'green';
+  nav?: 'home' | 'page' | 'tutoring';
+  noindex?: boolean;
+  person?: boolean;
+}
+
+const {
+  title = site.title,
+  description = site.description,
+  image = '/og.png',
+  accent = 'navy',
+  nav = 'page',
+  noindex = false,
+  person = false,
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogImage = new URL(image, site.url).href;
+
+const personLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  url: `${site.url}/`,
+  jobTitle: site.role.title,
+  description: site.oneLiner,
+  email: `mailto:${site.email}`,
+  worksFor: { '@type': 'Organization', name: site.role.org },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: 'Simon Fraser University' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Burnaby', addressRegion: 'BC', addressCountry: 'CA' },
+  knowsLanguage: ['English', 'French', 'Hindi', 'Malayalam'],
+  sameAs: [site.linkedin, site.github],
+};
+---
+
+<!doctype html>
+<html lang="en" data-accent={accent === 'green' ? 'green' : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#fbfbfd" />
+    <meta name="color-scheme" content="light dark" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name}: ${site.oneLiner}`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        try {
+          var t = localStorage.getItem('theme-preference');
+          if (t === 'light' || t === 'dark') d.dataset.theme = t;
+        } catch (e) {}
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion');
+        var dark = d.dataset.theme ? d.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0c0c0e');
+      })();
+    </script>
+
+    {person && <script type="application/ld+json" set:html={JSON.stringify(personLd)} />}
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="bg" aria-hidden="true">
+      <div class="bg-glow"></div>
+      <canvas id="bg-canvas"></canvas>
+    </div>
+
+    <Nav variant={nav} />
+
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+
+    <Footer />
+    <Terminal />
+
+    <script>
+      import { initMotion } from '../scripts/motion';
+      import { initBackground } from '../scripts/background';
+
+      initMotion();
+      const canvas = document.getElementById('bg-canvas') as HTMLCanvasElement | null;
+      if (canvas) {
+        const start = () => initBackground(canvas);
+        // Paint the page first, then bring in the background.
+        if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 600 });
+        else setTimeout(start, 60);
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .bg-glow {
+    position: absolute;
+    inset: -20% -10% auto -10%;
+    height: 90vh;
+    background: radial-gradient(60% 55% at 70% 30%, var(--accent-soft), transparent 70%);
+  }
+
+  #bg-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100lvh;
+    opacity: 0;
+    transition: opacity 1.6s var(--ease-out);
+  }
+
+  #bg-canvas:global(.is-ready) {
+    opacity: 1;
+  }
+
+  main {
+    display: block;
+    outline: none;
+  }
+</style>

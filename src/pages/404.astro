@@ -1,0 +1,122 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page not found · Yohann Pittappillil" description="This page does not exist." noindex>
+  <section class="nf container scrim" aria-labelledby="nf-title">
+    <p class="eyebrow">Error 404</p>
+    <h1 id="nf-title" class="nf-title">This page earned no place in production.</h1>
+
+    <div class="shell" role="img" aria-label="A terminal: find /page returns 0 results. Recall: 0%. I'd have caught this with an eval.">
+      <div class="shell-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+      <pre aria-hidden="true"><span class="p">~ $</span> find /page
+<span class="dim">searching…</span>
+0 results.
+<span class="warn">Recall: 0%.</span> I’d have caught this with an eval.
+<span class="p">~ $</span> <span class="caret"></span></pre>
+    </div>
+
+    <div class="nf-cta">
+      <a class="btn btn-primary" href="/">Back to the homepage</a>
+      <a class="link-arrow" href="/#contact"><span>Tell me what broke</span><span class="arr" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 1.75rem;
+    padding-block: calc(var(--nav-h) + 3rem) 5rem;
+  }
+
+  .nf-title {
+    font-size: clamp(2.25rem, 1.3rem + 4vw, 4.5rem);
+    letter-spacing: -0.042em;
+    line-height: 1.02;
+    max-width: 15ch;
+  }
+
+  .shell {
+    width: min(100%, 36rem);
+    border-radius: 14px;
+    background: #121214;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.08),
+      0 30px 60px -30px rgb(0 0 0 / 0.5);
+    overflow: hidden;
+  }
+
+  .shell-bar {
+    display: flex;
+    gap: 7px;
+    padding: 12px 14px;
+    background: #1a1a1d;
+    border-bottom: 1px solid rgb(255 255 255 / 0.06);
+  }
+
+  .shell-bar i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #ff5f57;
+  }
+
+  .shell-bar i:nth-child(2) {
+    background: #febc2e;
+  }
+
+  .shell-bar i:nth-child(3) {
+    background: #28c840;
+  }
+
+  pre {
+    margin: 0;
+    padding: 1.25rem 1.25rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.875rem);
+    line-height: 1.7;
+    color: #e6e6ea;
+    white-space: pre-wrap;
+  }
+
+  .p {
+    color: #8ebbe8;
+  }
+
+  .dim {
+    color: #8a8a90;
+  }
+
+  .warn {
+    color: #febc2e;
+  }
+
+  .caret {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    vertical-align: -0.2em;
+    background: #e6e6ea;
+  }
+
+  :global(html.motion) .caret {
+    animation: blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .nf-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+</style>

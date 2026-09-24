@@ -1,0 +1,420 @@
+---
+import Base from '../layouts/Base.astro';
+import { tutoring } from '../data/tutoring';
+import { mailto } from '../data/site';
+
+const book = mailto('Tutoring enquiry');
+---
+
+<Base
+  title="Math, Physics & CS Tutoring · Yohann Pittappillil"
+  description="Mathematics, physics, and computer science tutoring from Grade 2 through first-year university: BC curriculum, AP Calculus and Physics, SAT, and JEE. Six years of experience, in four languages."
+  accent="green"
+  nav="tutoring"
+  image="/og-tutoring.png"
+>
+  <section class="t-hero container scrim" aria-labelledby="t-title">
+    <p class="eyebrow t-in">Tutoring · Burnaby, BC</p>
+    <h1 id="t-title" class="t-title t-in">
+      Mathematics, Physics <span class="amp">&amp;</span> Computer Science Tutor
+    </h1>
+    <p class="lede t-in">{tutoring.summary}</p>
+    <div class="t-cta t-in">
+      <a class="btn btn-primary" href={book}>Book a session</a>
+      <a class="btn btn-ghost" href="#subjects">See subjects</a>
+    </div>
+  </section>
+
+  <section class="container stats-wrap" aria-label="At a glance">
+    <ul class="stats" role="list">
+      {
+        tutoring.stats.map((s, i) => (
+          <li data-reveal style={`--d:${i}`}>
+            <p class="stat">
+              {s.value} <span>{s.unit}</span>
+            </p>
+            <p class="stat-label">{s.label}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="section container" id="subjects" aria-labelledby="subjects-title">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal>Subjects</p>
+      <h2 class="h2" id="subjects-title" data-reveal style="--d:1">From Grade 2 to university calculus.</h2>
+    </header>
+    <ul class="subjects" role="list">
+      {
+        tutoring.subjects.map((s, i) => (
+          <li class="card" data-reveal style={`--d:${i % 3}`}>
+            <h3>{s.name}</h3>
+            {s.detail && <p>{s.detail}</p>}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="section container" aria-labelledby="how-title">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal>How sessions work</p>
+      <h2 class="h2" id="how-title" data-reveal style="--d:1">
+        Understanding first. <span class="muted">Then speed.</span>
+      </h2>
+    </header>
+    <ol class="methods" role="list">
+      {
+        tutoring.methods.map((m, i) => (
+          <li data-reveal style={`--d:${i % 2}`}>
+            <p class="m-idx mono">0{i + 1}</p>
+            <h3>{m.title}</h3>
+            <p>{m.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="tools" data-reveal>
+      <span class="mono">Online or in person</span> with {tutoring.tools.join(', ').toLowerCase()}. Sessions in English,
+      French, Hindi, or Malayalam.
+    </p>
+  </section>
+
+  <section class="section container" aria-labelledby="exp-title">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal>Experience</p>
+      <h2 class="h2" id="exp-title" data-reveal style="--d:1">Six years, five teaching roles.</h2>
+    </header>
+    <ol class="roles" role="list">
+      {
+        tutoring.roles.map((r) => (
+          <li class="role" data-reveal>
+            <div class="r-head">
+              <p class="r-dates mono">{r.dates}</p>
+              <div>
+                <h3>{r.org}</h3>
+                <p class="r-meta">
+                  {r.title} · {r.place}
+                </p>
+              </div>
+            </div>
+            <ul>
+              {r.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="section container" aria-labelledby="scores-title">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal>My own scores</p>
+      <h2 class="h2" id="scores-title" data-reveal style="--d:1">I’ve sat these exams too.</h2>
+    </header>
+    <ul class="scores" role="list">
+      {
+        tutoring.scores.map((s, i) => (
+          <li class="card" data-reveal style={`--d:${i}`}>
+            <p class="score">
+              {s.value}
+              <span>{s.of}</span>
+            </p>
+            <p class="score-label">{s.label}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="section container t-final" aria-labelledby="book-title">
+    <h2 class="h2" id="book-title" data-reveal>Tell me about the student.</h2>
+    <p class="lede" data-reveal style="--d:1">
+      Send their grade, the subject, and what feels tricky right now. I’ll reply with how I’d approach it.
+    </p>
+    <div class="t-cta" data-reveal style="--d:2">
+      <a class="btn btn-primary" href={book}>Book a session</a>
+    </div>
+    <p class="by-day" data-reveal style="--d:3">
+      By day I’m an AI engineer. <a href="/">That’s over here</a>.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .t-hero {
+    display: grid;
+    gap: 1.75rem;
+    justify-items: start;
+    padding-top: calc(var(--nav-h) + clamp(3rem, 2rem + 6vw, 8rem));
+    padding-bottom: clamp(3rem, 2rem + 4vw, 5rem);
+  }
+
+  .t-title {
+    font-size: clamp(2.5rem, 1.2rem + 5vw, 5.25rem);
+    letter-spacing: -0.045em;
+    line-height: 1;
+    max-width: 14ch;
+  }
+
+  .amp {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  :global(html.motion) .t-in {
+    animation: t-rise 0.9s var(--ease-out) both;
+  }
+
+  :global(html.motion) .t-in:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  :global(html.motion) .t-in:nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  :global(html.motion) .t-in:nth-child(4) {
+    animation-delay: 210ms;
+  }
+
+  @keyframes t-rise {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
+  .t-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    margin: 0;
+    padding-block: 2.5rem;
+    border-block: 1px solid var(--hair);
+  }
+
+  @media (min-width: 860px) {
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .stat {
+    font-size: clamp(2rem, 1.5rem + 2vw, 3rem);
+    font-weight: 680;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .stat span {
+    font-size: 0.45em;
+    font-weight: 560;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    margin-top: 0.6rem;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .subjects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .subjects li {
+    padding: 1.5rem 1.5rem 1.4rem;
+    border-radius: var(--r-lg);
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out);
+  }
+
+  .subjects li:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .subjects h3 {
+    font-size: 1.1875rem;
+    letter-spacing: -0.018em;
+  }
+
+  .subjects p {
+    margin-top: 0.35rem;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .methods {
+    display: grid;
+    gap: 2.5rem 3rem;
+    margin: 0;
+  }
+
+  @media (min-width: 760px) {
+    .methods {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .methods li {
+    display: grid;
+    gap: 0.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--hair);
+  }
+
+  .m-idx {
+    color: var(--accent);
+  }
+
+  .methods h3 {
+    font-size: 1.375rem;
+    letter-spacing: -0.02em;
+  }
+
+  .methods p:last-child {
+    color: var(--muted);
+  }
+
+  .tools {
+    margin-top: 3rem;
+    color: var(--muted);
+  }
+
+  .tools .mono {
+    color: var(--accent);
+    margin-right: 0.35rem;
+  }
+
+  .roles {
+    margin: 0;
+    border-top: 1px solid var(--hair);
+  }
+
+  .role {
+    display: grid;
+    gap: 1rem;
+    padding-block: 1.75rem;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .r-head {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .r-dates {
+    color: var(--muted);
+  }
+
+  .role h3 {
+    font-size: 1.375rem;
+    letter-spacing: -0.02em;
+  }
+
+  .r-meta {
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  .role ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    max-width: 44rem;
+  }
+
+  @media (min-width: 760px) {
+    .role {
+      grid-template-columns: 11.5rem 1fr;
+      column-gap: 1rem;
+    }
+
+    .r-head {
+      grid-column: 1 / -1;
+      grid-template-columns: 11.5rem 1fr;
+      column-gap: 1rem;
+    }
+
+    .r-dates {
+      padding-top: 0.35rem;
+    }
+
+    .role ul {
+      grid-column: 2;
+    }
+  }
+
+  .scores {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+
+  @media (min-width: 860px) {
+    .scores {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .scores li {
+    padding: 1.5rem;
+    border-radius: var(--r-lg);
+  }
+
+  .score {
+    font-size: clamp(2rem, 1.6rem + 1.6vw, 2.75rem);
+    font-weight: 680;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .score span {
+    margin-left: 0.2rem;
+    font-size: 0.4em;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--muted);
+  }
+
+  .score-label {
+    margin-top: 0.6rem;
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  .t-final {
+    display: grid;
+    gap: 1.5rem;
+    justify-items: start;
+  }
+
+  .by-day {
+    margin-top: 1.5rem;
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  .by-day a {
+    color: var(--accent);
+  }
+</style>

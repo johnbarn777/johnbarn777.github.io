@@ -1,0 +1,39 @@
+---
+/**
+ * Placeholder for future posts (decision D8). Not linked anywhere, excluded from the
+ * sitemap, and marked noindex until the first post exists. To launch: add posts,
+ * set decisions.showWriting = true in src/data/site.ts, add a nav entry, and remove
+ * noindex below plus the sitemap filter in astro.config.mjs.
+ */
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Writing · Yohann Pittappillil" description="Notes on building AI that businesses can run." noindex>
+  <section class="w container scrim">
+    <p class="eyebrow">Writing</p>
+    <h1 class="w-title">Notes are on the way.</h1>
+    <p class="lede">
+      Short pieces on evals, agents, and keeping AI affordable. Until then, the
+      <a href="/work/agent-eval">benchmark case study</a> is the closest thing.
+    </p>
+  </section>
+</Base>
+
+<style>
+  .w {
+    min-height: 80svh;
+    display: grid;
+    align-content: center;
+    gap: 1.5rem;
+    padding-block: calc(var(--nav-h) + 3rem) 4rem;
+  }
+
+  .w-title {
+    font-size: clamp(2.25rem, 1.3rem + 4vw, 4.5rem);
+    letter-spacing: -0.042em;
+  }
+
+  .lede a {
+    color: var(--accent);
+  }
+</style>

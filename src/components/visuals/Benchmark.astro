@@ -1,0 +1,230 @@
+---
+import { benchmark } from '../../data/content';
+
+interface Props {
+  uid: string;
+  autoplay?: boolean;
+  caption?: boolean;
+}
+const { uid, autoplay = false, caption = true } = Astro.props;
+const ticks = [
+  { at: 0, label: 'None' },
+  { at: 0.5, label: 'Half' },
+  { at: 1, label: 'All' },
+];
+---
+
+<figure class="viz viz-bench" data-visual data-autoplay={autoplay ? '' : undefined} aria-labelledby={`bench-t-${uid}`}>
+  <div class="bench-head">
+    <p class="bench-title" id={`bench-t-${uid}`}>{benchmark.title}</p>
+    <p class="bench-sub">{benchmark.subtitle}</p>
+  </div>
+
+  <div class="bench-plot" aria-hidden="true">
+    <div class="grid">
+      {ticks.map((t) => <span class="gl" style={`--x:${t.at}`} />)}
+    </div>
+    {
+      benchmark.rows.map((r, i) => (
+        <div class="row" style={`--v:${r.value}; --r:${i}`}>
+          <p class="row-label">{r.label}</p>
+          <div class="track">
+            <span class:list={['bar', { em: r.emphasis }]} />
+            <span class="val">{r.display}</span>
+            {r.value < 0.5 && <span class="missed">missed</span>}
+          </div>
+        </div>
+      ))
+    }
+    <div class="axis">
+      {
+        ticks.map((t) => (
+          <span class="tick mono" style={`--x:${t.at}`}>
+            {t.label}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="sr-only">
+  <table>
+    <caption>{benchmark.title}: {benchmark.subtitle.toLowerCase()}</caption>
+    <thead><tr><th scope="col">Design</th><th scope="col">Items found</th></tr></thead>
+    <tbody>
+      {
+        benchmark.rows.map((r) => (
+          <tr>
+            <th scope="row">{r.label}</th>
+            <td>{r.display}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  </div>
+
+  {caption && <figcaption class="bench-cap">{benchmark.caption}</figcaption>}
+</figure>
+
+<style>
+  .viz-bench {
+    --label-col: 8.5rem;
+    display: grid;
+    gap: 1.75rem;
+    width: 100%;
+    max-width: 30rem;
+    margin-inline: auto;
+  }
+
+  .bench-title {
+    font-size: 1.125rem;
+    font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+
+  .bench-sub {
+    margin-top: 0.25rem;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+
+  .bench-plot {
+    position: relative;
+    display: grid;
+    gap: 1.625rem;
+    padding-right: var(--label-col);
+  }
+
+  .grid {
+    position: absolute;
+    inset: 0 var(--label-col) 1.75rem 0;
+    pointer-events: none;
+  }
+
+  .gl {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--x) * 100%);
+    width: 1px;
+    background: var(--hair);
+  }
+
+  .gl:first-child {
+    background: var(--hair-strong);
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .row-label {
+    font-size: 0.9375rem;
+    font-weight: 560;
+    color: var(--ink);
+  }
+
+  .track {
+    position: relative;
+    height: 22px;
+    border-radius: 0 4px 4px 0;
+    background: color-mix(in oklab, var(--ink) 5%, transparent);
+  }
+
+  .bar {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--v) * 100%);
+    border-radius: 0 4px 4px 0;
+    background: var(--bar-muted);
+    transform-origin: left center;
+  }
+
+  .bar.em {
+    background: var(--accent);
+  }
+
+  .val {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--v) * 100%);
+    padding-left: 0.625rem;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 620;
+    color: var(--ink);
+  }
+
+  .missed {
+    position: absolute;
+    top: 50%;
+    right: 0.625rem;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+  }
+
+  .axis {
+    position: relative;
+    height: 1.25rem;
+    margin-top: -0.5rem;
+  }
+
+  .tick {
+    position: absolute;
+    left: calc(var(--x) * 100%);
+    transform: translateX(-50%);
+    font-size: 0.6875rem;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tick:first-child {
+    transform: none;
+  }
+
+  .bench-cap {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  /* ---- Animation ---- */
+
+  :global(html.js) .viz-bench .bar {
+    transform: scaleX(0);
+    transition: transform 1.3s var(--ease-out);
+    transition-delay: calc(0.25s + var(--r) * 0.2s);
+  }
+
+  :global(html.js) .viz-bench .val,
+  :global(html.js) .viz-bench .missed {
+    opacity: 0;
+    transition: opacity 0.6s var(--ease-out);
+    transition-delay: calc(1.1s + var(--r) * 0.2s);
+  }
+
+  :global(html.js) .viz-bench:global(.is-playing) .bar {
+    transform: none;
+  }
+
+  :global(html.js) .viz-bench:global(.is-playing) .val,
+  :global(html.js) .viz-bench:global(.is-playing) .missed {
+    opacity: 1;
+  }
+
+  @media (max-width: 480px) {
+    .viz-bench {
+      --label-col: 7rem;
+    }
+
+    .missed {
+      display: none;
+    }
+  }
+</style>

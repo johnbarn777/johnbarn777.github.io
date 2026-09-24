@@ -1,0 +1,285 @@
+---
+import { principles } from '../../data/content';
+---
+
+<section class="section how" id="how" aria-labelledby="how-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal><span class="idx">02</span> How I work</p>
+      <h2 class="h2" id="how-title" data-reveal style="--d:1">
+        The simplest thing that works <span class="muted">usually wins.</span>
+      </h2>
+    </header>
+
+    <ol class="grid" role="list">
+      {
+        principles.map((p, i) => (
+          <li class="card principle" data-reveal style={`--d:${i % 2}`}>
+            <div class="glyph" data-glyph={p.glyph} aria-hidden="true">
+              {p.glyph === 'simple' && (
+                <svg viewBox="0 0 64 40">
+                  <path
+                    class="tangle"
+                    pathLength="1"
+                    d="M6 26c6-20 14 14 20-4s-10-14-4 2 16 14 16-6-12-8-6 6 14 12 26-4"
+                  />
+                  <path class="straight" pathLength="1" d="M6 20h52" />
+                  <circle class="end" cx="6" cy="20" r="3" />
+                  <circle class="end em" cx="58" cy="20" r="3" />
+                </svg>
+              )}
+              {p.glyph === 'prove' && (
+                <svg viewBox="0 0 64 40">
+                  <line class="axis" x1="6" y1="4" x2="6" y2="36" />
+                  <rect class="bar em" x="6" y="9" width="52" height="8" rx="2" style="--w:1" />
+                  <rect class="bar" x="6" y="23" width="52" height="8" rx="2" style="--w:0.2" />
+                </svg>
+              )}
+              {p.glyph === 'budget' && (
+                <svg viewBox="0 0 64 40">
+                  <circle class="coin c1" cx="16" cy="20" r="12" />
+                  <circle class="coin c2" cx="39" cy="20" r="7.5" />
+                  <circle class="coin c3 em" cx="54" cy="20" r="4" />
+                </svg>
+              )}
+              {p.glyph === 'handoff' && (
+                <svg viewBox="0 0 64 40">
+                  <rect class="box em" x="4" y="13" width="14" height="14" rx="3.5" />
+                  <path class="ray" pathLength="1" d="M20 20C32 20 34 7 46 7" />
+                  <path class="ray" pathLength="1" d="M20 20H46" />
+                  <path class="ray" pathLength="1" d="M20 20C32 20 34 33 46 33" />
+                  <circle class="node" cx="52" cy="7" r="4" />
+                  <circle class="node" cx="52" cy="20" r="4" />
+                  <circle class="node" cx="52" cy="33" r="4" />
+                </svg>
+              )}
+            </div>
+            <p class="p-idx mono">0{i + 1}</p>
+            <h3 class="h3">{p.title}</h3>
+            <p class="belief">{p.belief}</p>
+            <p class="practice">{p.practice}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  @media (min-width: 760px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  .principle {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-content: start;
+    gap: 0.75rem;
+    padding: clamp(1.5rem, 1.1rem + 1.6vw, 2.5rem);
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s var(--ease-out),
+      border-color 0.3s;
+  }
+
+  .principle:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--hair-strong);
+  }
+
+  .principle > :not(.glyph):not(.p-idx) {
+    grid-column: 1 / -1;
+  }
+
+  .glyph {
+    grid-row: 1;
+    grid-column: 1;
+    width: 64px;
+    height: 40px;
+    margin-bottom: 1.25rem;
+  }
+
+  .p-idx {
+    grid-row: 1;
+    grid-column: 2;
+    color: var(--faint);
+  }
+
+  .belief {
+    font-size: 1.125rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    letter-spacing: -0.01em;
+  }
+
+  .practice {
+    font-size: var(--fs-small);
+    color: var(--muted);
+  }
+
+  /* ---- Glyphs ---- */
+  svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .em {
+    fill: var(--accent);
+    stroke: var(--accent);
+  }
+
+  .end {
+    fill: var(--ink);
+    stroke: none;
+  }
+
+  .end.em {
+    fill: var(--accent);
+  }
+
+  .tangle {
+    stroke: var(--faint);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  .straight {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+
+  .axis {
+    stroke: var(--hair-strong);
+  }
+
+  .bar {
+    fill: var(--bar-muted);
+    stroke: none;
+    transform-box: fill-box;
+    transform-origin: left center;
+    transform: scaleX(var(--w));
+  }
+
+  .bar.em {
+    fill: var(--accent);
+  }
+
+  .coin {
+    stroke: var(--ink);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .coin.c1 {
+    stroke: var(--faint);
+  }
+
+  .coin.c2 {
+    stroke: var(--muted);
+  }
+
+  .ray {
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    stroke-dasharray: 1;
+  }
+
+  .node {
+    fill: var(--bg-elev);
+    stroke: var(--ink);
+    stroke-width: 1.6;
+  }
+
+  /* Reveal choreography (runs once, when the card appears) */
+  :global(html.motion) .principle .tangle {
+    stroke-dashoffset: 0;
+  }
+
+  :global(html.motion) .principle .straight {
+    stroke-dashoffset: 1;
+  }
+
+  :global(html.motion) .principle:global(.is-in) .tangle {
+    stroke-dashoffset: -1;
+    transition: stroke-dashoffset 1.1s var(--ease-in-out) 0.5s;
+  }
+
+  :global(html.motion) .principle:global(.is-in) .straight {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.8s var(--ease-out) 1.3s;
+  }
+
+  :global(html.motion) .principle .bar {
+    transform: scaleX(0);
+  }
+
+  :global(html.motion) .principle:global(.is-in) .bar {
+    transform: scaleX(var(--w));
+    transition: transform 1.1s var(--ease-out) 0.5s;
+  }
+
+  :global(html.motion) .principle .coin {
+    transform: scale(0);
+  }
+
+  :global(html.motion) .principle:global(.is-in) .coin {
+    transform: none;
+    transition: transform 0.7s var(--ease-spring);
+  }
+
+  :global(html.motion) .principle:global(.is-in) .c1 {
+    transition-delay: 0.5s;
+  }
+
+  :global(html.motion) .principle:global(.is-in) .c2 {
+    transition-delay: 0.7s;
+  }
+
+  :global(html.motion) .principle:global(.is-in) .c3 {
+    transition-delay: 0.9s;
+  }
+
+  :global(html.motion) .principle .ray {
+    stroke-dashoffset: 1;
+  }
+
+  :global(html.motion) .principle:global(.is-in) .ray {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.9s var(--ease-out) 0.6s;
+  }
+
+  :global(html.motion) .principle .node {
+    opacity: 0;
+  }
+
+  :global(html.motion) .principle:global(.is-in) .node {
+    opacity: 1;
+    transition: opacity 0.4s var(--ease-out) 1.2s;
+  }
+
+  .principle:hover .c3 {
+    animation: nudge 0.6s var(--ease-spring);
+  }
+
+  @keyframes nudge {
+    50% {
+      transform: scale(1.35);
+    }
+  }
+</style>

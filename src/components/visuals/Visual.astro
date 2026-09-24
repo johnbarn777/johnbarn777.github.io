@@ -1,0 +1,15 @@
+---
+import ArchDiagram from './ArchDiagram.astro';
+import Benchmark from './Benchmark.astro';
+import GroundedChat from './GroundedChat.astro';
+
+interface Props {
+  kind: 'arch' | 'bench' | 'chat';
+  uid: string;
+}
+const { kind, uid } = Astro.props;
+---
+
+{kind === 'arch' && <ArchDiagram uid={uid} />}
+{kind === 'bench' && <Benchmark uid={uid} />}
+{kind === 'chat' && <GroundedChat uid={uid} />}

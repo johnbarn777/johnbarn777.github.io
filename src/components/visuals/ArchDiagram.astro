@@ -1,0 +1,347 @@
+---
+/**
+ * Orchestrator agent calling domain sub-agents as tools over siloed data.
+ * Generic labels only; no internal system names.
+ */
+interface Props {
+  uid: string;
+}
+const { uid } = Astro.props;
+const agents = [
+  { x: 62, name: 'Sales' },
+  { x: 180, name: 'Supply' },
+  { x: 298, name: 'Finance' },
+];
+const toAgent = (x: number) => (x === 180 ? 'M180 152 V206' : `M180 152 C180 184 ${x} 176 ${x} 206`);
+const toData = (x: number) => `M${x} 258 V300`;
+---
+
+<div class="viz viz-arch" data-visual>
+  <svg viewBox="0 0 360 444" role="img" aria-labelledby={`arch-t-${uid} arch-d-${uid}`}>
+    <title id={`arch-t-${uid}`}>Orchestrator agent with domain sub-agents as tools</title>
+    <desc id={`arch-d-${uid}`}>
+      A question goes to an orchestrator agent. It calls three domain sub-agents (sales, supply, and finance) as
+      tools. Each sub-agent reads its own separate data store. The orchestrator combines their results into one
+      answer with sources.
+    </desc>
+
+    <!-- silos -->
+    {
+      agents.map((a, i) => (
+        <g class="n lane" style={`--o:${6 + i}`}>
+          <rect x={a.x - 54} y="286" width="108" height="154" rx="16" />
+        </g>
+      ))
+    }
+
+    <!-- wires -->
+    <path class="wire" style="--o:2" d="M180 56 V96" pathLength="1"></path>
+    {agents.map((a, i) => <path class="wire" style={`--o:${4 + i * 0.4}`} d={toAgent(a.x)} pathLength="1" />)}
+    {agents.map((a, i) => <path class="wire" style={`--o:${7 + i * 0.4}`} d={toData(a.x)} pathLength="1" />)}
+
+    <!-- packets travelling down, then answers travelling back -->
+    <path class="pk" style="--k:0" d="M180 56 V96" pathLength="1"></path>
+    {agents.map((a, i) => <path class="pk" style={`--k:${1 + i * 0.15}`} d={toAgent(a.x)} pathLength="1" />)}
+    {agents.map((a, i) => <path class="pk" style={`--k:${2 + i * 0.15}`} d={toData(a.x)} pathLength="1" />)}
+    {agents.map((a, i) => <path class="pk back" style={`--k:${3.2 + i * 0.15}`} d={toData(a.x)} pathLength="1" />)}
+    {agents.map((a, i) => <path class="pk back" style={`--k:${4.2 + i * 0.15}`} d={toAgent(a.x)} pathLength="1" />)}
+    <path class="pk back" style="--k:5.3" d="M180 56 V96" pathLength="1"></path>
+
+    <!-- question / answer pill -->
+    <g class="n q" style="--o:0">
+      <rect x="14" y="10" width="332" height="46" rx="23"></rect>
+      <text class="q-text" x="180" y="38.5" text-anchor="middle">“Where will the promo run short?”</text>
+      <g class="a-text">
+        <circle cx="76" cy="33" r="8"></circle>
+        <path d="M72.2 33.2l2.6 2.6 5-5.2"></path>
+        <text x="190" y="38.5" text-anchor="middle">One answer, with sources</text>
+      </g>
+    </g>
+
+    <!-- orchestrator -->
+    <g class="n orch" style="--o:1">
+      <rect x="66" y="96" width="228" height="56" rx="16"></rect>
+      <text class="t-strong" x="180" y="120" text-anchor="middle">Orchestrator agent</text>
+      <text class="t-mono" x="180" y="140" text-anchor="middle">plans · calls tools · merges</text>
+    </g>
+
+    <!-- sub-agents, each exposed to the orchestrator as a tool -->
+    {
+      agents.map((a, i) => (
+        <g class="n agent" style={`--o:${3 + i * 0.5}`}>
+          <rect x={a.x - 50} y="206" width="100" height="52" rx="14" />
+          <text class="t-strong" x={a.x} y="229" text-anchor="middle">
+            {a.name}
+          </text>
+          <text class="t-mono" x={a.x} y="246" text-anchor="middle">
+            agent · tool
+          </text>
+        </g>
+      ))
+    }
+
+    <!-- data stores -->
+    {
+      agents.map((a, i) => (
+        <g class="n db" style={`--o:${6.5 + i * 0.4}`}>
+          <path class="db-body" d={`M${a.x - 30} 314 v46 a30 8.5 0 0 0 60 0 v-46`} />
+          <path class="db-ring" d={`M${a.x - 30} 337 a30 8.5 0 0 0 60 0`} />
+          <ellipse class="db-top" cx={a.x} cy="314" rx="30" ry="8.5" />
+          <text class="t-label" x={a.x} y="410" text-anchor="middle">
+            {a.name}
+          </text>
+          <text class="t-mono" x={a.x} y="427" text-anchor="middle">
+            data
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+</div>
+
+<style>
+  .viz-arch svg {
+    width: 100%;
+    height: auto;
+    max-width: 420px;
+    margin-inline: auto;
+    overflow: visible;
+    font-family: var(--font-sans);
+  }
+
+  text {
+    font-size: 15px;
+    fill: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .t-strong {
+    font-weight: 600;
+  }
+
+  .t-mono {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    fill: var(--muted);
+    letter-spacing: 0;
+  }
+
+  .t-faint {
+    fill: var(--faint);
+  }
+
+  .t-label {
+    font-size: 14px;
+    font-weight: 560;
+    fill: var(--ink-2);
+  }
+
+  .lane rect {
+    fill: var(--bg-sunk);
+    stroke: var(--hair);
+    stroke-dasharray: 4 5;
+  }
+
+  .q rect {
+    fill: var(--bg-elev);
+    stroke: var(--hair-strong);
+    transition:
+      stroke 0.5s var(--ease-out),
+      fill 0.5s var(--ease-out);
+  }
+
+  .orch rect {
+    fill: var(--accent-soft);
+    stroke: var(--accent);
+    stroke-width: 1.4;
+  }
+
+  .agent rect {
+    fill: var(--bg-elev);
+    stroke: var(--accent-line);
+    stroke-width: 1.2;
+  }
+
+  .db-body,
+  .db-top {
+    fill: var(--bg-elev);
+    stroke: var(--hair-strong);
+    stroke-width: 1.2;
+  }
+
+  .db-ring {
+    fill: none;
+    stroke: var(--hair-strong);
+    stroke-width: 1.2;
+  }
+
+  .wire {
+    fill: none;
+    stroke: var(--hair-strong);
+    stroke-width: 1.4;
+  }
+
+  .pk {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-dasharray: 0.001 2;
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+
+  .pk.back {
+    stroke: var(--good);
+  }
+
+  .a-text circle {
+    fill: var(--good);
+  }
+
+  .a-text path {
+    fill: none;
+    stroke: var(--bg-elev);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .a-text {
+    opacity: 0;
+  }
+
+  /* ---- Animation (only when JS is running; otherwise the diagram is static) ---- */
+
+  :global(html.js) .viz-arch .n {
+    opacity: 0;
+    transform: translateY(8px);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      opacity 0.6s var(--ease-out),
+      transform 0.7s var(--ease-out);
+    transition-delay: calc(var(--o) * 110ms);
+  }
+
+  :global(html.js) .viz-arch .wire {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 0.7s var(--ease-in-out);
+    transition-delay: calc(var(--o) * 110ms);
+  }
+
+  :global(html.js) .viz-arch:global(.is-playing) .n {
+    opacity: 1;
+    transform: none;
+  }
+
+  :global(html.js) .viz-arch:global(.is-playing) .wire {
+    stroke-dashoffset: 0;
+  }
+
+  :global(html.motion) .viz-arch:global(.is-playing) .pk {
+    animation: packet 6.4s linear infinite;
+    animation-delay: calc(1.4s + var(--k) * 0.55s);
+  }
+
+  :global(html.motion) .viz-arch:global(.is-playing) .pk.back {
+    animation-name: packet-back;
+  }
+
+  @keyframes packet {
+    0% {
+      opacity: 0;
+      stroke-dashoffset: 0.02;
+    }
+    2% {
+      opacity: 1;
+    }
+    10% {
+      opacity: 1;
+      stroke-dashoffset: -0.99;
+    }
+    11%,
+    100% {
+      opacity: 0;
+      stroke-dashoffset: -0.99;
+    }
+  }
+
+  @keyframes packet-back {
+    0% {
+      opacity: 0;
+      stroke-dashoffset: -0.99;
+    }
+    2% {
+      opacity: 1;
+    }
+    10% {
+      opacity: 1;
+      stroke-dashoffset: 0.02;
+    }
+    11%,
+    100% {
+      opacity: 0;
+      stroke-dashoffset: 0.02;
+    }
+  }
+
+  :global(html.motion) .viz-arch:global(.is-playing) .q-text {
+    animation: q-swap 6.4s var(--ease-in-out) infinite;
+    animation-delay: 1.4s;
+  }
+
+  :global(html.motion) .viz-arch:global(.is-playing) .a-text {
+    animation: a-swap 6.4s var(--ease-in-out) infinite;
+    animation-delay: 1.4s;
+  }
+
+  :global(html.motion) .viz-arch:global(.is-playing) .q rect {
+    animation: q-ring 6.4s var(--ease-in-out) infinite;
+    animation-delay: 1.4s;
+  }
+
+  @keyframes q-swap {
+    0%,
+    54% {
+      opacity: 1;
+    }
+    58%,
+    94% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes a-swap {
+    0%,
+    55% {
+      opacity: 0;
+    }
+    59%,
+    93% {
+      opacity: 1;
+    }
+    97%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes q-ring {
+    0%,
+    54% {
+      stroke: var(--hair-strong);
+    }
+    58%,
+    94% {
+      stroke: var(--good);
+    }
+    100% {
+      stroke: var(--hair-strong);
+    }
+  }
+</style>

@@ -1,0 +1,400 @@
+---
+import { experience, journey } from '../../data/content';
+import { site, decisions, mailto } from '../../data/site';
+---
+
+<section class="section experience" id="experience" aria-labelledby="exp-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal><span class="idx">03</span> Experience</p>
+      <h2 class="h2" id="exp-title" data-reveal style="--d:1">
+        From the IT help desk to building the company’s AI platform.
+      </h2>
+      <p class="lede" data-reveal style="--d:2">
+        Same company, three roles, plus two years training and evaluating LLMs along the way. That’s where the eval
+        habit comes from.
+      </p>
+    </header>
+
+    <div class="journey" data-progress data-start="0.8" data-end="0.45" data-reveal>
+      <ol class="j-steps" role="list" aria-label="Roles at Mark Anthony Group">
+        {
+          journey.map((j, i) => (
+            <li class="j-step" style={`--i:${i}`}>
+              <span class="j-node" aria-hidden="true" />
+              <p class="j-year mono">
+                {j.year} · {j.kind}
+              </p>
+              <p class="j-title">{j.title}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <ol class="roles" role="list">
+      {
+        experience.map((r, i) => (
+          <li class="role" data-reveal style={`--d:${Math.min(i, 2)}`}>
+            <details open={r.open}>
+              <summary>
+                <span class="r-dates mono">{r.dates}</span>
+                <span class="r-main">
+                  <h3 class="r-title">{r.title}</h3>
+                  <span class="r-org">
+                    {r.mag && <span class="mag-dot" aria-hidden="true" />}
+                    {r.org}
+                    <span class="r-meta"> · {r.meta}</span>
+                  </span>
+                </span>
+                <span class="r-toggle" aria-hidden="true" />
+              </summary>
+              <div class="r-body">
+                {r.bullets && (
+                  <ul>
+                    {r.bullets.map((b) => (
+                      <li>{b}</li>
+                    ))}
+                  </ul>
+                )}
+                {r.group && (
+                  <div class="r-group">
+                    {r.group.map((g) => (
+                      <div class="r-sub">
+                        <p class="r-sub-head">
+                          <strong>
+                            {g.title}, {g.org}
+                          </strong>
+                          <span class="mono">{g.dates}</span>
+                        </p>
+                        <ul>
+                          {g.bullets.map((b) => (
+                            <li>{b}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </details>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="exp-foot" data-reveal>
+      {
+        decisions.resumeUrl ? (
+          <a class="btn btn-ghost" href={decisions.resumeUrl}>
+            Resume (PDF)
+          </a>
+        ) : (
+          <a class="btn btn-ghost" href={mailto('Resume request')}>
+            Ask for my resume
+          </a>
+        )
+      }
+      <a class="link-arrow" href={site.linkedin}>
+        <span>Full history on LinkedIn</span><span class="arr" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---- Journey: one company, three roles ---- */
+  .journey {
+    --p: 1;
+    position: relative;
+    margin-bottom: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+  }
+
+  .j-steps {
+    display: grid;
+    gap: 2rem;
+    margin: 0;
+    position: relative;
+  }
+
+  .j-step {
+    --lit: clamp(0, (var(--p) * 2.4 - var(--i)) * 4, 1);
+    --seg: clamp(0, var(--p) * 2.4 - var(--i) - 0.25, 1);
+    position: relative;
+    padding-left: 2.25rem;
+  }
+
+  .j-node {
+    position: absolute;
+    left: 0;
+    top: 0.2rem;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow:
+      inset 0 0 0 2px color-mix(in oklab, var(--accent) calc(var(--lit) * 100%), var(--hair-strong)),
+      0 0 0 calc(var(--lit) * 6px) var(--accent-soft);
+    transition: box-shadow 0.3s var(--ease-out);
+  }
+
+  .j-node::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(var(--lit));
+    transition: transform 0.3s var(--ease-spring);
+  }
+
+  .j-year {
+    color: var(--muted);
+  }
+
+  .j-title {
+    margin-top: 0.35rem;
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+    font-weight: 620;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    opacity: calc(0.45 + var(--lit) * 0.55);
+  }
+
+  /* Connector from this node to the next one, filled as you scroll. */
+  .j-step:not(:last-child)::before,
+  .j-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: calc(0.2rem + 15px);
+    width: 1px;
+    height: calc(100% + 2rem - 15px);
+    background: var(--hair-strong);
+    transform-origin: top;
+  }
+
+  .j-step:not(:last-child)::after {
+    background: var(--accent);
+    transform: scaleY(var(--seg));
+  }
+
+  @media (min-width: 760px) {
+    .j-steps {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2rem;
+    }
+
+    .j-step {
+      padding-left: 0;
+      padding-top: 2.25rem;
+    }
+
+    .j-node {
+      top: 0;
+    }
+
+    .j-step:not(:last-child)::before,
+    .j-step:not(:last-child)::after {
+      left: 15px;
+      top: 7px;
+      width: calc(100% + 2rem - 15px);
+      height: 1px;
+      transform-origin: left;
+    }
+
+    .j-step:not(:last-child)::after {
+      transform: scaleX(var(--seg));
+    }
+  }
+
+  /* ---- Roles ---- */
+  .roles {
+    margin: 0;
+    border-top: 1px solid var(--hair);
+  }
+
+  .role {
+    border-bottom: 1px solid var(--hair);
+  }
+
+  details {
+    interpolate-size: allow-keywords;
+  }
+
+  details::details-content {
+    height: 0;
+    overflow: clip;
+    transition:
+      height 0.5s var(--ease-out),
+      content-visibility 0.5s allow-discrete;
+  }
+
+  details[open]::details-content {
+    height: auto;
+  }
+
+  summary {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 1rem;
+    align-items: start;
+    padding-block: 1.5rem;
+    cursor: pointer;
+    list-style: none;
+    border-radius: 12px;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .r-dates {
+    grid-column: 1;
+    color: var(--muted);
+    padding-top: 0.2rem;
+  }
+
+  .r-main {
+    grid-column: 1;
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .r-title {
+    font-size: clamp(1.1875rem, 1.05rem + 0.6vw, 1.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .r-org {
+    color: var(--ink-2);
+    font-size: var(--fs-small);
+  }
+
+  .r-meta {
+    color: var(--muted);
+  }
+
+  .mag-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.45rem;
+    border-radius: 50%;
+    background: var(--accent);
+    vertical-align: 0.1em;
+  }
+
+  .r-toggle {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--hair-strong);
+    transition:
+      transform 0.5s var(--ease-out),
+      background-color 0.2s;
+  }
+
+  .r-toggle::before,
+  .r-toggle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 1.6px;
+    margin: -0.8px 0 0 -6px;
+    border-radius: 2px;
+    background: var(--ink);
+  }
+
+  .r-toggle::after {
+    transform: rotate(90deg);
+    transition: transform 0.5s var(--ease-out);
+  }
+
+  details[open] .r-toggle::after {
+    transform: rotate(0deg);
+  }
+
+  summary:hover .r-toggle {
+    background: var(--accent-soft);
+  }
+
+  .r-body {
+    padding-bottom: 1.75rem;
+  }
+
+  .r-body ul {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    max-width: 46rem;
+  }
+
+  .r-body li::marker {
+    color: var(--faint);
+  }
+
+  .r-group {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .r-sub-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    align-items: baseline;
+    margin-bottom: 0.6rem;
+  }
+
+  .r-sub-head strong {
+    font-weight: 600;
+  }
+
+  .r-sub-head .mono {
+    color: var(--muted);
+  }
+
+  @media (min-width: 760px) {
+    summary {
+      grid-template-columns: 11.5rem 1fr auto;
+      padding-block: 1.75rem;
+    }
+
+    .r-dates,
+    .r-main {
+      grid-row: 1;
+    }
+
+    .r-main {
+      grid-column: 2;
+    }
+
+    .r-toggle {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .r-body {
+      padding-left: calc(11.5rem + 1rem);
+      padding-right: 3.5rem;
+    }
+  }
+
+  .exp-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+    margin-top: 2.5rem;
+  }
+</style>

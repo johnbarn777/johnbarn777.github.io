@@ -1,22 +1,24 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Hero from '../components/Hero.astro';
-import SkillsBanner from '../components/skills/SkillsBanner.astro';
-import CertsCoverflow from '../components/certs/CertsCoverflow.astro';
-import Projects from '../components/Projects.astro';
-import ExperienceTimeline from '../components/ExperienceTimeline.astro';
-import CodingProwessPanel from '../components/prowess/CodingProwessPanel.astro';
+import Base from '../layouts/Base.astro';
+import Hero from '../components/home/Hero.astro';
+import Statement from '../components/home/Statement.astro';
+import Work from '../components/home/Work.astro';
+import Principles from '../components/home/Principles.astro';
+import Experience from '../components/home/Experience.astro';
+import Projects from '../components/home/Projects.astro';
+import Websites from '../components/home/Websites.astro';
+import About from '../components/home/About.astro';
+import Contact from '../components/home/Contact.astro';
 ---
-<Layout>
-  <Hero
-    firstName="Yohann"
-    lastName=""
-    titles={["Developer", "ML-Engineer", "Innovator"]}
-    ctas={[{ text: 'View Projects', href: '#projects' }, { text: 'Contact Me', href: '#contact' }]}
-  />
-  <SkillsBanner />
-  <CertsCoverflow />
-  <ExperienceTimeline />
+
+<Base nav="home" person>
+  <Hero />
+  <Statement />
+  <Work />
+  <Principles />
+  <Experience />
   <Projects />
-  <CodingProwessPanel />
-</Layout>
+  <Websites />
+  <About />
+  <Contact />
+</Base>

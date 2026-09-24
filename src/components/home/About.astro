@@ -1,0 +1,200 @@
+---
+import { skills, credentials } from '../../data/content';
+import { site } from '../../data/site';
+---
+
+<section class="section about" id="about" aria-labelledby="about-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal><span class="idx">06</span> About</p>
+      <h2 class="h2" id="about-title" data-reveal style="--d:1">Hi, I’m Yohann.</h2>
+    </header>
+
+    <div class="layout">
+      <div class="bio" data-reveal>
+        <p>
+          I’m an AI engineer in Vancouver. I studied computer science at SFU and spent six years tutoring math and physics
+          on the side, which turned out to be the most useful training for this job: most of AI work is making a hard idea
+          simple enough for someone to trust it.
+        </p>
+        <p>
+          I speak English, French, Hindi, and Malayalam, and I get unreasonably excited about a good eval.
+        </p>
+        <p class="tutor-line">
+          Looking for a math, physics, or CS tutor? <a href="/tutoring">That lives on its own page</a>.
+        </p>
+      </div>
+
+      <dl class="facts card" data-reveal style="--d:1">
+        <div>
+          <dt>Now</dt>
+          <dd>{site.role.title}, {site.role.org}<span class="muted"> · since {site.role.since}</span></dd>
+        </div>
+        <div>
+          <dt>Studied</dt>
+          <dd>BSc Computer Science, Simon Fraser University<span class="muted"> · 2020–2025</span></dd>
+        </div>
+        <div>
+          <dt>Honours</dt>
+          <dd>Dean’s Honour Roll (twice) and an Academic Excellence Scholarship</dd>
+        </div>
+        <div>
+          <dt>Speaks</dt>
+          <dd>{site.languages.join(', ')}</dd>
+        </div>
+        <div>
+          <dt>Based in</dt>
+          <dd>{site.location}</dd>
+        </div>
+        <div>
+          <dt>Certified</dt>
+          <dd>
+            {credentials.name}, {credentials.issuer}
+            <span class="verify">
+              Verify:
+              {
+                credentials.links.map((l, i) => (
+                  <>
+                    <a href={l.href}>
+                      {l.label}
+                      <span class="sr-only"> certificate</span>
+                    </a>
+                    {i < credentials.links.length - 1 && <span aria-hidden="true"> · </span>}
+                  </>
+                ))
+              }
+            </span>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="toolbox">
+      <h3 class="toolbox-title mono" data-reveal>Toolbox</h3>
+      <div class="tool-grid">
+        {
+          skills.map((g, i) => (
+            <div class="tool-group" data-reveal style={`--d:${i}`}>
+              <h4>{g.group}</h4>
+              <ul role="list">
+                {g.items.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .layout {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 960px) {
+    .layout {
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: clamp(3rem, 1rem + 5vw, 6rem);
+      align-items: start;
+    }
+  }
+
+  .bio {
+    display: grid;
+    gap: 1.25rem;
+    font-size: var(--fs-lede);
+    line-height: 1.55;
+    letter-spacing: -0.012em;
+    color: var(--ink-2);
+  }
+
+  .tutor-line {
+    font-size: var(--fs-body);
+    color: var(--muted);
+    padding-top: 0.5rem;
+  }
+
+  .tutor-line a {
+    color: var(--accent);
+  }
+
+  .facts {
+    margin: 0;
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--r-xl);
+  }
+
+  .facts > div {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    gap: 1rem;
+    padding-block: 1rem;
+    border-top: 1px solid var(--hair);
+    font-size: var(--fs-small);
+  }
+
+  .facts > div:first-child {
+    border-top: 0;
+  }
+
+  .facts dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+    padding-top: 0.2rem;
+  }
+
+  .verify {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--muted);
+  }
+
+  .verify a {
+    display: inline-block;
+    padding-block: 0.25rem;
+    color: var(--accent);
+  }
+
+  .toolbox {
+    margin-top: clamp(4rem, 3rem + 4vw, 6rem);
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--hair);
+  }
+
+  .toolbox-title {
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 2rem;
+  }
+
+  .tool-grid {
+    display: grid;
+    gap: 2rem 3rem;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+
+  .tool-group h4 {
+    font-size: 1rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .tool-group ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0;
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  .tool-group li:not(:last-child)::after {
+    content: '·';
+    margin-inline: 0.55rem;
+    color: var(--faint);
+  }
+</style>
