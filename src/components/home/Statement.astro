@@ -1,0 +1,82 @@
+---
+const text =
+  'I sit with the business, find the problem worth solving, and ship the smallest thing that solves it. Sometimes that’s an agent. Sometimes it’s a smaller model. Sometimes it’s no model at all.';
+const words = text.split(' ');
+// The two phrases that carry the idea get the accent once lit.
+const accentPhrases = ['problem worth solving,', 'no model at all.'];
+const accent = new Set<number>();
+for (const phrase of accentPhrases) {
+  const parts = phrase.split(' ');
+  const at = words.findIndex((_, i) => parts.every((p, j) => words[i + j] === p));
+  parts.forEach((_, j) => accent.add(at + j));
+}
+---
+
+<section class="statement" id="intro" aria-label="Introduction" data-progress data-start="0.5" data-end="1.25">
+  <div class="stage">
+    <p class="words container" style={`--n:${words.length}`}>
+      {
+        words.map((w, i) => (
+          <>
+            <span class:list={['w', { k: accent.has(i) }]} style={`--i:${i}`}>
+              {w}
+            </span>{' '}
+          </>
+        ))
+      }
+    </p>
+  </div>
+</section>
+
+<style>
+  .statement {
+    --p: 1;
+    position: relative;
+  }
+
+  .stage {
+    padding-block: var(--section);
+  }
+
+  :global(html.motion) .statement {
+    height: 240vh;
+  }
+
+  :global(html.motion) .stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: grid;
+    align-items: center;
+    padding-block: 0;
+  }
+
+  .words {
+    max-width: 58rem;
+    font-size: clamp(1.875rem, 1.1rem + 3.4vw, 4rem);
+    font-weight: 650;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .w {
+    color: var(--ink);
+  }
+
+  .w.k {
+    color: var(--accent);
+  }
+
+  /* Each word lights up once scroll progress passes its position in the sentence.
+     Unlit words stay a readable grey (3:1 or better) rather than fading out. */
+  :global(html.motion) .w {
+    --lit: clamp(0, (var(--p) * (var(--n) + 6) - var(--i)) / 4, 1);
+    color: color-mix(in oklab, var(--ink) calc(var(--lit) * 100%), var(--word-dim));
+    transition: color 0.12s linear;
+  }
+
+  :global(html.motion) .w.k {
+    color: color-mix(in oklab, var(--accent) calc(var(--lit) * 100%), var(--word-dim));
+  }
+</style>

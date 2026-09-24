@@ -1,36 +1,122 @@
 ---
-const socialLinks = [
-  { href: 'https://github.com/johnbarn777', label: 'GitHub' },
-  { href: 'https://www.linkedin.com/in/yohannp', label: 'LinkedIn' },
-  { href: 'https://leetcode.com/u/yohannvp/', label: 'LeetCode' },
-];
+import { site } from '../data/site';
+import Monogram from './Monogram.astro';
 const year = new Date().getFullYear();
 ---
 
-<footer class="site-footer" role="contentinfo">
+<footer class="footer">
   <div class="container">
-    <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-6">
-        {socialLinks.map(link => (
-          <a
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-text-secondary hover:text-text-primary transition-colors duration-300"
-          >
-            {link.label}
-          </a>
-        ))}
+    <div class="footer-top">
+      <div class="footer-id">
+        <Monogram size={32} />
+        <div>
+          <p class="footer-name">{site.name}</p>
+          <p class="muted">AI engineer in Vancouver, BC.</p>
+        </div>
       </div>
-      <p class="text-text-muted text-sm m-0">
-        &copy; {year} Yohann Vinod Pinto
-      </p>
-      <a
-        href="#intro"
-        class="text-text-secondary hover:text-text-primary transition-colors duration-300 text-sm"
-      >
-        Back to top
-      </a>
+      <nav class="footer-links" aria-label="Footer">
+        <ul role="list">
+          <li><a href="/#work">Work</a></li>
+          <li><a href="/#websites">Websites</a></li>
+          <li><a href="/tutoring">Tutoring</a></li>
+          <li><a href={site.linkedin}>LinkedIn</a></li>
+          <li><a href={site.github}>GitHub</a></li>
+          <li><a href={site.repo}>Source</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p>© {year} {site.name}</p>
+      <p class="footer-colophon">Built with Astro and a hand-written WebGL shader. No trackers, no cookies.</p>
+      <button class="term-btn" type="button" data-terminal-open>
+        <kbd aria-hidden="true">`</kbd>
+        <span>Open the terminal</span>
+      </button>
     </div>
   </div>
 </footer>
+
+<style>
+  .footer {
+    position: relative;
+    padding-block: 4rem 2.5rem;
+    border-top: 1px solid var(--hair);
+    background: color-mix(in oklab, var(--bg) 88%, transparent);
+    font-size: var(--fs-small);
+  }
+
+  .footer-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .footer-id {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    --mono-ink: var(--bg);
+  }
+
+  .footer-id :global(.monogram) {
+    color: var(--ink);
+  }
+
+  .footer-name {
+    font-weight: 620;
+    letter-spacing: -0.015em;
+  }
+
+  .footer-links ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    margin: 0;
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover {
+    color: var(--ink);
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.5rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--hair);
+    color: var(--faint);
+  }
+
+  .footer-colophon {
+    flex: 1 1 18rem;
+  }
+
+  .term-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 44px;
+    padding: 0 0.25rem;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font-size: var(--fs-small);
+    cursor: pointer;
+  }
+
+  .term-btn:hover {
+    color: var(--ink);
+  }
+</style>

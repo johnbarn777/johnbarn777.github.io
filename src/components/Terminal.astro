@@ -1,0 +1,193 @@
+---
+// Markup only; behaviour lives in src/scripts/terminal.ts and loads on first open.
+---
+
+<dialog id="terminal" class="terminal" aria-labelledby="terminal-title">
+  <div class="term-window">
+    <div class="term-bar">
+      <span class="term-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+      <p id="terminal-title" class="term-title">yohann@portfolio: ~</p>
+      <button class="term-close" type="button" data-term-close aria-label="Close terminal">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+      </button>
+    </div>
+    <div class="term-out" data-term-out role="log" aria-live="polite"></div>
+    <form class="term-form" autocomplete="off">
+      <label for="term-input" class="t-prompt">~ $</label>
+      <input
+        id="term-input"
+        data-term-input
+        type="text"
+        spellcheck="false"
+        autocapitalize="off"
+        autocorrect="off"
+        enterkeyhint="send"
+        aria-label="Command"
+      />
+    </form>
+  </div>
+</dialog>
+
+<style is:global>
+  .terminal {
+    width: min(100% - 2rem, 44rem);
+    max-height: min(80vh, 36rem);
+    padding: 0;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    color: #e6e6ea;
+    overflow: visible;
+  }
+
+  .terminal::backdrop {
+    background: rgb(0 0 0 / 0.35);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .terminal[open] {
+    animation: term-in 0.45s var(--ease-out);
+  }
+
+  @keyframes term-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+
+  .term-window {
+    display: flex;
+    flex-direction: column;
+    height: min(80vh, 36rem);
+    border-radius: 16px;
+    background: #121214;
+    box-shadow:
+      0 0 0 1px rgb(255 255 255 / 0.08),
+      0 30px 80px -20px rgb(0 0 0 / 0.6);
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .term-bar {
+    display: grid;
+    grid-template-columns: 4rem 1fr 4rem;
+    align-items: center;
+    padding: 0 0.5rem 0 1rem;
+    height: 44px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.07);
+    background: #1a1a1d;
+  }
+
+  .term-lights {
+    display: flex;
+    gap: 7px;
+  }
+
+  .term-lights i {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #3a3a3f;
+  }
+
+  .term-lights i:first-child {
+    background: #ff5f57;
+  }
+
+  .term-lights i:nth-child(2) {
+    background: #febc2e;
+  }
+
+  .term-lights i:nth-child(3) {
+    background: #28c840;
+  }
+
+  .term-title {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #8a8a90;
+  }
+
+  .term-close {
+    justify-self: end;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    color: #a1a1a6;
+    cursor: pointer;
+  }
+
+  .term-close:hover {
+    color: #fff;
+  }
+
+  .term-close svg {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+
+  .term-out {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.25rem 0.25rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overscroll-behavior: contain;
+  }
+
+  .t-echo {
+    color: #f5f5f7;
+    margin-top: 0.25rem;
+  }
+
+  .t-prompt {
+    color: #8ebbe8;
+  }
+
+  .t-good {
+    color: #7fcf9f;
+  }
+
+  .term-out a {
+    color: #8ebbe8;
+  }
+
+  .term-form {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 1.25rem 1rem;
+  }
+
+  .term-form input {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    border: 0;
+    background: transparent;
+    color: #f5f5f7;
+    font: inherit;
+    font-size: 16px;
+    caret-color: #8ebbe8;
+  }
+
+  .term-form input:focus {
+    outline: none;
+  }
+
+  .term-form:focus-within .t-prompt {
+    color: #cfe3f7;
+  }
+</style>

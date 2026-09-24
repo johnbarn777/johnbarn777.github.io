@@ -1,0 +1,406 @@
+---
+import { Picture } from 'astro:assets';
+import { projects } from '../../data/content';
+import houseLogo from '../../assets/house-logo.png';
+
+const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+// Illustrative chore colours for the weekly schedule motif.
+const chores = [[0, 1], [2], [0], [1, 2], [0, 2], [1], []];
+---
+
+<section class="section projects" id="projects" aria-labelledby="projects-title">
+  <div class="container">
+    <header class="section-head">
+      <p class="eyebrow" data-reveal><span class="idx">04</span> Projects</p>
+      <h2 class="h2" id="projects-title" data-reveal style="--d:1">Things I build on my own time.</h2>
+    </header>
+
+    <div class="grid">
+      {
+        projects.map((p, i) => (
+          <article class="card project" data-reveal style={`--d:${i}`} aria-labelledby={`p-${p.id}`}>
+            <div class:list={['media', `media-${p.id}`]} aria-hidden="true" data-play>
+              {p.id === 'house' && (
+                <>
+                  <div class="app-icon">
+                    <Picture src={houseLogo} formats={['avif', 'webp']} width={128} height={128} densities={[1, 2]} alt="" />
+                  </div>
+                  <div class="week">
+                    {days.map((d, di) => (
+                      <div class="day" style={`--di:${di}`}>
+                        <span class="day-name mono">{d}</span>
+                        <span class="day-col">
+                          {chores[di].map((c) => (
+                            <span class={`task t${c}`} />
+                          ))}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {p.id === 'bugs' && (
+                <>
+                  <div class="strip">
+                    {Array.from({ length: 7 }).map((_, fi) => (
+                      <span class:list={['frame', { flag: fi === 4 }]} style={`--fi:${fi}`}>
+                        {fi === 4 && <span class="flag-label mono">freeze</span>}
+                      </span>
+                    ))}
+                    <span class="scan" />
+                  </div>
+                  <div class="report mono">
+                    <span class="r-file">bug_report.md</span>
+                    <span>
+                      <b>## Freeze detected</b>
+                    </span>
+                    <span>clip: 00:41–00:44</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div class="content">
+              <p class="kicker mono">{p.kicker}</p>
+              <h3 class="h3" id={`p-${p.id}`}>
+                {p.name}
+                <span class="muted"> {p.summary}</span>
+              </h3>
+              <p class="body">{p.body}</p>
+              <ul class="chips" role="list" aria-label="Stack">
+                {p.stack.map((s) => (
+                  <li class="chip">{s}</li>
+                ))}
+              </ul>
+              <div class="links">
+                {p.links.map((l) => (
+                  <a class="link-arrow" href={l.href}>
+                    <span>
+                      {l.label}
+                      <span class="sr-only"> for {p.name}</span>
+                    </span>
+                    <span class="arr" aria-hidden="true">
+                      ↗
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="more-gh" data-reveal>
+      Everything else lives on <a href="https://github.com/johnbarn777">GitHub</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 860px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .project {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    border-radius: var(--r-xl);
+    transition:
+      transform 0.6s var(--ease-out),
+      box-shadow 0.6s var(--ease-out);
+  }
+
+  .project:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    display: grid;
+    place-items: center;
+    gap: 1.25rem;
+    padding: 1.5rem;
+    background:
+      radial-gradient(80% 90% at 50% 0%, var(--accent-soft), transparent 70%),
+      var(--bg-sunk);
+    border-bottom: 1px solid var(--hair);
+    overflow: hidden;
+  }
+
+  .content {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+    padding: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+  }
+
+  .kicker {
+    color: var(--muted);
+  }
+
+  .h3 {
+    font-size: clamp(1.375rem, 1.15rem + 0.8vw, 1.75rem);
+    letter-spacing: -0.025em;
+  }
+
+  .body {
+    color: var(--muted);
+    font-size: var(--fs-small);
+    line-height: 1.65;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .link-arrow .arr {
+    font-size: 0.9em;
+  }
+
+  .link-arrow:hover .arr {
+    transform: translate(2px, -2px);
+  }
+
+  .more-gh {
+    margin-top: 2rem;
+    color: var(--muted);
+  }
+
+  .more-gh a {
+    color: var(--accent);
+  }
+
+  /* ---- House motif ---- */
+  .media-house {
+    grid-template-columns: auto 1fr;
+    gap: clamp(1rem, 0.5rem + 2vw, 2rem);
+    padding-inline: clamp(1.25rem, 0.5rem + 3vw, 2.75rem);
+  }
+
+  .app-icon {
+    width: clamp(76px, 22%, 128px);
+    aspect-ratio: 1;
+    border-radius: 24%;
+    overflow: hidden;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.2) inset,
+      0 18px 40px -18px rgb(0 0 0 / 0.55);
+    transform: rotate(-6deg);
+    transition: transform 0.8s var(--ease-spring);
+  }
+
+  .project:hover .app-icon {
+    transform: rotate(0deg) scale(1.04);
+  }
+
+  .app-icon :global(img) {
+    width: 100%;
+    height: 100%;
+    transform: scale(1.16);
+  }
+
+  .week {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    max-width: 19rem;
+    padding: 0.875rem;
+    border-radius: 16px;
+    background: var(--bg-elev);
+    box-shadow:
+      inset 0 0 0 1px var(--hair),
+      var(--shadow-lg);
+  }
+
+  .day {
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+  }
+
+  .day-name {
+    font-size: 0.625rem;
+    color: var(--faint);
+  }
+
+  .day-col {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    min-height: 52px;
+    align-content: start;
+    padding: 4px;
+    border-radius: 8px;
+    background: var(--bg-sunk);
+  }
+
+  .task {
+    height: 10px;
+    border-radius: 3px;
+  }
+
+  .t0 {
+    background: var(--accent);
+  }
+
+  .t1 {
+    background: var(--good);
+  }
+
+  .t2 {
+    background: var(--bar-muted);
+  }
+
+  :global(html.motion) .task {
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--ease-out);
+    transition-delay: calc(0.3s + var(--di) * 60ms);
+  }
+
+  :global(html.motion) .media:global(.is-in) .task {
+    transform: none;
+  }
+
+  .day {
+    --di: 0;
+  }
+
+  /* ---- Bug reporter motif ---- */
+  .media-bugs {
+    grid-template-rows: auto auto;
+    align-content: center;
+  }
+
+  .strip {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    width: 100%;
+    max-width: 26rem;
+    padding: 8px;
+    border-radius: 12px;
+    background: #111114;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 4px;
+    background:
+      linear-gradient(180deg, rgb(120 170 230 / 0.55), rgb(40 70 110 / 0.2) 55%, rgb(40 110 60 / 0.55) 56%, rgb(30 80 45 / 0.7));
+    filter: saturate(calc(0.6 + var(--fi) * 0.05));
+  }
+
+  .frame.flag {
+    background: linear-gradient(180deg, rgb(70 70 78), rgb(40 40 46));
+    box-shadow:
+      0 0 0 2px #111114,
+      0 0 0 3.5px #8ebbe8;
+  }
+
+  .flag-label {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 6px);
+    transform: translateX(-50%);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.5625rem;
+    color: #0c0c0e;
+    background: #8ebbe8;
+    white-space: nowrap;
+  }
+
+  .strip {
+    padding-top: 26px;
+  }
+
+  .scan {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: linear-gradient(transparent, #8ebbe8, transparent);
+    box-shadow: 0 0 12px #8ebbe8;
+    opacity: 0;
+  }
+
+  :global(html.motion) .media:global(.is-in) .scan {
+    animation: scan 3.2s var(--ease-in-out) 0.4s infinite;
+  }
+
+  @keyframes scan {
+    0% {
+      left: 0;
+      opacity: 0;
+    }
+    8% {
+      opacity: 1;
+    }
+    92% {
+      opacity: 1;
+    }
+    100% {
+      left: 100%;
+      opacity: 0;
+    }
+  }
+
+  .report {
+    display: grid;
+    gap: 2px;
+    justify-self: start;
+    min-width: 12rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    background: var(--bg-elev);
+    box-shadow:
+      inset 0 0 0 1px var(--hair),
+      var(--shadow-lg);
+    margin-left: clamp(0rem, 10%, 3rem);
+  }
+
+  .report b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .r-file {
+    color: var(--faint);
+  }
+
+  @media (max-width: 420px) {
+    .media-house {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      aspect-ratio: auto;
+    }
+
+    .media-bugs {
+      aspect-ratio: auto;
+    }
+  }
+</style>

@@ -1,0 +1,209 @@
+---
+/**
+ * Illustrative conversation with the shop-floor assistant. Not real documents.
+ */
+interface Props {
+  uid: string;
+}
+const { uid } = Astro.props;
+---
+
+<figure class="viz viz-chat" data-visual aria-labelledby={`chat-cap-${uid}`}>
+  <div class="chat" aria-hidden="true">
+    <div class="chat-top">
+      <span class="ai-mark"></span>
+      <span class="chat-name">Shop-floor assistant</span>
+      <span class="chip">Multilingual</span>
+    </div>
+
+    <div class="msg user seq" style="--t:0.15s">How do I clear a jam in the labeller?</div>
+
+    <div class="search seq" style="--t:0.6s">
+      <span class="spin"></span>
+      <span>Searching SOPs, manuals, and training video</span>
+    </div>
+
+    <div class="msg bot seq" style="--t:1.5s">
+      <p>
+        Lock out the line first. Then open the side guard, release the tension arm, and pull the label web back to the last
+        clean edge<sup>1</sup>. Re-thread past the peel plate and run one test label<sup>2</sup>.
+      </p>
+      <div class="cites">
+        <span class="cite seq" style="--t:1.9s"><b>1</b> SOP · section 4</span>
+        <span class="cite seq" style="--t:2.05s"><b>2</b> Training video · 12:00–13:00</span>
+      </div>
+    </div>
+
+    <div class="verified seq" style="--t:2.5s">
+      <svg viewBox="0 0 16 16"><path d="M4 8.2l2.6 2.6L12 5.4"></path></svg>
+      Verified by a line expert
+    </div>
+  </div>
+  <figcaption id={`chat-cap-${uid}`} class="sr-only">
+    Illustration: an engineer asks how to clear a jam, and the assistant answers in steps, citing a section of an SOP
+    and a one-minute segment of a training video, with a badge showing an expert verified the answer.
+  </figcaption>
+</figure>
+
+<style>
+  .viz-chat {
+    width: 100%;
+    max-width: 27rem;
+    margin-inline: auto;
+  }
+
+  .chat {
+    display: grid;
+    gap: 0.875rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+
+  .chat-top {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.875rem;
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .ai-mark {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: var(--accent-grad);
+  }
+
+  .chat-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin-right: auto;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 0.7rem 0.95rem;
+    border-radius: 18px;
+  }
+
+  .user {
+    justify-self: end;
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    border-bottom-right-radius: 6px;
+  }
+
+  .bot {
+    justify-self: start;
+    display: grid;
+    gap: 0.75rem;
+    background: var(--bg-sunk);
+    box-shadow: inset 0 0 0 1px var(--hair);
+    border-bottom-left-radius: 6px;
+    max-width: 94%;
+  }
+
+  sup {
+    font-family: var(--font-mono);
+    font-size: 0.65em;
+    font-weight: 600;
+    color: var(--accent);
+    margin-left: 1px;
+  }
+
+  .search {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .spin {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid var(--hair-strong);
+    border-top-color: var(--accent);
+  }
+
+  :global(html.motion) .viz-chat:global(.is-playing) .spin {
+    animation: spin 0.9s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .cites {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .cite {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem 0.25rem 0.3rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    color: var(--ink-2);
+    background: var(--bg-elev);
+    box-shadow: inset 0 0 0 1px var(--hair-strong);
+  }
+
+  .cite b {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    justify-self: start;
+    font-size: 0.8125rem;
+    font-weight: 560;
+    color: var(--good);
+  }
+
+  .verified svg {
+    width: 16px;
+    height: 16px;
+    padding: 2px;
+    border-radius: 50%;
+    background: var(--good);
+    fill: none;
+    stroke: var(--bg-elev);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ---- Animation: the conversation plays out once ---- */
+
+  :global(html.js) .viz-chat .seq {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    transition:
+      opacity 0.5s var(--ease-out),
+      transform 0.6s var(--ease-spring);
+    transition-delay: var(--t);
+  }
+
+  :global(html.js) .viz-chat:global(.is-playing) .seq {
+    opacity: 1;
+    transform: none;
+  }
+</style>

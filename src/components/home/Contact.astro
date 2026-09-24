@@ -1,0 +1,149 @@
+---
+import { site, decisions, mailto } from '../../data/site';
+---
+
+<section class="section contact" id="contact" aria-labelledby="contact-title">
+  <div class="container inner">
+    <p class="eyebrow" data-reveal><span class="idx">07</span> Contact</p>
+    <p class="ask" data-reveal style="--d:1">Building something with AI, or trying to figure out if you should?</p>
+    <h2 class="say" id="contact-title" data-reveal style="--d:2"><span class="grad-text">Say hi.</span></h2>
+
+    <div class="mail" data-reveal style="--d:3">
+      <a class="btn btn-primary mail-link" href={mailto()}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"
+          ><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"
+          ></rect><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+          ></path></svg
+        >
+        {site.email}
+      </a>
+      <button class="btn btn-ghost copy" type="button" data-copy={site.email}>
+        <svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"
+          ><rect x="8" y="8" width="12" height="12" rx="3"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"
+          ></path></svg
+        >
+        <svg class="i-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+        <span data-copy-label>Copy email</span>
+      </button>
+    </div>
+
+    <ul class="elsewhere" role="list" data-reveal style="--d:4">
+      <li><a href={site.linkedin}>LinkedIn <span aria-hidden="true">↗</span></a></li>
+      <li><a href={site.github}>GitHub <span aria-hidden="true">↗</span></a></li>
+      <li>
+        {
+          decisions.resumeUrl ? (
+            <a href={decisions.resumeUrl}>Resume (PDF)</a>
+          ) : (
+            <a href={mailto('Resume request')}>Resume, on request</a>
+          )
+        }
+      </li>
+      <li><a href={mailto('Website project')}>Need a website instead?</a></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .contact {
+    padding-block: calc(var(--section) * 1.1);
+    text-align: center;
+  }
+
+  .inner {
+    display: grid;
+    justify-items: center;
+    gap: 1.5rem;
+  }
+
+  .ask {
+    max-width: 30rem;
+    font-size: var(--fs-lede);
+    color: var(--muted);
+    letter-spacing: -0.012em;
+    line-height: 1.45;
+  }
+
+  .say {
+    font-size: clamp(4rem, 2rem + 10vw, 10rem);
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+    padding-bottom: 0.08em;
+  }
+
+  .mail {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .mail-link {
+    min-height: 56px;
+    padding-inline: 1.75rem;
+    font-size: 1.0625rem;
+  }
+
+  .mail-link svg {
+    width: 1.25em;
+    height: 1.25em;
+  }
+
+  .copy {
+    min-height: 56px;
+  }
+
+  .copy svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .copy .i-check {
+    display: none;
+    stroke: var(--good);
+    stroke-width: 2.2;
+  }
+
+  .copy:global(.is-copied) .i-copy {
+    display: none;
+  }
+
+  .copy:global(.is-copied) .i-check {
+    display: block;
+  }
+
+  .elsewhere {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 1.75rem;
+    margin: 0.5rem 0 0;
+  }
+
+  .elsewhere a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .elsewhere a:hover {
+    color: var(--ink);
+  }
+
+  @media (max-width: 520px) {
+    .mail-link {
+      width: 100%;
+      font-size: 0.9375rem;
+      padding-inline: 1rem;
+    }
+  }
+</style>

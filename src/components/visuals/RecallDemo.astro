@@ -1,0 +1,284 @@
+---
+/**
+ * Interactive illustration (made-up data): why top-k retrieval cannot answer
+ * "list every X" questions, and a query tool can.
+ */
+const TOTAL = 60;
+// Deterministic layout so the page renders the same every build.
+const matches = [2, 5, 9, 13, 18, 22, 27, 31, 34, 38, 41, 46, 50, 53, 57];
+const retrievedMatches = [9, 31, 46];
+const retrievedWrong = [10, 30];
+const tiles = Array.from({ length: TOTAL }, (_, i) => ({
+  m: matches.includes(i),
+  r: retrievedMatches.includes(i) || retrievedWrong.includes(i),
+  k: matches.indexOf(i),
+}));
+---
+
+<div class="recall card" data-recall data-mode="key">
+  <div class="recall-top">
+    <p class="mono q-label">The question</p>
+    <p class="q">“List every warehouse that’s below its safety stock.”</p>
+  </div>
+
+  <div class="controls" role="group" aria-label="Choose a design">
+    <button type="button" data-mode-btn="search" aria-pressed="false">Retrieval-only search</button>
+    <button type="button" data-mode-btn="agent" aria-pressed="false">Tool-calling agent</button>
+  </div>
+
+  <div class="tiles" aria-hidden="true">
+    {
+      tiles.map((t, i) => (
+        <span
+          class="tile"
+          data-m={t.m ? '' : undefined}
+          data-r={t.r ? '' : undefined}
+          style={`--k:${Math.max(t.k, 0)}; --i:${i}`}
+        />
+      ))
+    }
+  </div>
+
+  <div class="trace mono" aria-hidden="true">
+    <span class="t-key">15 of 60 warehouses match. Pick a design.</span>
+    <span class="t-search">search(“warehouses below safety stock”, top_k=5) <b>→ 5 results</b></span>
+    <span class="t-agent">SELECT name FROM warehouses WHERE on_hand &lt; safety_stock; <b>→ 15 rows</b></span>
+  </div>
+
+  <p class="readout" aria-live="polite" data-readout>
+    Fifteen of these sixty warehouses are below safety stock. Choose a design to see what it finds.
+  </p>
+
+  <div class="legend" aria-hidden="true">
+    <span><i class="lg lg-key"></i>Should be found</span>
+    <span><i class="lg lg-found"></i>Found</span>
+    <span><i class="lg lg-wrong"></i>Wrong hit</span>
+    <span class="illus">Illustration with made-up data</span>
+  </div>
+</div>
+
+<script>
+  const messages = {
+    key: 'Fifteen of these sixty warehouses are below safety stock. Choose a design to see what it finds.',
+    search:
+      'Found 3 of 15. Search returned its top 5 most similar results, and 2 of those weren’t even on the list.',
+    agent: 'Found 15 of 15. The agent ran a query and got every matching row.',
+  } as const;
+
+  document.querySelectorAll<HTMLElement>('[data-recall]').forEach((root) => {
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-mode-btn]');
+    const readout = root.querySelector<HTMLElement>('[data-readout]');
+    buttons.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.modeBtn as 'search' | 'agent';
+        const next = root.dataset.mode === mode ? 'key' : mode;
+        root.dataset.mode = next;
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.modeBtn === next)));
+        if (readout) readout.textContent = messages[next];
+      }),
+    );
+  });
+</script>
+
+<style>
+  .recall {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 0.8rem + 2vw, 2.5rem);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .q-label {
+    color: var(--faint);
+    margin-bottom: 0.35rem;
+  }
+
+  .q {
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.35;
+  }
+
+  .controls {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-self: start;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--bg-sunk);
+    box-shadow: inset 0 0 0 1px var(--hair);
+  }
+
+  :global(html:not(.js)) .controls {
+    display: none;
+  }
+
+  .controls button {
+    min-height: 44px;
+    padding: 0 1.1rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    font-size: 0.9375rem;
+    font-weight: 560;
+    color: var(--muted);
+    cursor: pointer;
+    transition:
+      background-color 0.3s var(--ease-out),
+      color 0.3s var(--ease-out),
+      box-shadow 0.3s var(--ease-out);
+  }
+
+  .controls button:hover {
+    color: var(--ink);
+  }
+
+  .controls button[aria-pressed='true'] {
+    background: var(--bg-elev);
+    color: var(--ink);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.08),
+      inset 0 0 0 1px var(--hair);
+  }
+
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: clamp(5px, 0.8vw, 8px);
+  }
+
+  @media (min-width: 640px) {
+    .tiles {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+
+  .tile {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--bg-sunk);
+    box-shadow: inset 0 0 0 1px var(--hair);
+    transition:
+      background-color 0.4s var(--ease-out),
+      box-shadow 0.4s var(--ease-out),
+      transform 0.5s var(--ease-spring);
+  }
+
+  .tile[data-m] {
+    box-shadow: inset 0 0 0 2px var(--accent-line);
+  }
+
+  /* Search: top-5 by similarity, three right and two wrong. */
+  [data-mode='search'] .tile[data-r] {
+    transform: scale(1.08);
+  }
+
+  [data-mode='search'] .tile[data-r][data-m] {
+    background: var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  [data-mode='search'] .tile[data-r]:not([data-m]) {
+    background: var(--bar-muted);
+    box-shadow: none;
+  }
+
+  [data-mode='search'] .tile[data-r]:not([data-m])::after,
+  .lg-wrong::after {
+    content: '';
+    position: absolute;
+    inset: 22%;
+    background: linear-gradient(135deg, transparent 44%, var(--bg-elev) 44% 56%, transparent 56%);
+  }
+
+  /* Agent: every match, in a quick wave. */
+  [data-mode='agent'] .tile[data-m] {
+    background: var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent);
+    transition-delay: calc(var(--k) * 45ms);
+  }
+
+  .trace {
+    display: grid;
+    min-height: 2.6em;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--ink-2);
+    background: var(--bg-sunk);
+    box-shadow: inset 0 0 0 1px var(--hair);
+    overflow-wrap: anywhere;
+  }
+
+  .trace > span {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out);
+  }
+
+  .trace b {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  [data-mode='key'] .t-key,
+  [data-mode='search'] .t-search,
+  [data-mode='agent'] .t-agent {
+    opacity: 1;
+  }
+
+  .t-key {
+    color: var(--muted);
+  }
+
+  .readout {
+    font-size: 1.0625rem;
+    color: var(--ink);
+    min-height: 3.2em;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .lg {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: var(--bg-sunk);
+  }
+
+  .lg-key {
+    box-shadow: inset 0 0 0 2px var(--accent-line);
+  }
+
+  .lg-found {
+    background: var(--accent);
+  }
+
+  .lg-wrong {
+    background: var(--bar-muted);
+  }
+
+  .illus {
+    margin-left: auto;
+    font-style: italic;
+    color: var(--faint);
+  }
+</style>

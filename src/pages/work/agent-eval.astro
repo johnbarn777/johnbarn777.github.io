@@ -1,0 +1,400 @@
+---
+import Base from '../../layouts/Base.astro';
+import Benchmark from '../../components/visuals/Benchmark.astro';
+import RecallDemo from '../../components/visuals/RecallDemo.astro';
+import { mailto } from '../../data/site';
+
+const pipelines = [
+  {
+    name: 'Retrieval-only search',
+    steps: ['Question', 'Embed it', 'Fetch the top k similar chunks', 'Model writes the answer'],
+  },
+  {
+    name: 'Tool-calling agent',
+    steps: ['Question', 'Model picks a tool', 'Tool queries the data', 'Model writes the answer'],
+  },
+];
+
+const lessons = [
+  {
+    title: 'Match the tool to the question.',
+    body: 'Search is great at “find the passage about X”. It is the wrong tool for “give me all of them”.',
+  },
+  {
+    title: 'Count before you commit.',
+    body: 'A design can look right in a demo and still miss most of the answer. You only find out by counting.',
+  },
+  {
+    title: 'Keep the harness.',
+    body: 'The test that settles an argument is also the one that catches the next regression.',
+  },
+];
+---
+
+<Base
+  title="We almost shipped search · Yohann Pittappillil"
+  description="Case study: how a head-to-head evaluation of a tool-calling agent against retrieval-only search settled the core architecture of an enterprise AI platform."
+>
+  <article class="cs">
+    <header class="cs-hero container scrim">
+      <a class="back link-arrow" href="/#work"><span class="arr" aria-hidden="true">←</span><span>Selected work</span></a>
+      <p class="eyebrow">Case study · Mark Anthony Group · 2026</p>
+      <h1 class="cs-title">We almost shipped search. <span class="muted">Then I counted.</span></h1>
+      <p class="lede">
+        How a head-to-head evaluation settled the core architecture of an enterprise AI platform, and why “list every X”
+        questions break retrieval.
+      </p>
+      <dl class="meta">
+        <div><dt>My part</dt><dd>Designed and wrote the evaluation harness</dd></div>
+        <div><dt>Platform</dt><dd>Enterprise agentic AI on Snowflake</dd></div>
+        <div><dt>Compared</dt><dd>Tool-calling agent vs retrieval-only search</dd></div>
+      </dl>
+    </header>
+
+    <section class="cs-section container" aria-labelledby="cs-designs">
+      <div class="cs-text">
+        <h2 id="cs-designs" class="cs-h2">Two reasonable designs</h2>
+        <p>
+          The platform has to answer questions that cross data which used to live in separate places. There were two
+          sensible ways to build it.
+        </p>
+        <p>
+          <strong>Retrieval-only search</strong> turns documents and records into embeddings, finds the chunks most similar
+          to the question, and hands them to the model. It is simple, cheap, and the default in most tutorials.
+        </p>
+        <p>
+          <strong>A tool-calling agent</strong> gives the model tools that query the data directly and lets it decide
+          which ones to call. More moving parts, more to test.
+        </p>
+        <p>Both are defensible. Rather than debate it, I measured it.</p>
+      </div>
+
+      <div class="pipes" data-reveal>
+        {
+          pipelines.map((p, pi) => (
+            <figure class:list={['pipe card', { em: pi === 1 }]}>
+              <figcaption class="mono">{p.name}</figcaption>
+              <ol role="list">
+                {p.steps.map((s, i) => (
+                  <li style={`--i:${i}`}>
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ol>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="cs-section container" aria-labelledby="cs-question">
+      <div class="cs-text">
+        <h2 id="cs-question" class="cs-h2">The question that decides it</h2>
+        <p>
+          Plenty of questions are needles: “what’s the returns policy?” One good passage answers it, and search is
+          excellent at finding one good passage.
+        </p>
+        <p>
+          Businesses also ask for lists: “which ones”, “every”, “all of them”. The answer isn’t one passage. It’s every
+          record that matches, and search has no idea how many that is. Try it:
+        </p>
+      </div>
+
+      <div class="wide" data-reveal>
+        <RecallDemo />
+      </div>
+
+      <div class="cs-text">
+        <p>
+          Search ranks by similarity and stops at <em>k</em>. However good the ranking, it can’t return more than
+          <em>k</em> items, and “similar to the question” isn’t the same as “matches the question”. An agent with a query
+          tool doesn’t guess. It asks the data.
+        </p>
+      </div>
+    </section>
+
+    <section class="cs-section container" aria-labelledby="cs-test">
+      <div class="cs-text">
+        <h2 id="cs-test" class="cs-h2">How I tested it</h2>
+        <p>
+          I wrote an evaluation harness that ran the same questions through both designs and scored every answer on one
+          thing: did it include everything it should have?
+        </p>
+      </div>
+
+      <div class="chart card" data-reveal>
+        <Benchmark uid="cs" autoplay caption={false} />
+      </div>
+
+      <div class="cs-text">
+        <p>
+          On list-style questions, the agent found everything. Search found about a fifth. That settled the platform’s
+          core architecture.
+        </p>
+      </div>
+    </section>
+
+    <section class="cs-section container" aria-labelledby="cs-lessons">
+      <div class="cs-text">
+        <h2 id="cs-lessons" class="cs-h2">What I took from it</h2>
+      </div>
+      <ol class="lessons" role="list">
+        {
+          lessons.map((l, i) => (
+            <li class="card" data-reveal style={`--d:${i}`}>
+              <p class="mono">0{i + 1}</p>
+              <h3>{l.title}</h3>
+              <p>{l.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <aside class="cs-cta container" aria-label="Get in touch">
+      <p class="cta-q">Have an AI decision that deserves a benchmark instead of a debate?</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href={mailto('An AI decision worth benchmarking')}>Say hi</a>
+        <a class="link-arrow" href="/#work"><span>More of my work</span><span class="arr" aria-hidden="true">→</span></a>
+      </div>
+    </aside>
+  </article>
+</Base>
+
+<style>
+  .cs {
+    padding-top: calc(var(--nav-h) + clamp(2.5rem, 1.5rem + 4vw, 5rem));
+  }
+
+  .cs-hero {
+    display: grid;
+    gap: 1.5rem;
+    justify-items: start;
+    padding-bottom: clamp(3rem, 2rem + 4vw, 6rem);
+    border-bottom: 1px solid var(--hair);
+  }
+
+  .back {
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  .back:hover .arr {
+    transform: translateX(-4px);
+  }
+
+  .cs-title {
+    font-size: clamp(2.5rem, 1.4rem + 4.4vw, 5rem);
+    letter-spacing: -0.042em;
+    line-height: 1.02;
+    max-width: 16ch;
+  }
+
+  :global(html.motion) .cs-hero > * {
+    animation: cs-rise 0.9s var(--ease-out) both;
+  }
+
+  :global(html.motion) .cs-hero > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+
+  :global(html.motion) .cs-hero > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+
+  :global(html.motion) .cs-hero > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+
+  :global(html.motion) .cs-hero > :nth-child(5) {
+    animation-delay: 240ms;
+  }
+
+  @keyframes cs-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2.5rem;
+    margin-top: 1rem;
+  }
+
+  .meta dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--faint);
+  }
+
+  .meta dd {
+    margin-top: 0.25rem;
+    font-size: var(--fs-small);
+    font-weight: 560;
+  }
+
+  .cs-section {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+  }
+
+  .cs-text {
+    display: grid;
+    gap: 1.125rem;
+    max-width: var(--w-prose);
+    color: var(--ink-2);
+    font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+    line-height: 1.7;
+  }
+
+  .cs-text strong {
+    color: var(--ink);
+    font-weight: 620;
+  }
+
+  .cs-h2 {
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+    letter-spacing: -0.032em;
+    color: var(--ink);
+    margin-bottom: 0.25rem;
+  }
+
+  .wide {
+    max-width: 52rem;
+  }
+
+  .pipes {
+    display: grid;
+    gap: 1rem;
+    max-width: 52rem;
+  }
+
+  @media (min-width: 760px) {
+    .pipes {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .pipe {
+    padding: 1.5rem;
+    border-radius: var(--r-lg);
+  }
+
+  .pipe figcaption {
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+  }
+
+  .pipe.em figcaption {
+    color: var(--accent);
+  }
+
+  .pipe ol {
+    display: grid;
+    gap: 0;
+    margin: 0;
+  }
+
+  .pipe li {
+    position: relative;
+    padding: 0 0 1.25rem 1.75rem;
+    font-size: var(--fs-small);
+    font-weight: 560;
+  }
+
+  .pipe li:last-child {
+    padding-bottom: 0;
+  }
+
+  .pipe li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.3em;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px var(--hair-strong);
+    background: var(--bg-elev);
+  }
+
+  .pipe.em li::before {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  .pipe li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: calc(0.3em + 13px);
+    bottom: 2px;
+    width: 1px;
+    background: var(--hair-strong);
+  }
+
+  .chart {
+    max-width: 52rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+    border-radius: var(--r-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .lessons {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  @media (min-width: 860px) {
+    .lessons {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .lessons li {
+    display: grid;
+    gap: 0.6rem;
+    align-content: start;
+    padding: 1.75rem;
+  }
+
+  .lessons .mono {
+    color: var(--accent);
+  }
+
+  .lessons h3 {
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+  }
+
+  .lessons p:last-child {
+    color: var(--muted);
+    font-size: var(--fs-small);
+  }
+
+  .cs-cta {
+    display: grid;
+    gap: 1.5rem;
+    padding-block: clamp(4rem, 3rem + 5vw, 8rem);
+    border-top: 1px solid var(--hair);
+  }
+
+  .cta-q {
+    font-size: clamp(1.75rem, 1.2rem + 2.2vw, 3rem);
+    font-weight: 650;
+    letter-spacing: -0.032em;
+    line-height: 1.1;
+    max-width: 22ch;
+  }
+
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+</style>
