@@ -138,6 +138,24 @@ test.describe('interactive pieces', () => {
     await expect(quote).toBeHidden();
   });
 
+  test('closing the quote leaves Ghost of Sparta mode, and boy ends it', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'keyboard shortcut');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    await page.keyboard.type('boy');
+    const quote = page.getByRole('dialog', { name: /Kratos/ });
+    await expect(quote).toBeVisible();
+    await page.waitForTimeout(1000);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('html')).toHaveAttribute('data-sparta', '');
+    await expect(page.locator('.gos-axe')).toHaveCount(1);
+    // Only one mode at a time.
+    for (let i = 0; i < 5; i++) await page.keyboard.press('Shift');
+    await expect(page.locator('html')).toHaveAttribute('data-spidey', '');
+    await expect(page.locator('html')).not.toHaveAttribute('data-sparta');
+    await expect(page.locator('.gos-axe')).toHaveCount(0);
+  });
+
   test('terminal opens from the footer button', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Open the terminal' }).click();

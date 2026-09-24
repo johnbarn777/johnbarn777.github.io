@@ -148,12 +148,13 @@ const commands: Record<string, Command> = {
     },
   },
   theme: {
-    help: 'light, dark, or spidey',
-    usage: 'light | dark | spidey',
+    help: 'light, dark, spidey, or sparta',
+    usage: 'light | dark | spidey | sparta',
     run: (args) => {
       const t = args[0];
       if (t === 'spidey' || t === 'spider-man' || t === 'spiderman') return commands.spidey.run([]);
-      if (t !== 'light' && t !== 'dark') return say('Usage: /theme light | dark | spidey');
+      if (t === 'sparta' || t === 'kratos') return commands.sparta.run([]);
+      if (t !== 'light' && t !== 'dark') return say('Usage: /theme light | dark | spidey | sparta');
       document.dispatchEvent(new CustomEvent('settheme', { detail: t }));
       return say(`Theme set to ${t}.`);
     },
@@ -171,7 +172,7 @@ const commands: Record<string, Command> = {
         { html: '<b>Status</b>' },
         `  model         yohann-1 (the only one)`,
         `  location      Vancouver, BC`,
-        `  theme         ${theme}${document.documentElement.hasAttribute('data-spidey') ? ' + spidey' : ''}`,
+        `  theme         ${theme}${document.documentElement.hasAttribute('data-spidey') ? ' + spidey' : ''}${document.documentElement.hasAttribute('data-sparta') ? ' + ghost of sparta' : ''}`,
         `  trackers      0`,
         `  transferred   ${kb ? `${Math.max(1, Math.round(kb / 1024))} KB` : 'from cache'}`,
         `  uptime        ${Math.round((performance.now() - openedAt) / 1000)}s`,
@@ -267,6 +268,15 @@ const commands: Record<string, Command> = {
       (await eggs()).playKratos();
     },
   },
+  sparta: {
+    help: 'toggle Ghost of Sparta mode',
+    aliases: ['ghost', 'ghostofsparta'],
+    hidden: true,
+    run: async () => {
+      close();
+      (await eggs()).toggleSparta();
+    },
+  },
   eggs: {
     help: 'hints for the secrets',
     hidden: true,
@@ -274,8 +284,9 @@ const commands: Record<string, Command> = {
       say(
         'Things to try:',
         '  • press Shift five times, fast',
-        '  • type "boy" anywhere on the page',
-        '  • /spidey and /kratos, if you want the shortcut',
+        '  • type "boy" anywhere on the page, then close the quote',
+        '  • in either mode, click empty space',
+        '  • /spidey and /sparta, if you want the shortcut',
         '  • /coffee, /vim, /sudo rm -rf /',
       ),
   },
@@ -304,7 +315,7 @@ for (const [name, c] of Object.entries(commands)) {
 const replies: [RegExp, () => Result][] = [
   [/\b(hire|hiring|job|role|recruit\w*|resume|cv)\b/i, () => say('Short version: he is open to a conversation.', 'Run /hire to start one, or /contact for the details.')],
   [/\b(spider|spidey|peter|parker|miles|web|thwip)\b/i, () => say('With great power comes great responsibility.', 'Try pressing Shift five times, fast.')],
-  [/\b(kratos|boy|atreus|god of war|leviathan|sparta\w*)\b/i, () => say('BOY. Try /kratos.')],
+  [/\b(kratos|boy|atreus|god of war|leviathan|sparta\w*)\b/i, () => say('BOY. Type it on the page, or try /sparta.')],
   [/\b(claude|gpt|llm|model|ai|are you real)\b/i, () => say('No model behind this one. It is a few hundred lines of TypeScript and some regexes.', 'Honestly a decent eval baseline.')],
   [/\b(who|about|yohann)\b/i, () => commands.whoami.run([])],
   [/\b(joke|funny)\b/i, () => say('There are two hard problems in AI: evals, naming things, and off-by-one errors.')],

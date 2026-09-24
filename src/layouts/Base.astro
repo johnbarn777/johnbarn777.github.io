@@ -85,6 +85,7 @@ const personLd = {
           var t = localStorage.getItem('theme-preference');
           if (t === 'light' || t === 'dark') d.dataset.theme = t;
           if (sessionStorage.getItem('spidey') === '1') d.dataset.spidey = '';
+          else if (sessionStorage.getItem('sparta') === '1') d.dataset.sparta = '';
         } catch (e) {}
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('motion');
         var dark = d.dataset.theme ? d.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;

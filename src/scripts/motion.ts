@@ -290,11 +290,13 @@ function initTerminalTrigger() {
 
 /**
  * Easter eggs. The listeners are tiny; the eggs themselves load on first use.
- * Shift five times fast toggles Spider-Man mode. Typing "boy" summons Kratos.
+ * Shift five times fast toggles Spider-Man mode. Typing "boy" summons Kratos, and
+ * Ghost of Sparta mode after him; typing it again ends that mode.
  */
 function initEggs() {
   const eggs = () => import('./eggs');
   if (document.documentElement.hasAttribute('data-spidey')) eggs().then((m) => m.mountSpidey());
+  if (document.documentElement.hasAttribute('data-sparta')) eggs().then((m) => m.mountSparta());
 
   let shifts = 0;
   let lastShift = 0;

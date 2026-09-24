@@ -4,7 +4,9 @@
  * Spider-Man mode: Shift five times (or /spidey). A splash spins a web and draws the
  * emblem, then the site turns red and blue until you do it again. Lasts the session.
  *
- * Kratos: type "boy" (or /kratos). Embers, a rune ring, and one line of advice.
+ * Kratos: type "boy" (or /kratos). Embers, a rune ring, and one line of advice. Closing
+ * it leaves the site in Ghost of Sparta mode: ash and blood, the Blades of Chaos, and a
+ * Leviathan Axe you can throw. Type "boy" again to rest. Only one mode at a time.
  */
 
 import '../styles/eggs.css';
@@ -77,22 +79,62 @@ function svgEl(tag: string, attrs: Record<string, string | number>) {
   return e;
 }
 
-/** Our own spider emblem: long upper legs, a dagger body. Not a trademark, just a spider. */
-const SPIDER = `
-  <g class="spx-legs" fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <path pathLength="1" d="M46 36 L30 24 L27 4"/>
-    <path pathLength="1" d="M45 42 L22 36 L10 16"/>
-    <path pathLength="1" d="M45 52 L22 60 L9 82"/>
-    <path pathLength="1" d="M46 60 L31 80 L27 112"/>
-    <path pathLength="1" d="M54 36 L70 24 L73 4"/>
-    <path pathLength="1" d="M55 42 L78 36 L90 16"/>
-    <path pathLength="1" d="M55 52 L78 60 L91 82"/>
-    <path pathLength="1" d="M54 60 L69 80 L73 112"/>
-  </g>
-  <g class="spx-body">
-    <ellipse pathLength="1" cx="50" cy="25" rx="6.5" ry="7.5"/>
-    <path pathLength="1" d="M50 35 C59 37 61 50 57 61 L50 96 L43 61 C39 50 41 37 50 35 Z"/>
-  </g>`;
+/**
+ * The Spider-Verse emblem, redrawn as vectors: a sprayed ring, a bat-eared spider and
+ * long legs that break out of the circle, with paint drips. Drawn in a 2000 x 1125 space
+ * (the reference image) and cropped by the viewBox. Legs are tapered polygons so each one
+ * can grow out of the body on its own.
+ */
+type Leg = [Pt, Pt, Pt]; // body joint, knee, tip (right side; the left side mirrors it)
+const LEGS: Leg[] = [
+  [[1040, 505], [1180, 455], [1062, 82]],
+  [[1075, 535], [1262, 462], [1150, 142]],
+  [[1080, 590], [1282, 590], [1165, 985]],
+  [[1045, 615], [1192, 688], [1075, 1045]],
+];
+
+function taper(a: Pt, b: Pt, wa: number, wb: number) {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy) || 1;
+  const nx = (-dy / len) / 2;
+  const ny = (dx / len) / 2;
+  const p = (q: Pt, w: number, side: number) => `${(q[0] + nx * w * side).toFixed(0)},${(q[1] + ny * w * side).toFixed(0)}`;
+  return `${p(a, wa, 1)} ${p(b, wb, 1)} ${p(b, wb, -1)} ${p(a, wa, -1)}`;
+}
+
+function legShape([body, knee, tip]: Leg) {
+  return `<polygon points="${taper(body, knee, 30, 40)}"/><circle cx="${knee[0]}" cy="${knee[1]}" r="20"/><polygon points="${taper(knee, tip, 40, 3)}"/>`;
+}
+
+const mirror = (leg: Leg): Leg => leg.map(([x, y]) => [2000 - x, y]) as Leg;
+
+function spiderMark(withRing: boolean, id: string) {
+  const legs = LEGS.flatMap((leg, i) => [
+    `<g class="spx-leg" style="--i:${i};transform-origin:${leg[0][0]}px ${leg[0][1]}px">${legShape(leg)}</g>`,
+    `<g class="spx-leg" style="--i:${i};transform-origin:${2000 - leg[0][0]}px ${leg[0][1]}px">${legShape(mirror(leg))}</g>`,
+  ]).join('');
+  const ring = withRing
+    ? `<ellipse class="spx-ring-mark" cx="1005" cy="555" rx="372" ry="368" pathLength="1"/>`
+    : '';
+  const viewBox = withRing ? '560 60 880 1010' : '700 60 600 1000';
+  return `<svg viewBox="${viewBox}" aria-hidden="true">
+    <defs><filter id="${id}" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" scale="9"/>
+    </filter></defs>
+    <g class="spx-mark" filter="url(#${id})">
+      ${ring}
+      ${legs}
+      <g class="spx-core">
+        <path d="M958 472 C952 432 962 404 974 384 L990 424 L1010 424 L1026 384 C1038 404 1048 432 1042 472 Z"/>
+        <path d="M1000 468 C1070 470 1105 520 1100 570 C1096 615 1062 650 1030 655 L1020 690 L1010 668 L1004 700 L992 668 L975 745 L968 660 C935 650 902 615 900 570 C896 520 930 470 1000 468 Z"/>
+        <path class="spx-drip" d="M766 470 h10 l-2 50 q-3 6 -6 0 Z"/>
+        <path class="spx-drip" d="M960 650 h10 l-1 90 q-4 7 -8 0 Z"/>
+      </g>
+    </g>
+  </svg>`;
+}
 
 /* ==========================================================================
    Spider-Man mode
@@ -120,19 +162,24 @@ export function toggleSpidey(on = !root.hasAttribute('data-spidey')) {
   );
 }
 
-function applySpidey(on: boolean) {
-  root.toggleAttribute('data-spidey', on);
+function remember(key: string, on: boolean) {
   try {
-    if (on) sessionStorage.setItem('spidey', '1');
-    else sessionStorage.removeItem('spidey');
+    if (on) sessionStorage.setItem(key, '1');
+    else sessionStorage.removeItem(key);
   } catch {
     /* storage can be unavailable; the mode still applies to this page */
   }
+}
+
+function applySpidey(on: boolean, quiet = false) {
+  if (on && root.hasAttribute('data-sparta')) applySparta(false, true);
+  root.toggleAttribute('data-spidey', on);
+  remember('spidey', on);
   // The background shader re-reads its colours on this event.
   document.dispatchEvent(new CustomEvent('themechange'));
   if (on) mountSpidey();
   else unmountSpidey();
-  toast(on ? 'Spider-Man mode. Shift five times (or /spidey) to swing back.' : 'Back to normal. Your friendly neighbourhood portfolio.');
+  if (!quiet) toast(on ? 'Spider-Man mode. Shift five times (or /spidey) to swing back.' : 'Back to normal. Your friendly neighbourhood portfolio.');
 }
 
 function splashOn() {
@@ -156,7 +203,7 @@ function splashOn() {
   });
   overlay.appendChild(svg);
 
-  overlay.appendChild(el('div', 'spx-emblem', `<svg viewBox="0 0 100 116">${SPIDER}</svg>`));
+  overlay.appendChild(el('div', 'spx-emblem', spiderMark(true, 'spx-spray')));
   overlay.appendChild(el('div', 'spx-thwip', 'THWIP!'));
   return overlay;
 }
@@ -184,7 +231,7 @@ export function mountSpidey() {
   }
 
   // A small spider on a thread, hanging from the top.
-  const hang = el('div', 'spx-hang', `<i class="spx-thread"></i><svg viewBox="0 0 100 116">${SPIDER}</svg>`);
+  const hang = el('div', 'spx-hang', `<i class="spx-thread"></i>${spiderMark(false, 'spx-spray-sm')}`);
   decor.appendChild(hang);
 
   document.body.appendChild(decor);
@@ -228,7 +275,9 @@ const QUOTE = 'We win because we are determined. Disciplined. Not because we fee
 
 let kratosOpen = false;
 
+/** The quote, then Ghost of Sparta mode. If the mode is already on, this turns it off. */
 export function playKratos() {
+  if (root.hasAttribute('data-sparta')) return toggleSparta(false);
   if (kratosOpen) return;
   kratosOpen = true;
   const still = reduce();
@@ -265,7 +314,7 @@ export function playKratos() {
         <blockquote><p>${words}</p></blockquote>
         <figcaption>Kratos</figcaption>
       </figure>
-      <p class="gow-hint">Press any key or tap to return</p>
+      <p class="gow-hint">Press any key or tap to rise</p>
     </div>`;
   overlay.prepend(canvas);
   document.body.appendChild(overlay);
@@ -284,6 +333,7 @@ export function playKratos() {
     document.removeEventListener('keydown', onKey, true);
     overlay.removeEventListener('click', close);
     overlay.classList.add('is-leaving');
+    applySparta(true);
     window.setTimeout(
       () => {
         stopEmbers();
@@ -306,6 +356,153 @@ export function playKratos() {
   };
   document.addEventListener('keydown', onKey, true);
   overlay.addEventListener('click', close);
+}
+
+/* ==========================================================================
+   Ghost of Sparta mode
+   ========================================================================== */
+
+/** Leviathan Axe, head up: a bearded blade with a frost edge, a spike, a wrapped haft. */
+const AXE = `
+  <path class="gos-haft" d="M20 14h5v80h-5z"/>
+  <path class="gos-wrap" d="M19.5 54h6M19.5 59h6M19.5 64h6M19.5 69h6M19.5 74h6M19.5 79h6"/>
+  <path class="gos-pommel" d="M18 91h9l-1.5 7h-6z"/>
+  <path class="gos-steel" d="M20 16 L11 18 L6 23 L11 28 L20 30 Z"/>
+  <path class="gos-steel" d="M25 11 C33 9 40 5 44 0 C42 13 43 27 41 38 C40.5 45 42.5 51 45 56 C37 52 31 46 29 40 L25 38 Z"/>
+  <path class="gos-edge" d="M44 0 C42 13 43 27 41 38 C40.5 45 42.5 51 45 56"/>
+  <circle class="gos-rune" cx="34" cy="24" r="5"/>
+  <path class="gos-rune" d="M34 19v10M29 24h10"/>
+  <rect class="gos-steel" x="18" y="8" width="9" height="32" rx="2"/>`;
+
+/** One Blade of Chaos: a hooked, serrated blade, a short grip and a ring for the chain. */
+const BLADE = `
+  <path class="gos-blade" d="M21 46 C19 34 20 22 26 12 C28 8 30 5 29 1 C35 8 36 18 32 26 L34 28 L30 31 L31 34 C29 38 26 42 25 46 Z"/>
+  <path class="gos-glow" d="M29 1 C35 8 36 18 32 26 L34 28 L30 31 L31 34 C29 38 26 42 25 46"/>
+  <path class="gos-guard" d="M14 46h18l-2 4H16z"/>
+  <path class="gos-grip" d="M20 50h6v14h-6z"/>
+  <circle class="gos-ring" cx="23" cy="68" r="3.5"/>`;
+
+/** Kratos's red tattoo: down from the top, around the eye, and on down the body. */
+const TATTOO = `<path d="M18 0 V70 C18 104 52 112 56 84 C59 62 34 58 32 78" /><path d="M18 70 V1000" />`;
+
+const svgIcon = (inner: string, viewBox: string, cls: string) =>
+  `<svg class="${cls}" viewBox="${viewBox}" aria-hidden="true">${inner}</svg>`;
+
+let spartaDecor: HTMLElement | null = null;
+let spartaBusy = false;
+let axeFlying = false;
+
+export function toggleSparta(on = !root.hasAttribute('data-sparta')) {
+  if (on) return playKratos();
+  if (spartaBusy) return;
+  if (reduce()) return applySparta(false);
+  spartaBusy = true;
+  const ash = el('div', 'gos-ash');
+  ash.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(ash);
+  window.setTimeout(() => applySparta(false), 420);
+  window.setTimeout(() => {
+    ash.remove();
+    spartaBusy = false;
+  }, 1000);
+}
+
+function applySparta(on: boolean, quiet = false) {
+  if (on && root.hasAttribute('data-spidey')) applySpidey(false, true);
+  root.toggleAttribute('data-sparta', on);
+  remember('sparta', on);
+  document.dispatchEvent(new CustomEvent('themechange'));
+  if (on) mountSparta();
+  else unmountSparta();
+  if (!quiet) toast(on ? 'Ghost of Sparta. Click anywhere to throw the axe. Type "boy" to rest.' : 'The cycle ends here.');
+}
+
+export function mountSparta() {
+  if (spartaDecor) return;
+  spartaDecor = el('div', 'gos-decor');
+  spartaDecor.setAttribute('aria-hidden', 'true');
+  spartaDecor.innerHTML = `
+    ${svgIcon(TATTOO, '0 0 64 1000', 'gos-tattoo')}
+    <div class="gos-blades">
+      ${svgIcon(BLADE, '0 0 46 74', 'gos-b gos-b-l')}
+      ${svgIcon(BLADE, '0 0 46 74', 'gos-b gos-b-r')}
+      <svg class="gos-chain" viewBox="0 0 120 60" aria-hidden="true"><path d="M30 44 C42 60 78 60 90 44" pathLength="1"/></svg>
+    </div>
+    <div class="gos-axe">${svgIcon(AXE, '0 0 46 100', 'gos-axe-svg')}</div>`;
+  document.body.appendChild(spartaDecor);
+  document.addEventListener('click', throwAxe);
+}
+
+function unmountSparta() {
+  spartaDecor?.remove();
+  spartaDecor = null;
+  document.removeEventListener('click', throwAxe);
+}
+
+/** Click on empty space: the axe leaves its corner, spins in, bites, and comes back. */
+function throwAxe(e: MouseEvent) {
+  if (reduce() || axeFlying || e.button !== 0 || !spartaDecor) return;
+  const t = e.target as HTMLElement;
+  if (t.closest('a, button, input, textarea, select, label, summary, dialog, [role="button"], [tabindex]:not([tabindex="-1"])')) return;
+  if (window.getSelection()?.toString()) return;
+  const home = spartaDecor.querySelector<HTMLElement>('.gos-axe');
+  if (!home) return;
+
+  axeFlying = true;
+  const r = home.getBoundingClientRect();
+  const ox = r.left + r.width / 2;
+  const oy = r.top + r.height / 2;
+  const dx = e.clientX - ox;
+  const dy = e.clientY - oy;
+  const rest = -35;
+  const spin = dx < 0 ? -1080 : 1080;
+
+  const fly = el('div', 'gos-fly', svgIcon(AXE, '0 0 46 100', 'gos-axe-svg'));
+  fly.style.left = `${r.left}px`;
+  fly.style.top = `${r.top}px`;
+  fly.style.width = `${r.width}px`;
+  fly.style.height = `${r.height}px`;
+  document.body.appendChild(fly);
+  home.classList.add('is-thrown');
+
+  const out = fly.animate(
+    [{ transform: `translate(0, 0) rotate(${rest}deg)` }, { transform: `translate(${dx}px, ${dy}px) rotate(${rest + spin}deg)` }],
+    { duration: 420, easing: 'cubic-bezier(0.25, 0.1, 0.5, 1)', fill: 'forwards' },
+  );
+  out.onfinish = () => {
+    frost(e.clientX, e.clientY);
+    window.setTimeout(() => {
+      const back = fly.animate(
+        [
+          { transform: `translate(${dx}px, ${dy}px) rotate(${rest + spin}deg)` },
+          { transform: `translate(0, 0) rotate(${rest}deg)` },
+        ],
+        { duration: 480, easing: 'cubic-bezier(0.5, 0, 0.75, 0)', fill: 'forwards' },
+      );
+      back.onfinish = () => {
+        fly.remove();
+        home.classList.remove('is-thrown');
+        home.classList.add('is-caught');
+        window.setTimeout(() => home.classList.remove('is-caught'), 400);
+        axeFlying = false;
+      };
+    }, 650);
+  };
+}
+
+/** A burst of ice where the axe lands. */
+function frost(x: number, y: number) {
+  const svg = svgEl('svg', { class: 'gos-frost', width: 120, height: 120, viewBox: '-60 -60 120 120', 'aria-hidden': 'true' });
+  (svg as SVGElement).style.left = `${x - 60}px`;
+  (svg as SVGElement).style.top = `${y - 60}px`;
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2 + Math.random() * 0.3;
+    const len = 22 + Math.random() * 30;
+    svg.appendChild(svgEl('path', { d: `M0 0L${(Math.cos(a) * len).toFixed(1)} ${(Math.sin(a) * len).toFixed(1)}` }));
+  }
+  svg.appendChild(svgEl('circle', { r: 14 }));
+  document.body.appendChild(svg);
+  window.setTimeout(() => svg.remove(), 900);
 }
 
 /** Rising embers, with a burst when the sigil lands. Returns a stop function. */
