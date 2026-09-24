@@ -288,6 +288,43 @@ function initTerminalTrigger() {
   });
 }
 
+/**
+ * Easter eggs. The listeners are tiny; the eggs themselves load on first use.
+ * Shift five times fast toggles Spider-Man mode. Typing "boy" summons Kratos, and
+ * Ghost of Sparta mode after him; typing it again ends that mode.
+ */
+function initEggs() {
+  const eggs = () => import('./eggs');
+  if (document.documentElement.hasAttribute('data-spidey')) eggs().then((m) => m.mountSpidey());
+  if (document.documentElement.hasAttribute('data-sparta')) eggs().then((m) => m.mountSparta());
+
+  let shifts = 0;
+  let lastShift = 0;
+  let typed = '';
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Shift') {
+      if (e.repeat) return;
+      const now = performance.now();
+      shifts = now - lastShift < 600 ? shifts + 1 : 1;
+      lastShift = now;
+      if (shifts >= 5) {
+        shifts = 0;
+        eggs().then((m) => m.toggleSpidey());
+      }
+      return;
+    }
+    shifts = 0;
+    const t = e.target as HTMLElement;
+    if (e.key.length !== 1 || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (t.closest('input, textarea, select, [contenteditable="true"], dialog')) return;
+    typed = (typed + e.key.toLowerCase()).slice(-3);
+    if (typed === 'boy') {
+      typed = '';
+      eggs().then((m) => m.playKratos());
+    }
+  });
+}
+
 export function initMotion() {
   document.documentElement.classList.toggle('motion', !reduceMotion());
   initTheme();
@@ -299,4 +336,5 @@ export function initMotion() {
   initMenu();
   initCopy();
   initTerminalTrigger();
+  initEggs();
 }

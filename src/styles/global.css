@@ -197,6 +197,157 @@
   --gl-accent: 143 207 176;
 }
 
+/* Spider-Man mode (Shift five times). Red and blue, on every page and in both themes. */
+:root[data-spidey] {
+  --bg: #fdf9f8;
+  --bg-sunk: #f6eeee;
+  --accent: #c8102e;
+  --accent-ink: #a50d26;
+  --accent-soft: rgb(200 16 46 / 0.09);
+  --accent-line: rgb(200 16 46 / 0.35);
+  --accent-grad: linear-gradient(100deg, #b30f2a 0%, #e3263f 45%, #1d4fa8 100%);
+  --btn-bg: #c8102e;
+  --btn-bg-hover: #a50d26;
+  --btn-ink: #ffffff;
+  --nav-bg: rgb(253 249 248 / 0.72);
+  --gl-ink: 29 79 168;
+  --gl-accent: 200 16 46;
+  --gl-ink-alpha: 0.08;
+  --gl-accent-alpha: 0.34;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-spidey]:not([data-theme='light']) {
+    --bg: #0a0d1a;
+    --bg-elev: #121629;
+    --bg-sunk: #0d1020;
+    --card: rgb(18 22 41 / 0.84);
+    --accent: #ff5468;
+    --accent-ink: #ff7385;
+    --accent-soft: rgb(255 84 104 / 0.1);
+    --accent-line: rgb(255 84 104 / 0.4);
+    --accent-grad: linear-gradient(100deg, #ff8a98 0%, #ff4058 45%, #5c8dff 100%);
+    --btn-bg: #e3263f;
+    --btn-bg-hover: #ff4058;
+    --btn-ink: #ffffff;
+    --nav-bg: rgb(10 13 26 / 0.7);
+    --gl-ink: 120 160 255;
+    --gl-accent: 255 64 88;
+    --gl-ink-alpha: 0.07;
+  }
+}
+
+:root[data-spidey][data-theme='dark'] {
+  --bg: #0a0d1a;
+  --bg-elev: #121629;
+  --bg-sunk: #0d1020;
+  --card: rgb(18 22 41 / 0.84);
+  --accent: #ff5468;
+  --accent-ink: #ff7385;
+  --accent-soft: rgb(255 84 104 / 0.1);
+  --accent-line: rgb(255 84 104 / 0.4);
+  --accent-grad: linear-gradient(100deg, #ff8a98 0%, #ff4058 45%, #5c8dff 100%);
+  --btn-bg: #e3263f;
+  --btn-bg-hover: #ff4058;
+  --btn-ink: #ffffff;
+  --nav-bg: rgb(10 13 26 / 0.7);
+  --gl-ink: 120 160 255;
+  --gl-accent: 255 64 88;
+  --gl-ink-alpha: 0.07;
+}
+
+/* Ghost of Sparta mode (type "boy"). Ash and blood, carved serif headings. */
+:root[data-sparta] {
+  --font-carved: 'Trajan Pro', 'Cinzel', Optima, Candara, Georgia, 'Times New Roman', serif;
+  --bg: #ece8e2;
+  --bg-elev: #f6f3ee;
+  --bg-sunk: #e3ded6;
+  --card: rgb(246 243 238 / 0.86);
+  --ink: #1b1715;
+  --ink-2: #3d3531;
+  --muted: #5f5650;
+  --faint: #6b625b;
+  --word-dim: #a39a92;
+  --hair: rgb(40 20 10 / 0.1);
+  --hair-strong: rgb(40 20 10 / 0.18);
+  --accent: #a3180f;
+  --accent-ink: #8a130c;
+  --accent-soft: rgb(163 24 15 / 0.09);
+  --accent-line: rgb(163 24 15 / 0.35);
+  --accent-grad: linear-gradient(100deg, #7d120b 0%, #b3261e 50%, #a8741f 100%);
+  --btn-bg: #a3180f;
+  --btn-bg-hover: #8a130c;
+  --btn-ink: #ffffff;
+  --nav-bg: rgb(236 232 226 / 0.72);
+  --gl-ink: 60 40 30;
+  --gl-accent: 163 24 15;
+  --gl-ink-alpha: 0.07;
+  --gl-accent-alpha: 0.32;
+  --gos-blood: #a3180f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-sparta]:not([data-theme='light']) {
+    --bg: #0f0c0b;
+    --bg-elev: #1a1513;
+    --bg-sunk: #140f0e;
+    --card: rgb(26 21 19 / 0.84);
+    --ink: #efe6d8;
+    --ink-2: #d6cabb;
+    --muted: #a89b8c;
+    --faint: #8f8274;
+    --word-dim: #5e544b;
+    --hair: rgb(239 230 216 / 0.09);
+    --hair-strong: rgb(239 230 216 / 0.16);
+    --accent: #e0463a;
+    --accent-ink: #ef6a5c;
+    --accent-soft: rgb(224 70 58 / 0.1);
+    --accent-line: rgb(224 70 58 / 0.4);
+    --accent-grad: linear-gradient(100deg, #f2d49b 0%, #e0463a 50%, #b3261e 100%);
+    --btn-bg: #b3261e;
+    --btn-bg-hover: #c9332a;
+    --btn-ink: #ffffff;
+    --nav-bg: rgb(15 12 11 / 0.7);
+    --gl-ink: 239 230 216;
+    --gl-accent: 224 70 58;
+    --gl-ink-alpha: 0.05;
+    --gos-blood: #c4221b;
+  }
+}
+
+:root[data-sparta][data-theme='dark'] {
+  --bg: #0f0c0b;
+  --bg-elev: #1a1513;
+  --bg-sunk: #140f0e;
+  --card: rgb(26 21 19 / 0.84);
+  --ink: #efe6d8;
+  --ink-2: #d6cabb;
+  --muted: #a89b8c;
+  --faint: #8f8274;
+  --word-dim: #5e544b;
+  --hair: rgb(239 230 216 / 0.09);
+  --hair-strong: rgb(239 230 216 / 0.16);
+  --accent: #e0463a;
+  --accent-ink: #ef6a5c;
+  --accent-soft: rgb(224 70 58 / 0.1);
+  --accent-line: rgb(224 70 58 / 0.4);
+  --accent-grad: linear-gradient(100deg, #f2d49b 0%, #e0463a 50%, #b3261e 100%);
+  --btn-bg: #b3261e;
+  --btn-bg-hover: #c9332a;
+  --btn-ink: #ffffff;
+  --nav-bg: rgb(15 12 11 / 0.7);
+  --gl-ink: 239 230 216;
+  --gl-accent: 224 70 58;
+  --gl-ink-alpha: 0.05;
+  --gos-blood: #c4221b;
+}
+
+:root[data-sparta] :is(h1, h2) {
+  font-family: var(--font-carved);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
 /* ==========================================================================
    Base
    ========================================================================== */
