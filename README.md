@@ -17,7 +17,7 @@ Live at <https://johnbarn777.github.io>.
 
 - **Astro 5**, static output, deployed to GitHub Pages by `.github/workflows/deploy.yml` on every push to `main`.
 - **Hand-written CSS** with design tokens in `src/styles/global.css`. No CSS framework.
-- **Vanilla TypeScript** for motion and interaction (`src/scripts/`), about 7 KB gzipped on the home page. The terminal easter egg is split out and loads on first use.
+- **Vanilla TypeScript** for motion and interaction (`src/scripts/`), about 7 KB gzipped on the home page. The terminal (press `` ` ``, Claude Code style slash commands) and the other easter eggs (`src/scripts/eggs.ts`: Shift five times for Spider-Man mode, type "boy" for Kratos) are split out and load on first use.
 - **WebGL2 background** (`src/scripts/background.ts`): a fragment shader draws contour lines of a noise field. Scrolling moves across the terrain, the pointer raises a hill, and it idles down when nothing moves. Falls back to a plain background without WebGL and renders a single still frame under `prefers-reduced-motion`.
 - **Self-hosted fonts**: Inter (opsz + wght) and JetBrains Mono, subset to Latin and trimmed to the weights in use (`public/fonts/`).
 

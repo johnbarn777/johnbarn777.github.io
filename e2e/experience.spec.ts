@@ -73,16 +73,69 @@ test.describe('interactive pieces', () => {
     await page.keyboard.press('`');
     const dialog = page.getByRole('dialog', { name: /yohann@portfolio/ });
     await expect(dialog).toBeVisible();
-    const input = dialog.getByRole('textbox', { name: 'Command' });
+    const input = dialog.getByRole('combobox', { name: 'Command' });
     await expect(input).toBeFocused();
-    await input.fill('whoami');
+    const log = dialog.getByRole('log');
+    await input.fill('/whoami');
     await input.press('Enter');
-    await expect(dialog.getByRole('log')).toContainText('AI Solutions Specialist at Mark Anthony Group');
-    await input.fill('nonsense');
+    await expect(log).toContainText('AI Solutions Specialist at Mark Anthony Group');
+    // Bare words still work, like a shell.
+    await input.fill('principles');
     await input.press('Enter');
-    await expect(dialog.getByRole('log')).toContainText('command not found');
+    await expect(log).toContainText('Prove it before you pick it.');
+    await input.fill('/nonsense');
+    await input.press('Enter');
+    await expect(log).toContainText('Unknown command: /nonsense');
+    await input.fill('what is this');
+    await input.press('Enter');
+    await expect(log).toContainText('not a model');
     await page.keyboard.press('Escape');
     await expect(dialog).toBeHidden();
+  });
+
+  test('typing / opens the command menu', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'keyboard shortcut');
+    await page.goto('/');
+    await page.keyboard.press('`');
+    const dialog = page.getByRole('dialog', { name: /yohann@portfolio/ });
+    const input = dialog.getByRole('combobox', { name: 'Command' });
+    await input.pressSequentially('/pri');
+    const menu = dialog.getByRole('listbox', { name: 'Commands' });
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole('option')).toHaveCount(1);
+    await input.press('Enter');
+    await expect(dialog.getByRole('log')).toContainText('Simplest thing that works.');
+    await input.pressSequentially('/');
+    await expect(menu).toBeVisible();
+    // Esc closes the menu first, then the terminal.
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(dialog).toBeVisible();
+  });
+
+  test('shift five times toggles Spider-Man mode', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'keyboard shortcut');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    for (let i = 0; i < 5; i++) await page.keyboard.press('Shift');
+    await expect(page.locator('html')).toHaveAttribute('data-spidey', '');
+    await expect(page.getByRole('status').filter({ hasText: 'Spider-Man mode' })).toBeVisible();
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-spidey', '');
+    for (let i = 0; i < 5; i++) await page.keyboard.press('Shift');
+    await expect(page.locator('html')).not.toHaveAttribute('data-spidey');
+  });
+
+  test('typing boy summons Kratos', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'keyboard shortcut');
+    await page.goto('/');
+    await page.keyboard.type('boy');
+    const quote = page.getByRole('dialog', { name: /Kratos/ });
+    await expect(quote).toBeVisible();
+    await expect(quote).toContainText('We win because we are determined. Disciplined. Not because we feel ourselves superior.');
+    await page.waitForTimeout(1000);
+    await page.keyboard.press('Escape');
+    await expect(quote).toBeHidden();
   });
 
   test('terminal opens from the footer button', async ({ page }) => {

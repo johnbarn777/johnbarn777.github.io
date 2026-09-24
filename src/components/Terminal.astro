@@ -13,17 +13,26 @@
     </div>
     <div class="term-out" data-term-out role="log" aria-live="polite"></div>
     <form class="term-form" autocomplete="off">
-      <label for="term-input" class="t-prompt">~ $</label>
-      <input
-        id="term-input"
-        data-term-input
-        type="text"
-        spellcheck="false"
-        autocapitalize="off"
-        autocorrect="off"
-        enterkeyhint="send"
-        aria-label="Command"
-      />
+      <div class="term-box">
+        <label for="term-input" class="t-prompt">&gt;</label>
+        <input
+          id="term-input"
+          data-term-input
+          type="text"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-controls="term-menu"
+          aria-expanded="false"
+          spellcheck="false"
+          autocapitalize="off"
+          autocorrect="off"
+          enterkeyhint="send"
+          aria-label="Command"
+          placeholder="Try /help"
+        />
+      </div>
+      <ul id="term-menu" class="term-menu" data-term-menu role="listbox" aria-label="Commands" hidden></ul>
+      <p class="term-hint" data-term-hint aria-hidden="true"><span>? for shortcuts</span><span>✻ static · 0 trackers</span></p>
     </form>
   </div>
 </dialog>
@@ -164,30 +173,163 @@
     color: #8ebbe8;
   }
 
+  .t-dim {
+    color: #8a8a90;
+  }
+
+  .t-warn {
+    color: #e8b86e;
+  }
+
+  .t-cmd {
+    color: #d97757;
+  }
+
+  .t-dot {
+    color: #f5f5f7;
+  }
+
+  .t-dot-tool {
+    color: #7fcf9f;
+  }
+
+  .t-line b {
+    color: #f5f5f7;
+    font-weight: 600;
+  }
+
+  .t-welcome {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid #d97757;
+    border-radius: 10px;
+    white-space: normal;
+  }
+
+  .t-star,
+  .t-glyph {
+    color: #d97757;
+  }
+
+  .t-glyph {
+    display: inline-block;
+    width: 1ch;
+  }
+
+  .t-spin {
+    color: #d97757;
+  }
+
+  .motion .term-out .t-line {
+    animation: t-line-in 0.25s var(--ease-out);
+  }
+
+  @keyframes t-line-in {
+    from {
+      opacity: 0;
+      transform: translateY(3px);
+    }
+  }
+
   .term-form {
+    position: relative;
+    padding: 0.5rem 1rem 0.75rem;
+  }
+
+  .term-box {
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.5rem 1.25rem 1rem;
+    padding: 0 0.85rem;
+    border: 1px solid #3a3a3f;
+    border-radius: 10px;
+    transition: border-color 0.2s;
   }
 
-  .term-form input {
+  .term-form:focus-within .term-box {
+    border-color: #6e6e75;
+  }
+
+  .term-box input {
     flex: 1;
     min-width: 0;
-    min-height: 40px;
+    min-height: 42px;
     border: 0;
     background: transparent;
     color: #f5f5f7;
     font: inherit;
     font-size: 16px;
-    caret-color: #8ebbe8;
+    caret-color: #d97757;
   }
 
-  .term-form input:focus {
+  .term-box input::placeholder {
+    color: #6e6e75;
+  }
+
+  .term-box input:focus {
     outline: none;
   }
 
   .term-form:focus-within .t-prompt {
     color: #cfe3f7;
+  }
+
+  .term-hint {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.35rem 0.25rem 0;
+    font-size: 0.75rem;
+    color: #8a8a90;
+  }
+
+  .term-hint[hidden] {
+    display: none;
+  }
+
+  .term-menu {
+    max-height: 11rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+    font-size: 0.8125rem;
+  }
+
+  .term-menu li {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, auto) 1fr;
+    gap: 1rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .term-menu li[aria-selected='true'] {
+    background: rgb(217 119 87 / 0.14);
+  }
+
+  .term-menu li[aria-selected='true'] .t-cmd {
+    color: #f0a081;
+  }
+
+  .term-menu li > .t-dim {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 30rem) {
+    .term-hint span:last-child {
+      display: none;
+    }
+
+    .term-menu li {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
   }
 </style>

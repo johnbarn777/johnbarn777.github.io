@@ -197,6 +197,65 @@
   --gl-accent: 143 207 176;
 }
 
+/* Spider-Man mode (Shift five times). Red and blue, on every page and in both themes. */
+:root[data-spidey] {
+  --bg: #fdf9f8;
+  --bg-sunk: #f6eeee;
+  --accent: #c8102e;
+  --accent-ink: #a50d26;
+  --accent-soft: rgb(200 16 46 / 0.09);
+  --accent-line: rgb(200 16 46 / 0.35);
+  --accent-grad: linear-gradient(100deg, #b30f2a 0%, #e3263f 45%, #1d4fa8 100%);
+  --btn-bg: #c8102e;
+  --btn-bg-hover: #a50d26;
+  --btn-ink: #ffffff;
+  --nav-bg: rgb(253 249 248 / 0.72);
+  --gl-ink: 29 79 168;
+  --gl-accent: 200 16 46;
+  --gl-ink-alpha: 0.08;
+  --gl-accent-alpha: 0.34;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-spidey]:not([data-theme='light']) {
+    --bg: #0a0d1a;
+    --bg-elev: #121629;
+    --bg-sunk: #0d1020;
+    --card: rgb(18 22 41 / 0.84);
+    --accent: #ff5468;
+    --accent-ink: #ff7385;
+    --accent-soft: rgb(255 84 104 / 0.1);
+    --accent-line: rgb(255 84 104 / 0.4);
+    --accent-grad: linear-gradient(100deg, #ff8a98 0%, #ff4058 45%, #5c8dff 100%);
+    --btn-bg: #e3263f;
+    --btn-bg-hover: #ff4058;
+    --btn-ink: #ffffff;
+    --nav-bg: rgb(10 13 26 / 0.7);
+    --gl-ink: 120 160 255;
+    --gl-accent: 255 64 88;
+    --gl-ink-alpha: 0.07;
+  }
+}
+
+:root[data-spidey][data-theme='dark'] {
+  --bg: #0a0d1a;
+  --bg-elev: #121629;
+  --bg-sunk: #0d1020;
+  --card: rgb(18 22 41 / 0.84);
+  --accent: #ff5468;
+  --accent-ink: #ff7385;
+  --accent-soft: rgb(255 84 104 / 0.1);
+  --accent-line: rgb(255 84 104 / 0.4);
+  --accent-grad: linear-gradient(100deg, #ff8a98 0%, #ff4058 45%, #5c8dff 100%);
+  --btn-bg: #e3263f;
+  --btn-bg-hover: #ff4058;
+  --btn-ink: #ffffff;
+  --nav-bg: rgb(10 13 26 / 0.7);
+  --gl-ink: 120 160 255;
+  --gl-accent: 255 64 88;
+  --gl-ink-alpha: 0.07;
+}
+
 /* ==========================================================================
    Base
    ========================================================================== */
