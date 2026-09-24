@@ -276,7 +276,7 @@ const QUOTE = 'We win because we are determined. Disciplined. Not because we fee
 let kratosOpen = false;
 
 /** The quote, then Ghost of Sparta mode. If the mode is already on, this turns it off. */
-export function playKratos() {
+export function playKratos(): void {
   if (root.hasAttribute('data-sparta')) return toggleSparta(false);
   if (kratosOpen) return;
   kratosOpen = true;
@@ -392,7 +392,7 @@ let spartaDecor: HTMLElement | null = null;
 let spartaBusy = false;
 let axeFlying = false;
 
-export function toggleSparta(on = !root.hasAttribute('data-sparta')) {
+export function toggleSparta(on = !root.hasAttribute('data-sparta')): void {
   if (on) return playKratos();
   if (spartaBusy) return;
   if (reduce()) return applySparta(false);
