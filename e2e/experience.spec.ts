@@ -49,6 +49,15 @@ test.describe('theme', () => {
 });
 
 test.describe('motion', () => {
+  test('the background draws, even without a GPU', async ({ page }) => {
+    // The test browser renders WebGL in software, like a machine with hardware
+    // acceleration off. It should get a still frame, not an empty background.
+    await page.goto('/');
+    const canvas = page.locator('#bg-canvas');
+    await expect(canvas).toHaveClass(/is-ready/, { timeout: 5000 });
+    await expect(canvas).toHaveCSS('opacity', '1');
+  });
+
   test('reduced motion shows everything in its final state', async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
