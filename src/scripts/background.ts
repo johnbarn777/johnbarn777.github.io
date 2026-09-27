@@ -178,15 +178,12 @@ export function initBackground(canvas: HTMLCanvasElement) {
     return;
   }
 
-  // Software rasterisers (no GPU: some VMs, blocklisted drivers, headless audits) would
-  // spend the main thread drawing every frame. The page looks fine without the terrain.
+  // Software rasterisers (no GPU: hardware acceleration off, blocklisted drivers, some VMs)
+  // would spend the main thread drawing every frame. They get one still frame instead,
+  // the same as reduced motion, so the terrain is still there.
   const debug = gl.getExtension('WEBGL_debug_renderer_info');
   const renderer = debug ? String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)) : '';
-  if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer)) {
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
-    canvas.remove();
-    return;
-  }
+  const software = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
 
   const vs = compile(gl, gl.VERTEX_SHADER, VERT);
   const fs = compile(gl, gl.FRAGMENT_SHADER, FRAG);
@@ -230,7 +227,7 @@ export function initBackground(canvas: HTMLCanvasElement) {
   };
 
   const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
-  let still = motionQuery.matches;
+  let still = software || motionQuery.matches;
 
   const applyColors = () => {
     const c = readVars();
@@ -413,7 +410,7 @@ export function initBackground(canvas: HTMLCanvasElement) {
   });
 
   motionQuery.addEventListener('change', () => {
-    still = motionQuery.matches;
+    still = software || motionQuery.matches;
     if (still) {
       stop();
       drawStill();
